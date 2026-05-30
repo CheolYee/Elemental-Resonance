@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9fdec1e23df484c8fb68d89c1173092, type: 3}
+  m_Name: _BGM Sounds
+  m_EditorClassIdentifier: SoundSystem::Gamelib.SoundSystem.SoundListSo
+  enumName: BgmSounds
+  sounds:
+  - {fileID: 11400000, guid: 054636b6c642c784caa7583bbf84d513, type: 2}
+  - {fileID: 11400000, guid: 9f402302ad2ec404cbcd9ad093f7a40e, type: 2}
+  - {fileID: 11400000, guid: aa1a71ca9b3b72c4198522de358f9f3e, type: 2}
+  - {fileID: 11400000, guid: d9f5b8ec48d9bcd4ab6bdbd3227d884a, type: 2}
+  - {fileID: 11400000, guid: 7e28c66f5634a9c4cb5d344f840501d5, type: 2}
+  - {fileID: 11400000, guid: e1ec00c7586255d4193a700b9225f7cf, type: 2}
+  - {fileID: 11400000, guid: 4d40812ba63b51246b6944b55fea35e9, type: 2}
+  - {fileID: 11400000, guid: ce46419689d142d4bbf3171f250fc06f, type: 2}
+  - {fileID: 11400000, guid: f407cb08bb5f8a248bd48f7cb1bdde1c, type: 2}
+  - {fileID: 11400000, guid: 7794c818016e9ff46bab44cecba6c071, type: 2}

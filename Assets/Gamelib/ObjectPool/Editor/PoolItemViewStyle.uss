@@ -1,0 +1,63 @@
+.pool-item {
+    flex-direction: row;
+    flex-basis: 35px;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+    align-items: center;
+    border-left-color: rgb(149, 149, 149);
+    border-right-color: rgb(149, 149, 149);
+    border-top-color: rgb(149, 149, 149);
+    border-bottom-color: rgb(149, 149, 149);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    margin-bottom: 5px;
+    transition-duration: 0.3s;
+}
+
+.del-btn {
+    background-color: rgb(185, 27, 27);
+    border-left-color: rgb(123, 21, 21);
+    border-right-color: rgb(123, 21, 21);
+    border-top-color: rgb(123, 21, 21);
+    border-bottom-color: rgb(91, 15, 15);
+    transition-property: background-color;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out;
+}
+
+.del-btn:hover {
+    background-color: rgb(207, 42, 42);
+}
+
+.pool-item.active {
+    border-left-color: rgb(243, 243, 243);
+    border-right-color: rgb(243, 243, 243);
+    border-top-color: rgb(243, 243, 243);
+    border-bottom-color: rgb(243, 243, 243);
+    background-color: rgba(82, 82, 82, 0.7);
+}
+
+.warning-label {
+    background-color: rgb(173, 134, 0);
+    padding-right: 5px;
+    padding-left: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    margin-right: 5px;
+    display: none;
+}
+
+.warning-label.on {
+    display: flex;
+}

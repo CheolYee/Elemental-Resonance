@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:TextField label="State name" placeholder-text="상태의 이름을 대문자로 입력하세요" binding-path="stateName" name="StateNameField"/>
+    <ui:IntegerField label="State Index" name="StateIndexField" binding-path="stateIndex"/>
+    <ui:DropdownField label="ClassName" name="ClassDropdownField" binding-path="className"/>
+    <uie:ObjectField label="State param" name="AnimParamField" binding-path="stateParam" type="_00._Work._Resources._02._Scripts.Systems.AnimationSystems.AnimParamSO, Assembly-CSharp"/>
+</ui:UXML>

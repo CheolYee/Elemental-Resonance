@@ -1,0 +1,10 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement name="Container">
+        <ui:VisualElement name="NameRow" style="flex-grow: 1; flex-direction: row;">
+            <ui:TextField placeholder-text="아이템의 이름을 설정해주세요." name="PoolingName" binding-path="poolingName" style="flex-grow: 1;" />
+            <ui:Button text="변경하기&#10;" name="ChangeBtn" />
+        </ui:VisualElement>
+        <uie:ObjectField label="프리팹" name="PrefabField" binding-path="prefab" type="UnityEngine.GameObject, UnityEngine.CoreModule" />
+        <ui:IntegerField label="초기 생성 개수" readonly="false" name="CountField" binding-path="initCount" />
+    </ui:VisualElement>
+</ui:UXML>

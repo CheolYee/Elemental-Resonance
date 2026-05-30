@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 2dea4947a350c454187840c623c54be4
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 321256
+  packageName: Folder Customizer
+  packageVersion: 3.0
+  assetPath: Assets/HenrizyTools/Editor/FolderCustomizer/README.txt
+  uploadId: 855836
