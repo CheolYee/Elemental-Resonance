@@ -1,0 +1,26 @@
+namespace _00._Work._Resources._02._Scripts.Agents.FSM
+{
+    public class HitState : AgentState
+    {
+        public HitState(Agent agent, int stateClipHash) : base(agent, stateClipHash) { }
+
+        public override void Enter(float transitionDuration, int layerIndex = 0)
+        {
+            base.Enter(transitionDuration, layerIndex);
+            if (_agentTrigger != null)
+                _agentTrigger.OnAnimationEnd += HandleAnimationEnd;
+        }
+
+        private void HandleAnimationEnd()
+        {
+            _agentTrigger.OnAnimationEnd -= HandleAnimationEnd;
+            CompleteState();
+        }
+
+        public override void Exit()
+        {
+            if (_agentTrigger != null)
+                _agentTrigger.OnAnimationEnd -= HandleAnimationEnd;
+        }
+    }
+}

@@ -5,52 +5,52 @@ namespace _00._Work._Resources._02._Scripts.Agents
 {
     public class AgentSensor : MonoBehaviour, IModule
     {
-        [SerializeField] private LayerMask obstacleLayer;
-        [SerializeField] private LayerMask interactableLayer;
-        [SerializeField] private LayerMask targetLayer;
-
-        [SerializeField] private Vector2 boxSize;
-        [SerializeField] private Vector2 boxOffset;
+        [SerializeField] private LayerMask whatIsTarget;
+        [SerializeField] private LayerMask whatIsObstacle;
+        [SerializeField] private int maxColliderCount = 5;
         
         private ModuleOwner _owner;
+        private Collider[] _colliderResults;
+        public Collider[] ColliderResults => _colliderResults;
         
         public void Initialize(ModuleOwner owner)
         {
-            _owner = owner;    
+            _owner = owner;
+            Debug.Assert(maxColliderCount > 0, "[AgentSensor] cannot have more than 0 colliders");
+            _colliderResults = new Collider[maxColliderCount];
         }
 
-        public bool IsObstaclePresent(Vector2 direction, out Collider2D hitCollider)
+        public bool IsTargetInViewAngle(Transform targetTrm, float viewAngle)
         {
-            Vector2 position = (Vector2)transform.position + direction + boxOffset;
-            hitCollider = Physics2D.OverlapBox(position, boxSize, 0, obstacleLayer);
-            return hitCollider != null;
+            Vector3 direction = targetTrm.position - transform.position;
+            direction.y = 0;
+            float angle = Vector3.Angle(transform.forward, direction);
+            return angle <= viewAngle * 0.5f;
         }
-
-        public float BoxCastObstacle(Vector2 direction, float distance, out RaycastHit2D hit)
+        
+        public bool IsTargetIsInSight(Transform targetTrm)
         {
-            hit = Physics2D.BoxCast((Vector2)transform.position + boxOffset, boxSize, 0, direction, distance, obstacleLayer);
+            Vector3 targetPos = targetTrm.position;
+            targetPos.y = transform.position.y;
             
-            distance = hit ? hit.distance : distance;
-            return distance;
+            Vector3 direction = targetPos - transform.position;
+            float distance = direction.magnitude;
+            
+            if (Physics.Raycast(transform.position, direction.normalized, out RaycastHit hit, distance, whatIsObstacle))
+            {
+                Debug.Log(hit.collider.gameObject.name);
+                return false; // 장애물에 가려져 있음
+            }
+            
+            return true;
         }
-
-        public bool IsTargetInRange(float range, out Collider2D hitCollider)
-        {
-            hitCollider = Physics2D.OverlapCircle(transform.position, range, targetLayer);
-            return hitCollider != null;
-        }
-
-        public bool IsTargetInSight(Vector3 startPosition, float range, Collider2D target)
-        {
-            Vector2 direction = target.transform.position - startPosition;
-            RaycastHit2D hit = Physics2D.Raycast(startPosition, direction.normalized, direction.magnitude, obstacleLayer);
-            return hit.collider == null; //타겟과 나 사이에 아무런 장애물이 없을 경우 null이 나온다.
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(transform.position + (Vector3)boxOffset, boxSize);
-        }
+        
+        // 타겟이 시야 반경 안에 있는지 (거리 비교, 제곱근 계산 없이)
+        public bool IsTargetInViewRadius(Transform targetTrm, float viewRadius)
+            => (targetTrm.position - transform.position).sqrMagnitude <= viewRadius * viewRadius;
+        
+        // 범위 안에 있는 타겟의 개수를 반환, 최대 maxColliderCount개까지 결과를 저장
+        public int FindTargetsInRadius(float viewRadius)
+            => Physics.OverlapSphereNonAlloc(transform.position, viewRadius, _colliderResults, whatIsTarget);
     }
 }

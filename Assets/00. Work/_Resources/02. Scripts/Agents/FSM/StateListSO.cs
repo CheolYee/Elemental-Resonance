@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace _00._Work._Resources._02._Scripts.Agents.FSM
+namespace Agents.FSM
 {
-    [CreateAssetMenu(fileName = "FSM state manager", menuName = "FSM/State list", order = 10)]
+    [CreateAssetMenu(fileName = "State list data", menuName = "Agent/State list", order = 21)]
     public class StateListSO : ScriptableObject
     {
         [HideInInspector] public string generatePath;

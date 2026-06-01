@@ -1,0 +1,7 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement name="Container" style="flex-direction: row;">
+        <ui:Button text="📁 Select Folder" name="FolderBtn"/>
+        <ui:Label text="코드파일을 생성할 폴더를 선택하세요." name="SelectedFolderLabel" style="flex-basis: 20px; flex-grow: 1; overflow: hidden; text-overflow: ellipsis;"/>
+        <ui:Button text="생성" name="GenerateBtn"/>
+    </ui:VisualElement>
+</ui:UXML>

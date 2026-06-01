@@ -1,33 +1,34 @@
-﻿using _00._Work._Resources._02._Scripts.Systems.AnimationSystems;
+using System;
 using Agents;
+using _00._Work._Resources._02._Scripts.Systems.AnimationSystems;
 
 namespace _00._Work._Resources._02._Scripts.Agents.FSM
 {
     public abstract class AgentState
     {
-        protected Agent _owner;
-        protected int _clipHash;
-        protected bool _isTriggerCall;
+        protected readonly Agent _agent;
+        protected readonly int _stateClipHash;
+        protected readonly IRenderer _renderer;
+        protected readonly AgentTrigger _agentTrigger;
 
-        protected IRenderer _renderer;
+        public event Action OnStateCompleted;
 
-        public AgentState(Agent owner, AnimParamSO stateParam)
+        public AgentState(Agent agent, int stateClipHash)
         {
-            _owner = owner;
-            _clipHash = stateParam != null ? stateParam.ParamHash : 0;
-            _renderer = owner.GetModule<IRenderer>();
+            _agent = agent;
+            _stateClipHash = stateClipHash;
+            _renderer = agent.Renderer;
+            _agentTrigger = agent.GetModule<AgentTrigger>();
         }
-        
+
+        public virtual void Enter(float transitionDuration, int layerIndex = 0)
+        {
+            _renderer.PlayClip(_stateClipHash, 0f, transitionDuration, layerIndex);
+        }
+
         public virtual void Update() {}
+        public virtual void Exit() {}
 
-        public virtual void Enter()
-        {
-            _renderer.PlayClip(_clipHash);
-            _isTriggerCall = false;
-        }
-
-        public virtual void Exit() { }
-        
-        public virtual void AnimationEndTrigger() => _isTriggerCall = true; 
+        protected void CompleteState() => OnStateCompleted?.Invoke();
     }
 }

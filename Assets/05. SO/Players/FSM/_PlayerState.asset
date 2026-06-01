@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e25b71111514996ad2f7d1ba061d1fe, type: 3}
+  m_Name: _PlayerState
+  m_EditorClassIdentifier: ER.Agents::Agents.FSM.StateListSO
+  generatePath: C:/unityproject/Elemental Resonance/Assets/00. Work/_Resources/02.
+    Scripts/Agents/Players
+  enumName: PlayerState
+  states:
+  - {fileID: 11400000, guid: 5607eecc115c3b34f95d98e06696fd43, type: 2}
+  - {fileID: 11400000, guid: eff6c87f28d15a9468988ca3b8081702, type: 2}
+  - {fileID: 11400000, guid: 84f35c5e4762606488ca01de5457d829, type: 2}
+  - {fileID: 11400000, guid: 6441ab43454638440bf2afcbdde839aa, type: 2}
