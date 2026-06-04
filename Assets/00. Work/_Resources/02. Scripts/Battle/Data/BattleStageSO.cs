@@ -7,6 +7,7 @@ namespace Battle.Data
     public class BattleStageSO : ScriptableObject
     {
         public string stageId;
-        public List<EnemySpawnEntry> enemies;
+        public List<WaveData> waves;
+        public string clearRewardPlaceholder;
     }
 }

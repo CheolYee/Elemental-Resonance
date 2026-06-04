@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5df9a5e01a7d457ea77f86d83c865e44, type: 3}
+  m_Name: TestPlayerSkill
+  m_EditorClassIdentifier: Assembly-CSharp::_02._Scripts.CombatSystem.Skills.SkillDataSO
+  skillIndex: 0
+  skillName: TestSkill
+  cooldown: 0
+  skillRange: 1
+  damageMultiplier: 1
+  animParam: {fileID: 11400000, guid: 2fdaf59c1e5c88945b18496eab29299a, type: 2}

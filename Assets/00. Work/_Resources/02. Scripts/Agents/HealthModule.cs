@@ -9,6 +9,7 @@ namespace _00._Work._Resources._02._Scripts.Agents
     public class HealthModule : MonoBehaviour, IModule, IAfterInitModule
     {
         public event Action OnDeath;
+        public event Action<int, int> OnHpChanged;
         
         [SerializeField] private StatSO hpStatSO;
 
@@ -40,6 +41,8 @@ namespace _00._Work._Resources._02._Scripts.Agents
             if (damageToHp > 0)
                 CurrentHp = Mathf.Max(0, CurrentHp - damageToHp);
 
+            OnHpChanged?.Invoke(CurrentHp, MaxHp);
+
             if (CurrentHp == 0)
             {
                 IsDead = true;
@@ -63,6 +66,7 @@ namespace _00._Work._Resources._02._Scripts.Agents
             CurrentHp = MaxHp;
             Block = 0;
             IsDead = false;
+            OnHpChanged?.Invoke(CurrentHp, MaxHp);
         }
     }
 }

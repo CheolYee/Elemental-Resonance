@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Battle.Data
 {
@@ -7,5 +8,7 @@ namespace Battle.Data
     {
         public EnemyDataSO enemyData;
         public int slotIndex;
+        public Vector3 localOffset;
+        public bool isLargeEnemy;
     }
 }

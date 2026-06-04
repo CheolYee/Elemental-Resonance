@@ -1,14 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using _00._Work._Resources._02._Scripts.Agents;
-using _00._Work._Resources._02._Scripts.Agents.FSM;
 using _00._Work._Resources._02._Scripts.Modules;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace _02._Scripts.CombatSystem.Skills
 {
     public class SkillModule : MonoBehaviour, IModule, ISkillModule
     {
-        [SerializeField] private SkillDataSO[] skills;
         [SerializeField] private int skillStateIndex;
         [SerializeField] private int idleStateIndex;
 
@@ -17,54 +19,50 @@ namespace _02._Scripts.CombatSystem.Skills
 
         public event Action OnCurrentSkillEnd;
 
-        private AgentState _trackedState;
-
         public void Initialize(ModuleOwner owner) => Owner = owner;
 
-        public bool CanUseSkill(int skillIndex, GameObject target = null)
-            => skillIndex >= 0 && skillIndex < skills.Length;
-
-        public void UseSkill(int skillIndex, GameObject target = null)
+        public async UniTask UseSkillAsync(SkillUsageData data, GameObject target, CancellationToken ct = default)
         {
-            if (!CanUseSkill(skillIndex)) return;
             if (Owner is not Agent agent) return;
 
-            CurrentSkill = skills[skillIndex];
+            CurrentSkill = data.SkillData;
 
-            if (_trackedState != null)
+            List<Battle.Effects.CardEffectSO> repeatEffects = data.Effects.Where(e => e.isRepeat).ToList();
+            List<Battle.Effects.CardEffectSO> onceEffects = data.Effects.Where(e => !e.isRepeat).ToList();
+
+            for (int i = 0; i < data.RepeatCount; i++)
             {
-                _trackedState.OnStateCompleted -= HandleStateCompleted;
-                _trackedState = null;
+                foreach (var effect in repeatEffects)
+                    effect.Apply(agent.gameObject, target);
+
+                if (data.SkillData != null)
+                {
+                    agent.StateMachine.ChangeState(skillStateIndex);
+
+                    var tcs = new UniTaskCompletionSource();
+                    var state = agent.StateMachine.CurrentState;
+                    void OnComplete() => tcs.TrySetResult();
+                    state.OnStateCompleted += OnComplete;
+
+                    try
+                    {
+                        await tcs.Task.AttachExternalCancellation(ct);
+                    }
+                    finally
+                    {
+                        state.OnStateCompleted -= OnComplete;
+                    }
+
+                    agent.StateMachine.ChangeState(idleStateIndex);
+                }
             }
 
-            agent.StateMachine.ChangeState(skillStateIndex);
+            foreach (var effect in onceEffects)
+                effect.Apply(agent.gameObject, target);
 
-            _trackedState = agent.StateMachine.CurrentState;
-            _trackedState.OnStateCompleted += HandleStateCompleted;
+            OnCurrentSkillEnd?.Invoke();
         }
 
-        public void InvokeSkillEnd() => OnCurrentSkillEnd?.Invoke();
-
-        public void StopSkillIfNotFinished()
-        {
-            if (_trackedState == null) return;
-            _trackedState.OnStateCompleted -= HandleStateCompleted;
-            _trackedState = null;
-        }
-
-        private void HandleStateCompleted()
-        {
-            if (_trackedState != null)
-            {
-                _trackedState.OnStateCompleted -= HandleStateCompleted;
-                _trackedState = null;
-            }
-
-            // Phase 4: 시네머신 카메라 전환, 파티클, 데미지 타이밍 처리 예정
-            if (Owner is Agent agent)
-                agent.StateMachine.ChangeState(idleStateIndex);
-
-            InvokeSkillEnd();
-        }
+        public void StopSkillIfNotFinished() { }
     }
 }

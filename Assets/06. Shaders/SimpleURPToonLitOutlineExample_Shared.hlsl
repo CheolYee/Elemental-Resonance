@@ -123,6 +123,7 @@ CBUFFER_START(UnityPerMaterial)
     // outline
     float   _OutlineWidth;
     half3   _OutlineColor;
+    float   _OutlinePureColor;
     float   _OutlineZOffset;
     float   _OutlineZOffsetMaskRemapStart;
     float   _OutlineZOffsetMaskRemapEnd;
@@ -401,7 +402,7 @@ half3 ShadeAllLights(ToonSurfaceData surfaceData, ToonLightingData lightingData)
 
 half3 ConvertSurfaceColorToOutlineColor(half3 originalSurfaceColor)
 {
-    return originalSurfaceColor * _OutlineColor;
+    return lerp(originalSurfaceColor * _OutlineColor, _OutlineColor, _OutlinePureColor);
 }
 half3 ApplyFog(half3 color, Varyings input)
 {

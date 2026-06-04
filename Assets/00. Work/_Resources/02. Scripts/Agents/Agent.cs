@@ -37,7 +37,7 @@ namespace _00._Work._Resources._02._Scripts.Agents
 
         protected virtual void HandleHitEvent() { }
 
-        private void HandleDeath()
+        protected virtual void HandleDeath()
         {
             onDeath.Invoke();
         }

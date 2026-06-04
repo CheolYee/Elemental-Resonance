@@ -1,5 +1,7 @@
 using System;
+using System.Threading;
 using _00._Work._Resources._02._Scripts.Modules;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace _02._Scripts.CombatSystem.Skills
@@ -7,11 +9,8 @@ namespace _02._Scripts.CombatSystem.Skills
     public interface ISkillModule
     {
         ModuleOwner Owner { get; }
-
         event Action OnCurrentSkillEnd;
-        bool CanUseSkill(int skillIndex, GameObject target = null);
-        void UseSkill(int skillIndex, GameObject target = null);
-        void InvokeSkillEnd();
+        UniTask UseSkillAsync(SkillUsageData data, GameObject target, CancellationToken ct = default);
         void StopSkillIfNotFinished();
     }
 }

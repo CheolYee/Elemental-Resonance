@@ -228,6 +228,7 @@ Shader "SimpleURPToonLitExample(With Outline)"
         [Header(Outline)]
         _OutlineWidth("Width", Range(0,4)) = 1
         _OutlineColor("Color", Color) = (0.5,0.5,0.5,1)
+        [HideInInspector] _OutlinePureColor("Pure Color Mode", Float) = 0
         
         [Header(Outline ZOffset)]
         _OutlineZOffset("ZOffset (View Space)", Range(0,1)) = 0.0001
@@ -373,11 +374,12 @@ Shader "SimpleURPToonLitExample(With Outline)"
         Pass 
         {
             Name "Outline"
-            Tags 
+            Tags
             {
-                // IMPORTANT: don't write this line for any custom pass(e.g. outline pass)! 
-                // else this outline pass(custom pass) will not be rendered by URP!
-                //"LightMode" = "UniversalForwardOnly" 
+                // URP 17(Unity 6)에서는 LightMode 태그 없이 패스가 렌더링되지 않으므로
+                // SRPDefaultUnlit으로 명시적 렌더링을 활성화
+                "LightMode" = "SRPDefaultUnlit"
+                //"LightMode" = "UniversalForwardOnly"
 
                 // [Important CPU performance note]
                 // If you need to add a custom pass to your shader (e.g. outline pass, planar shadow pass, Xray overlay pass when blocked....),

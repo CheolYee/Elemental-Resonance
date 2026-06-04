@@ -1,3 +1,4 @@
+using _00Work._Resources._02Scripts.Agents.Enemies;
 using UnityEngine;
 
 namespace _00._Work._Resources._02._Scripts.Agents.Enemies
@@ -6,7 +7,7 @@ namespace _00._Work._Resources._02._Scripts.Agents.Enemies
     {
         private void Start()
         {
-            StateMachine.ChangeState(0, transitionDuration: 0);
+            InitializeEntry();
         }
 
         private void Update()
