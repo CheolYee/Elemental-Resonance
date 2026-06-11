@@ -13,9 +13,8 @@ namespace _00._Work._Resources._02._Scripts.Agents.FSM
 
         public override void Enter(float transitionDuration, int layerIndex = 0)
         {
-            SkillDataSO skill = _skillModule?.CurrentSkill;
-            if (skill?.animParam != null)
-                _renderer.PlayClip(skill.animParam.ParamHash, 0f, transitionDuration, layerIndex);
+            if (_skillModule?.CurrentEntryAnimParam != null)
+                _renderer.PlayClip(_skillModule.CurrentEntryAnimParam.ParamHash, 0f, transitionDuration, layerIndex);
 
             if (_agentTrigger != null)
                 _agentTrigger.OnAnimationEnd += HandleAnimationEnd;

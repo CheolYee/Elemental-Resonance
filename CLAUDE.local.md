@@ -2,18 +2,12 @@
 
 ## Project Context
 
-Unity 6 기반 3D 턴제 카드 전투 게임을 개발한다.
-
-현재 전투의 큰 흐름은 다음과 같다.
+Unity 6 기반 3D 턴제 카드 전투 게임.
 
 ```text
-플레이어 턴 시작
-→ 카드 드로우
-→ 코스트 지급
-→ 카드를 유효 대상에게 드래그 & 드롭
-→ 즉시 코스트 차감 + 스킬 발동
+플레이어 턴 시작 → 카드 드로우 → 코스트 지급
+→ 카드를 유효 대상에게 드래그 & 드롭 → 즉시 코스트 차감 + 스킬 발동
 → 스킬 애니메이션 완료 후 손패 입력 재활성화
-→ 코스트 허용 시 추가 카드 사용 가능
 → "턴 종료" 버튼 클릭
 → 적 턴 실행 (배열 순서대로 순차 공격)
 → 다시 플레이어 턴 (코스트 최대값으로 충전)
@@ -21,467 +15,290 @@ Unity 6 기반 3D 턴제 카드 전투 게임을 개발한다.
 
 **행동 큐는 존재하지 않는다.** 카드는 드롭 즉시 발동된다.
 
-현재 작업 목표는 **Stage Framework**이다. 현재 진행 단계: **Phase S-5. Player Deck Provider**
+---
+
+## Working Rules
+
+- Superpowers 계열 스킬은 사용하지 않는다.
+- 테스트 코드는 명시 요청이 있을 때만 추가한다.
+- 구현 전 반드시 `grill-me` 스킬로 구조를 확정한다.
+- 모든 비동기 처리는 UniTask. 트위닝은 LitMotion. DI는 Reflex.
+- 동적 스폰 오브젝트는 `GameObjectInjector.InjectRecursive(go, _container)` 로 DI 주입.
 
 ---
 
-## Completed Foundation
-
-### Phase 2. Battle Actor Foundation — 완료
-
-구현 완료:
-
-* `IBattleActor`
-* `HealthModule`
-* `Agent`
-* `AbstractEnemy`
-* `BaseEnemy`
-
-확정 원칙:
-
-* `StatModule`은 기초 수치 저장을 담당한다.
-* `HealthModule`은 HP, Block, IsDead 등 전투 상태를 담당한다.
-* `Agent`가 `IBattleActor`를 구현하고 `HealthModule`에 위임한다.
-* 외부에서는 `agent.TakeDamage()` 같은 단일 진입점으로 접근한다.
-
----
-
-### Phase 3. AgentRenderer & Skill System — 완료
-
-구현 완료:
-
-* `AgentRenderer` — `[RequireComponent(typeof(Animator))]`, `CrossFadeInFixedTime` 기반
-* `AgentTrigger` — `AnimationEndTrigger()` / `DamageCastTrigger()` Animation Event 수신
-* `AgentState` (추상) — `OnStateCompleted` 이벤트, `CompleteState()` 보호 메서드
-* `IdleState`, `HitState`, `DeathState`, `SkillState`, `TargetingIdleState`
-* `SkillModule` — `UseSkillAsync(SkillUsageData, GameObject, CancellationToken)` UniTask 반복 발동
-* `SkillDataSO`, `SkillUsageData`
-* `StateListSO`, `StateSO`, `StateListSOEditor`
-
-확정 원칙:
-
-* Player와 Enemy 모두 동일한 `SkillModule + SkillState` 구조를 사용한다.
-* 애니메이터 전이는 화살표 기반이 아니라 코드 기반 `CrossFadeInFixedTime`으로 처리한다.
-* 애니메이션 완료는 `AnimationEndTrigger → AgentTrigger.OnAnimationEnd → FSM State.CompleteState()` 순서로 전달된다.
-* 각 애니메이션 클립 마지막 프레임에 Animation Event `AnimationEndTrigger` 설정 필수.
-* `SkillModule.UseSkillAsync`는 반복 발동 루프를 처리한다 — `for (int i = 0; i < repeatCount; i++)` → 효과 적용 → 애니메이션 대기.
-* 피격 시 `Agent.HandleHitEvent()` override → HIT 상태 전환 → `OnStateCompleted` → IDLE 복귀.
-
----
-
-### Phase 4. Card Data & Skill Bridge — 완료
-
-구현 완료 / 확정 구조:
-
-| 파일 | 역할 |
-|---|---|
-| `Battle/Data/CardDataSO.cs` | 카드 데이터 SO — `skillData: SkillDataSO` 포함 |
-| `Battle/Effects/CardEffectSO.cs` | 추상 효과 SO — `isRepeat: bool`, `Apply(source, target)` 추상 메서드 |
-| `Battle/Effects/DamageEffectSO.cs` | `Apply` → `GetComponent<IDamageable>() ?? GetComponentInParent<IDamageable>()` |
-| `Battle/Effects/BlockEffectSO.cs` | `Apply` → `GetComponent<Agent>() ?? GetComponentInParent<Agent>()` |
-| `Battle/Enums/CardGrade.cs` | `Normal=0, Rare=1, Epic=2, Legendary=3` |
-| `Battle/Instances/CardInstance.cs` | `CardDataSO data` + `CardGrade grade` (기본값 Normal) |
-| `Battle/Data/EnemyDataSO.cs` | `attackSkill: SkillDataSO` + `attackEffects: List<CardEffectSO>` |
-| `CombatSystem/Skills/SkillUsageData.cs` | Player·Enemy 공통 실행 데이터 — `FromCard()` / `FromEnemyData()` 팩토리 |
-
-확정 원칙:
-
-* **등급 = 발동 횟수**: Normal 1회, Rare 2회, Epic 3회, Legendary 4회.
-* `CardEffectSO.isRepeat = true` → 발동 횟수만큼 반복 / `false` → 1회만 실행.
-* `CardDataSO.skillData`는 `SkillDataSO` 직접 참조 — 인덱스 간접 참조 없음.
-* `TargetingModule`은 Agent **자식 오브젝트**에 부착 — 효과 적용 시 반드시 `GetComponentInParent`로 루트 Agent를 탐색해야 함.
-* 효과 적용 타이밍: 현재는 애니메이션 시작 직전에 즉시 적용 — 나중에 스킬 연출 에디터에서 `DamageCastTrigger` 기반으로 교체 예정.
-
----
-
-### Phase 5. Immediate Execution & Turn Cycle — 완료
-
-구현 완료:
-
-| 파일 | 역할 |
-|---|---|
-| `Battle/UI/BattleActionExecutor.cs` | `CardDroppedOnTargetEvent` 구독 → 코스트 차감 → `SkillExecutionStartEvent` → `SkillModule.UseSkillAsync` → `SkillExecutionEndEvent` |
-| `Battle/UI/BattleTurnController.cs` | `PlayerTurnEndRequestEvent` 구독 → Enemy 순차 공격 → 코스트 충전 → `PlayerTurnStartEvent` |
-| `Battle/UI/TurnEndButton.cs` | OnClick → `PlayerTurnEndRequestEvent` 발행 |
-| `Battle/Events/SkillExecutionStartEvent.cs` | 스킬 실행 시작 — HandLayoutController 잠금 트리거 |
-| `Battle/Events/SkillExecutionEndEvent.cs` | 스킬 실행 완료 — HandLayoutController 잠금 해제 트리거 |
-| `Battle/Events/PlayerTurnEndRequestEvent.cs` | "턴 종료" 버튼 이벤트 |
-| `Battle/Events/PlayerTurnStartEvent.cs` | 플레이어 턴 시작 이벤트 |
-
-수정된 파일:
-
-| 파일 | 변경 내용 |
-|---|---|
-| `Battle/UI/HandLayoutController.cs` | `ActionQueueRegisteredEvent` → `CardDroppedOnTargetEvent` 구독으로 교체, `SkillExecutionStartEvent/EndEvent` 구독 → `SetAllCardsInteractable()` |
-| `Agents/Players/Player.cs` | `HandleHitEvent()` override — HIT 상태 전환 후 `OnStateCompleted` → IDLE 복귀 |
-| `Agents/Enemies/AbstractEnemy.cs` | `HandleHitEvent()` override — 동일 패턴, EnemyState.IDLE(=2) 복귀 |
-
-확정 원칙:
-
-* `BattleActionExecutor`가 코스트 차감·스킬 실행·UI 잠금을 담당한다.
-* `BattleTurnController`가 전체 턴 사이클을 오케스트레이션한다 — Enemy 배열 인덱스 0→1→2 순서.
-* `SkillExecutionStartEvent`/`SkillExecutionEndEvent`는 플레이어 스킬 실행과 적 턴 모두에서 손패 잠금용으로 재활용된다.
-* `HandLayoutController`는 `CardDroppedOnTargetEvent`를 구독해 카드 제거 — 드래그 중이던 `_draggedCard`도 처리.
-
----
-
-### Phase UI-1. Hand Card Layout — 완료
-
-구현 완료:
-
-| 파일 | 역할 |
-|---|---|
-| `Battle/Data/CardDataSO.cs` | `artwork` Sprite 필드 추가 |
-| `Battle/UI/CardView.cs` | `PoolableMono` 상속, 아트워크·이름·코스트 표시, LitMotion 위치·회전 트윈 |
-| `Battle/UI/HandLayoutController.cs` | 부채꼴 레이아웃 계산, `Pool` 직접 소유, UniTask 순차 등장 |
-
-확정 원칙:
-
-* `HandLayoutController`가 `Pool`을 직접 생성·소유한다 (`PoolManagerSo` 없이).
-* Canvas 계층: `OverLayCanvas(SS-Overlay) → Battles → HandArea → CardContainer + PoolRoot`. (Phase UI-5에서 SS-Camera BattleCanvas에서 분리됨)
-* `_currentRotZ` 필드로 회전값을 자체 추적 — Unity `localEulerAngles` 0~360 래핑 문제 회피.
-* 카드 진입 시 `SnapRotation(목표각 + entryRotationOffset)`으로 위치 트윈만 동작.
-* `dealStaggerDelay`로 카드가 한 장씩 순서대로 등장하는 연출 적용.
-
----
-
-### Phase UI-2. Card Hover & Description — 완료
-
-확정 원칙:
-
-* 카드 프리팹에 `Canvas` 컴포넌트를 추가해 `overrideSorting`으로 호버 레이어 관리 — Sibling 순서 불변.
-* 호버 시 회전을 0으로 정렬하고, `CalculateSnapToBottomY()`로 카드 밑면을 화면 바닥에 스냅.
-* `EventChannelSO(BattleEventChannel)`을 통해 `CardView ↔ CardDescriptionPanel` 통신 — 직접 참조 없음.
-* `canvasGroup.alpha > 0f` 조건으로 "패널이 보이는 상태"를 판단.
-
----
-
-### Phase UI-3. Cost UI & Unusable Card Feedback — 완료
-
-확정 원칙:
-
-* `BattleCostModelSO`(SO)가 코스트 데이터 소스.
-* 코스트 변경은 `CostChangedEvent` → `BattleEventChannel` 경유.
-* `BattleActionExecutor`가 카드 드롭 시 `currentCost -= card.data.cost` 처리, `BattleTurnController`가 턴 시작 시 `currentCost = maxCost` 충전.
-
----
-
-### Phase UI-4. Card Drag & Targeting State — 완료
-
-확정 원칙:
-
-* `CardDragHandler`가 드래그 로직 전담 — `CardView`는 인터페이스 위임만.
-* `IEndDragHandler.OnEndDrag`으로 드래그 종료 감지.
-* 드래그 중 `OnPointerEnter/Exit` 차단 — `IsDragging` 체크.
-
----
-
-### Phase UI-5. Target Detection & Outline — 완료
-
-확정 원칙:
-
-* `TargetingModule`은 IModule 패턴으로 Agent 자식 계층에 컴포넌트로 부착.
-* 외곽선은 `MaterialPropertyBlock`으로 `_OutlineWidth`/`_OutlineColor` 제어.
-* Canvas 레이어 분리:
-  * `BattleCanvas` (SS-Camera): `TargetingOverlay`만 포함
-  * `OverLayCanvas` (SS-Overlay, Sort Order 10): 카드 UI 전체
-* `BattleCameraController`: Cinemachine 가상 카메라 두 개 전환 — EaseInOut 0.4초 블렌드.
-* `TargetCameraSync`: `RenderPipelineManager.beginCameraRendering` 콜백 사용 (LateUpdate 불가).
-
----
-
-### Phase UI-9. 체력바 UI — 완료
-
-구현 완료:
-
-| 파일 | 역할 |
-|---|---|
-| `Agents/HealthModule.cs` | `event Action<int, int> OnHpChanged` 추가 — `TakeDamage` / `Reinitialize` 시 발행 |
-| `Battle/UI/PlayerHealthBarView.cs` | `IModule`, Player에 부착, `[SerializeField] TMP_Text`로 `현재HP/최대HP` 텍스트 표시 |
-| `Battle/UI/EnemyHealthBarView.cs` | `IModule`, Enemy World Space Canvas에 부착, 이름 텍스트 + 빨간/회색 슬라이더 |
-| `Battle/UI/LookAtCamera.cs` | World Space Canvas를 매 LateUpdate마다 카메라 방향으로 회전 |
-| `Agents/Enemies/AgentEnemyState.cs` | Enemy 전용 추상 상태 — `protected AbstractEnemy _enemy` 보유 |
-| `Agents/Enemies/EnemyEntryState.cs` | 등장 애니메이션 재생 후 `AnimationEndTrigger` → `EnemyState.IDLE` 전환 |
-| `Agents/Enemies/EnemyState.cs` | `ENTRY = 4` 추가 |
-| `Agents/Enemies/BaseEnemy.cs` | `Start()`에서 IDLE 대신 ENTRY 상태로 시작 |
-
-확정 원칙:
-
-* **플레이어 체력바**: OverLayCanvas Screen Space — TMP 텍스트 `현재HP/최대HP` 형식, `PlayerHealthBarView(IModule)`이 Player 루트에 부착되어 SerializeField로 TMP_Text 참조.
-* **적 체력바**: Agent 자식 World Space Canvas — 빨간 슬라이더(즉시 LitMotion 트윈) + 회색 슬라이더(딜레이 후 LitMotion 트윈) + 이름 텍스트.
-* `EnemyHealthBarView`는 `owner.GetModule<AgentTrigger>().OnAnimationEnd`에 **한 번만** 구독 → ENTRY 애니메이션 종료 시 CanvasGroup alpha 0→1 페이드인 후 즉시 구독 해제.
-* `AgentEnemyState`는 `Activator.CreateInstance(type, agent, paramHash)` 패턴을 유지하기 위해 생성자를 `(Agent, int)`로 받고 내부에서 `as AbstractEnemy` 캐스팅.
-* Block 표시는 이번 Phase 범위 밖 — 구조는 막지 않음.
-
----
-
-## Core Development Rules
-
-### Language Rule
-
-모든 설명, 계획, 구현 노트, 질문은 한국어로 작성한다.
-
-단, 클래스명, 메서드명, enum명, 파일명, 폴더명, Unity API명은 영어를 유지할 수 있다.
-
----
-
-### SOLID 우선
-
-코드는 SOLID 원칙을 최대한 지켜 작성한다.
-
-* 하나의 클래스는 하나의 책임만 가진다.
-* 데이터, 전투 로직, UI, 입력, 연출 로직을 섞지 않는다.
-* 하나의 Manager가 모든 기능을 직접 처리하지 않도록 한다.
-* 나중에 합성, 승급, 공명, 보상 시스템을 추가할 수 있도록 확장 가능하게 만든다.
-* 단, 프로토타입 개발 속도를 해칠 정도의 과도한 추상화는 피한다.
-
----
-
-### 구현 전 grill-me 스킬 사용
-
-새 기능을 구현하기 전에는 반드시 `grill-me` 스킬로 구조를 먼저 검토한다.
-
-구조가 불명확하면 임의로 구현하지 말고 질문한다.
+## Architecture Decisions
+
+### Card System
+- `HandLayoutController`: 레이아웃·드래그·슬라이드·인터렉터블 전담
+- `HandDealController`: 카드 딜/버리기 전담
+- `DeckController`: DrawPile/Hand/DiscardPile/GravePile 4개 더미 런타임 관리
+- `CardDisposePolicy.Grave` → GravePile, 나머지 → DiscardPile
+
+### Battle System
+- `BattleActionExecutor`: 코스트 차감 + 스킬 실행 + `SkillExecutionStartEvent/EndEvent` 발행
+- `BattleTurnController`: 전체 턴 사이클 오케스트레이션
+- `BattleResultController`: 전투 종료 판정 단일 책임
+- 코스트 회복: `currentCost = Mathf.Max(currentCost, baseCost)` (턴 시작 시)
+
+### Skill Presentation System
+- `SkillPresentationDataSO`: Source of Truth. 등급별 Timeline 보유.
+- `SkillPresentationTimeline`: Row별 키프레임 리스트. `GetEffectiveDuration()` = EndMarker 키프레임 시각 우선, 없으면 마지막 keyframe + 0.5s.
+- `SkillModule.UseSkillAsync()`: AnimationKeyframe 유무로 SkillState 진입 분기. Timeline과 SkillState 모두 완료되어야 종료.
+- 카드에 playable Timeline이 없으면 warning만, 코스트·카드 소비는 정상 처리.
+- `SkillPresentationPlayer` → `SkillPresentationSampler` → `SkillPresentationKeyframeExecutor` 순으로 실행.
+- `EffectKeyframe`: effectSlotId 기반. `CardEffectValueCalculator.Calculate(base, multiplier)`.
+- VFX: `SkillVfxContainer` 풀링. `VfxDefinitionSO.key`로 child 활성화. `lifeTime > 0`이면 사용, `<= 0`이면 `GetMaxDuration()` fallback.
+- `VfxDefinitionSO`: `key(SkillVfxKey)` + `prefab(GameObject)` + `defaultLifeTime`. `SkillVfxObjectData.vfxDefinition`으로 참조. 나중에 3D 프리뷰 렌더링에 `prefab` 사용 예정.
+- Camera: `CinemachineCamera.transform` 직접 조작. 스킬 시작 전 `basePosition/baseRotation/baseFov` 캡처(Priority 올리기 전) → `Priority = 20` → 모든 카메라 키프레임 처리 후 `GetEffectiveDuration()` 시각까지 대기 → finally에서 Transform 복원 + `Priority = 0`. CinemachinePositionComposer/RotationComposer 제거됨. Focus 로직 제거됨.
+
+### Agent System
+- `TargetingModule`은 Agent **자식 오브젝트**에 부착
+- `EnemyDataSO.attackCard`: 적이 `CardDataSO`를 직접 참조. `SkillUsageData.FromEnemyData()`로 CardInstance 생성.
+- 적 스폰: `Instantiate()` + `GameObjectInjector.InjectRecursive(go, _container)`.
+
+### Death System
+- `AbstractEnemy.OnDeathStarted`: HP 0 즉시 발행 → BattleResultController 조기 감지
+- `AbstractEnemy.OnDeathAnimationComplete`: 애니메이션 완료 후 발행 → DissolveModule 시작
+- 적 제거: DEATH 애니메이션 → Dissolve (LitMotion) → Destroy
+
+### DI (Reflex)
+- 씬 진입점: `ContainerScope` + `BattleSceneInstaller : IInstaller`
+- SO 에셋은 DI 범위 밖 — `[SerializeField]` 유지
+
+### DeckBuilding System (임시 구현 — 폴리싱 필요)
+- `CardDatabaseSO`: 전체 카드 목록 + `maxDeckSize` 보유
+- `DeckBuilderController`: 상단 카드 그리드 + 하단 덱 슬롯 + 시작 버튼
+- `DeckBuilderCardItemView`: 아트워크 + 이름 + 코스트 + 설명, 클릭 이벤트
+- `TempStartCardSO.SetDeck()`: 덱 빌더 → Main 씬 덱 전달 경로
+- **폴리싱 시 개선 필요:** 카드 상세 팝업, 카드 필터/정렬, 덱 저장/불러오기, 전용 카드 UI 디자인, 동일 카드 장 수 표시, 덱 최소 장 수 제한
+
+### Canvas 계층
+- `BattleCanvas` (SS-Camera): TargetingOverlay만
+- `OverLayCanvas` (SS-Overlay, Sort Order 10): 카드 UI 전체
 
 ---
 
 ## Stage Framework
 
-### 확정 설계 원칙
-
 ```text
-Stage = 전투 1맵. Wave를 여러 개 가질 수 있다.
-Wave = 최대 3명의 적 등장. 모두 사망하면 다음 Wave로 전환.
-마지막 Wave 완료 = Stage Clear. 플레이어 HP 0 = Stage Fail.
+Stage = Wave 여러 개. Wave = 최대 3명. 마지막 Wave 완료 = Stage Clear. 플레이어 HP 0 = Stage Fail.
+StageDataSO는 덱을 알면 안 된다 — 적 Wave 정보만 보유.
 ```
 
-**덱 분리 원칙:**
-- `StageDataSO`는 덱을 알면 안 된다 — 적 Wave 정보만 가진다.
-- 덱은 `PlayerDeckProvider`에서 가져온다 (현재는 임시 TempStartCardSO).
-- 런타임 중 원본 SO 에셋을 직접 수정하지 않는다 — 런타임 복사본 사용.
+- `StageBootstrapper`: 스폰 오케스트레이터. Wave마다 `WaveStartEvent` 발행.
+- `BattleResultController`: `WaveClearEvent`만 발행. 마지막 Wave 판단은 StageBootstrapper.
+- `_waveClearPending` 플래그: `WaveClearEvent` 시 설정, `CardDrawEndEvent` 시 초기화.
 
-**카드 더미 규칙:**
+---
+
+## 이후 개발 순서
+
 ```text
-Hand = 손패 / DrawPile = 가짐패 / DiscardPile = 버림패
-드로우: 가짐패 우선 → 부족 시 버림패 셔플 후 합산
-카드패 진입 시점: 플레이어 턴 시작 / 새 Stage / Wave 전환
-코스트가 0이어도 자동 턴 종료 없음 — 턴 종료 버튼 필수
-```
-
-**Wave 전환 흐름:**
-```text
-마지막 적 사망 → 스킬 연출 완료 → 짧은 대기
-→ 다음 Wave 있으면: 적 스폰 + 카드패 드로우 (동시)
-→ 적 등장 모션 + 드로우 연출 완료 후 입력 허용
-```
-
-**적 스폰 규칙:**
-- `slotIndex 0~2` 기반 배치, `localOffset`으로 미세 조정
-- `isLargeEnemy = true`이면 1차 규칙상 중앙 슬롯 단독 배치
-
----
-
-### Phase S-1. Battle Result & End Condition — 완료
-
-구현 완료:
-
-| 파일 | 역할 |
-|---|---|
-| `Battle/Events/BattleVictoryEvent.cs` | 모든 적 사망 시 발행 |
-| `Battle/Events/BattleDefeatEvent.cs` | 플레이어 사망 시 발행 |
-| `Battle/UI/BattleResultController.cs` | Enemy `OnDeath` 개별 구독 + `_livingEnemyCount` 추적, `_pendingVictory` / `_pendingDefeat` 플래그로 스킬 완료 후 판정 |
-
-수정된 파일:
-
-| 파일 | 변경 내용 |
-|---|---|
-| `Battle/UI/BattleTurnController.cs` | `BattleVictoryEvent` / `BattleDefeatEvent` 구독 → `_battleEnded` 플래그 → 이후 턴 진행 차단 |
-| `Battle/UI/HandLayoutController.cs` | `BattleVictoryEvent` / `BattleDefeatEvent` 구독 → 카드 잠금, `SkillExecutionEndEvent`에서 `_battleEnded` 체크 추가 |
-
-확정 원칙:
-
-* `BattleResultController`가 전투 종료 판정 단일 책임 — `BattleTurnController`는 턴 진행만.
-* `BattleResultController`의 구독 설정은 `Start()`에서 처리 — Enemy가 `Awake`에서 완전히 초기화된 뒤 구독.
-* 스킬 실행 중(`_isExecuting`) 사망 발생 시 `_pending` 플래그 세팅 → `SkillExecutionEndEvent` 수신 시 처리.
-* Defeat가 Victory보다 우선 (`OnSkillEnd`에서 `_pendingDefeat` 먼저 체크).
-* S-4 동적 스폰 도입 시 `BattleResultController.enemies` 목록을 Registry 패턴으로 교체 예정.
-
----
-
-### Phase S-2. Turn Branch Cleanup — 완료
-
-구현 완료:
-
-| 파일 | 역할 |
-|---|---|
-| `Battle/Events/CardDrawStartEvent.cs` | 카드 드로우 시작 이벤트 |
-| `Battle/Events/CardDrawEndEvent.cs` | 카드 드로우 완료 이벤트 |
-
-수정된 파일:
-
-| 파일 | 변경 내용 |
-|---|---|
-| `Battle/UI/HandLayoutController.cs` | `DealStartingCardsAsync`에 `CardDrawStartEvent/EndEvent` 발행 추가, `SkillExecutionStart/CardDrawStart` 시 슬라이드 아웃 (아래), `End` 시 슬라이드 인 |
-| `Battle/UI/TurnEndButton.cs` | `SkillExecutionStart/CardDrawStart/Victory/Defeat` 구독 → 슬라이드 아웃 (오른쪽), 종료 시 슬라이드 인, 전투 종료 후 클릭 차단 |
-| `Battle/UI/CostDisplayPanel.cs` | 동일 이벤트 구독 → 슬라이드 아웃 (왼쪽) |
-
-확정 원칙:
-
-* 슬라이드 대상 요소는 VerticalLayoutGroup 영향을 받지 않는 **빈 부모 컨테이너**를 트윈 — `[SerializeField] RectTransform slideTarget`으로 Inspector에서 컨테이너 연결.
-* `slideOutOffset`, `slideDuration`, `slideEase` 모두 Inspector 조정 가능.
-* 전투 종료(`_battleEnded`) 시 슬라이드 인 차단 — 영구 아웃 상태 유지.
-* `CardDrawStartEvent`는 `DealStartingCardsAsync` 시작 시 발행 — 나중에 S-6 Wave 드로우에서도 동일하게 재활용.
-
----
-
-### Phase S-3. StageDataSO & WaveData Definition — 완료
-
-구현 완료:
-
-| 파일 | 변경 내용 |
-|---|---|
-| `Battle/Data/BattleStageSO.cs` | `enemies` 제거 → `waves: List<WaveData>`, `clearRewardPlaceholder: string` 추가 |
-| `Battle/Data/WaveData.cs` | 신규 — `enemySpawns: List<EnemySpawnEntry>` |
-| `Battle/Data/EnemySpawnEntry.cs` | `localOffset: Vector3`, `isLargeEnemy: bool` 추가 |
-
-확정 원칙:
-
-* `BattleStageSO`는 `stageId`, `waves`, `clearRewardPlaceholder`만 보유 — 덱 참조 없음.
-* `WaveData`는 별도 파일로 분리 — `EnemySpawnEntry`와 동일한 파일 분리 패턴.
-* `waveIndex` 필드 없음 — 리스트 순서가 곧 인덱스.
-* `stageName` 필드 없음 — stageId로 충분, 결과 UI 필요 시 추가.
-* `clearRewardPlaceholder`는 `string` 타입 — 보상 시스템 확정 전 메모용.
-* `isLargeEnemy = true`이면 S-4 스폰 로직에서 중앙 슬롯 단독 배치 처리.
-
----
-
-### Phase S-4. Stage Bootstrap & Enemy Spawn — 완료
-
-구현 완료:
-
-| 파일 | 역할 |
-|---|---|
-| `Battle/UI/StageBootstrapper.cs` | `BattleStageSO` 기반 Wave 스폰, Player+Enemy 동시 ENTRY 대기 → `BattleReadyEvent` |
-| `Battle/Data/RuntimeEnemyRegistrySO.cs` | 런타임 적 목록 — `Register/Unregister/Clear`, `IReadOnlyList<AbstractEnemy> Enemies` |
-| `Battle/Events/EnemiesUpdatedEvent.cs` | 적 목록 갱신 신호 — `BattleResultController`/`BattleTurnController` 재구독 트리거 |
-| `Battle/Events/BattleReadyEvent.cs` | 모든 ENTRY 완료 신호 — HandLayoutController 카드 딜 트리거 |
-| `Agents/Players/PlayerEntryState.cs` | Player ENTRY 상태 — `AnimationEndTrigger` → `CompleteState()` |
-
-수정된 파일:
-
-| 파일 | 변경 내용 |
-|---|---|
-| `Agents/Players/PlayerState.cs` | `ENTRY = 5` 추가 |
-| `Agents/Players/Player.cs` | `Start()`에서 ENTRY 시작, `WaitForEntryComplete(): UniTask` 노출 |
-| `Agents/Enemies/AbstractEnemy.cs` | `InitializeEntry()` + lazy TCS `GetOrCreateEntryCompletion()` + `WaitForEntryComplete()` |
-| `Agents/Enemies/BaseEnemy.cs` | `Start()` → `InitializeEntry()` |
-| `Agents/Enemies/EnemyEntryState.cs` | `HandleAnimationEnd()` → `CompleteState()` (직접 IDLE 전환 제거) |
-| `Battle/UI/BattleResultController.cs` | `[SerializeField] enemies` 제거 → `RuntimeEnemyRegistrySO` + `EnemiesUpdatedEvent` 구독 |
-| `Battle/UI/BattleTurnController.cs` | 동일 패턴 |
-| `Battle/UI/HandLayoutController.cs` | `Awake()`에서 즉시 슬라이드 아웃, `BattleReadyEvent` → `DealStartingCardsAsync()` |
-| `Battle/UI/TurnEndButton.cs` | `Awake()`에서 즉시 슬라이드 아웃 |
-| `Battle/UI/CostDisplayPanel.cs` | 동일 |
-
-확정 원칙:
-
-* `StageBootstrapper`가 스폰 오케스트레이터 단일 책임 — `BattleStageSO.waves[0]`부터 시작.
-* 슬롯 위치는 씬의 `Transform[] slotPositions` 3개 — Inspector에서 연결.
-* `isLargeEnemy = true` → 스폰 시 `slotIndex`를 1로 강제.
-* `StageBootstrapper`가 스폰 후 `enemyRegistry.Register(enemy)` 직접 처리.
-* `FindObjectsByType<AbstractEnemy>()` 로 씬 배치 적 + 동적 스폰 적 모두 ENTRY 대기 — 씬 전환 기간 호환.
-* lazy TCS(`GetOrCreateEntryCompletion`) 패턴 — `WaitForEntryComplete()` 수집 타이밍과 `InitializeEntry()` 호출 타이밍 무관.
-* `BattleReadyEvent` 수신 후 카드 딜 시작 → `CardDrawEndEvent` → UI 슬라이드 인.
-
----
-
-### Phase S-5. Player Deck Provider
-
-**Goal**: PlayerDeckProvider에서 덱 가져오기
-
-**완료 기준:**
-```text
-전투 시작 시 PlayerDeckProvider에서 덱 수신.
-현재는 TempStartCardSO로 임시 제공.
-DrawPile 생성 가능.
-런타임 중 원본 SO 에셋 미수정. Play 종료 후 에디터 상태 유지.
+1. ✅ Skill Presentation System (SP-1 ~ SP-13 + 버그 수정 완료)
+2. ✅ 에디터 타임라인 구조 개편 (Bug 4)
+3. ✅ 이징 연결선 표시 (Bug 5)
+4. ✅ 런타임 검증 (RT-1)
+5. ✅ EndMarker + 카메라 Priority 수정 (Bug 6)
+6. ✅ 맵 UI Phase 5 — 노드 선택 → 스테이지 진입 연출
+7. ✅ 덱 빌딩 시스템 (임시) — DeckBuilder 씬, CardDatabaseSO
+8. 맵 UI Phase 6 — Rest/Shop 최소 루프 ← 다음
+9. 3D 타임라인 프리뷰 (RT-2 Phase 1~4b 완료, Phase 5 대기)
+10. Fusion / Grade / Resonance System
+11. Reward System
+12. Scene Transition System
 ```
 
 ---
 
-### Phase S-6. Wave Transition
+## 완료된 Skill Presentation 페이즈 요약
 
-**Goal**: Wave 클리어 후 다음 Wave 전환
+- **SP-1**: CardEffect 추상 클래스, CardEffectSlot(GUID), CardEffectValueCalculator
+- **SP-2**: TargetType.None 카드 드롭 지원, CardView 조건 플래그 분리
+- **SP-3**: baseCost 필드명 변경, 코스트 회복 규칙 적용
+- **SP-4~5**: SkillPresentationDataSO, SkillPresentationTimeline, 키프레임 데이터 모델
+- **SP-6**: EditorWindow partial class 7개 파일 구조
+- **SP-7**: Ruler + 7 Row 타임라인 UI
+- **SP-8**: 키프레임 추가/삭제/정렬/복붙/다중선택/드래그/스냅/Undo
+- **SP-9**: UIToolkit 기반 Keyframe Inspector, EffectSlot 드롭다운
+- **SP-10**: Playhead / Playback
+- **SP-11**: SkillPresentationPlayer, Sampler, Runtime 실행 구조
+- **SP-12**: SkillModule Integration (AnimationKeyframe 유무 분기)
+- **SP-13**: EffectKeyframe Runtime 실행, SkillEffectExecutionService
+- **Bug Fix**: 적 CardDataSO 기반 스킬, DI 동적 주입, VFX SetActive+lifeTime, Cinemachine Priority
 
-**완료 기준:**
-```text
-Wave 전 적 사망 → Wave Clear → 스킬 연출 완료 대기.
-다음 Wave 적 스폰 + 카드패 드로우 동시 진행.
-가짐패 우선 드로우, 부족 시 버림패 셔플 합산.
-카드패 진입 시 코스트 최대 회복.
-적 등장 모션 + 드로우 연출 완료 후 입력 허용.
+---
+
+## ✅ Bug 4 — 에디터 타임라인 구조 개편 (완료)
+
+- Phase 1~4: 데이터 모델 교체, 선택 상태, ObjectListPanel, Timeline Row 재구성
+- Phase 5: 4분할 레이아웃 (RenderingView / TimelinePanel / HierarchyPanel / InspectorPanel), 리사이즈 핸들
+- Phase 6: VFX 오브젝트 인스펙터 (VfxDefinitionSO 도입, ScrollView, 2단 구조)
+  - `VfxDefinitionSO`: key + prefab(3D 프리뷰용) + defaultLifeTime
+  - `SkillVfxObjectData.vfxDefinition` 으로 참조, vfxDefinition 변경 시 lifeTime 자동 세팅
+
+---
+
+## ✅ Bug 5 — 이징 연결선 표시 (완료)
+
+- CamPosition/Rotation/Zoom, VfxPosition/Rotation/Scale row에 인접 키프레임 쌍 사이 이징 연결선 렌더링
+- Hold=점선(회색), Linear=실선(밝은 회색), EaseIn*=파랑, EaseOut*=주황, EaseInOut*=보라
+- 선 클릭 시 인스펙터에 "Transition" 드롭다운(Hold + 전체 LitMotion.Ease 목록) 표시
+- 키프레임 드래그 중 이징 선 실시간 갱신 (`_easingLineContainers` Dictionary 패턴)
+- RowHeight=28f, lineH=4f, fontSize=9, 라벨 색상 흰색
+
+---
+
+## ✅ RT-1 — 런타임 검증 (완료)
+
+- Animation/VFX/Camera/Effect/isHold/easing 전 항목 플레이 모드 검증 완료
+- VFX Active 키프레임: `vfxActiveAction`(Play/Stop) 필드 추가, 인스펙터 표시, 런타임 `AnimateActiveAsync` 처리
+- VFX Active 없으면 기존 `lifeTime` fallback 유지
+- 카메라/VFX 이동: base 기준 누적 오프셋(`baseOffset + keyframeDelta`) 방식으로 통일
+- `SkillVfxContainer`: `GetComponentsInChildren` 전환으로 복수 ParticleSystem 완전 Stop
+- ※ CinemachineComposer는 이후 Camera 리팩토링으로 제거됨 (RT-2 Phase 1 이전 작업)
+
+---
+
+## ✅ Bug 6 — EndMarker + 카메라 Priority 수정 (완료)
+
+- `SkillObjectKind.EndMarker` + `SkillKeyframeProperty.TimelineEndTime` 추가
+- `SkillPresentationTimeline.endMarkerKeyframe`: nullable 필드. `GetEffectiveDuration()`이 EndMarker 시각을 우선 반환
+- 에디터: EndMarker 오브젝트 추가 시 자동으로 1개 키프레임 생성. 드래그/삭제/인스펙터 모두 기존 키프레임 인프라 재사용
+- **카메라 Priority 조기 복원 버그**: `SkillCameraExecutionService.PlayAsync`가 카메라 키프레임 완료 즉시 `Priority = 0` 복원하던 문제 수정
+  - `effectiveDuration` 파라미터 추가 → 마지막 카메라 키프레임 이후 잔여 시간만큼 대기 후 복원
+
+---
+
+## ✅ RT-2 Phase 1 — 3D 프리뷰 씬 기반 구조 (완료)
+
+- `SkillPreviewLayoutSO`: casterPrefab/Pos, targetPrefabs[3]/Pos[3], environmentPrefab, cameraPosition, cameraRotationEuler, cameraFov
+- `SkillPreviewScene`: `EditorSceneManager.NewPreviewScene()` + **`camera.scene = _scene` + `CameraType.Preview`** (URP에서 preview scene 렌더링의 핵심)
+- `SkillPreviewAgentTag`: `spawnOffset`(Vector3) + `spawnRotationOffset`(Vector3 Euler) — 프리팹별 스폰 보정값
+- `EditorPrefs` 영구 저장: Card SO path, Preview Layout path, Prefab Folder string (에디터 재시작 후 복원)
+- 플레이 모드 진입 시 씬 소멸 / 종료 시 자동 재생성 (`playModeStateChanged` 이벤트)
+- 렌더링: `camera.Render()` → RenderTexture → `IMGUIContainer.GUI.DrawTexture`
+
+---
+
+# 다음 페이즈
+
+## RT-2 — 3D 타임라인 프리뷰 (Editor Scene Preview)
+
+**목적**: Skill Presentation Editor의 RenderingView 영역에서 Playhead 시각 기준으로 캐릭터 애니메이션·VFX·카메라 연출을 에디터 타임에 프리뷰한다.
+
+---
+
+### 확정된 아키텍처 결정
+
+| 항목 | 결정 |
+|------|------|
+| 렌더링 | `EditorSceneManager.NewPreviewScene()` + Camera → RenderTexture → `IMGUIContainer` |
+| 프리뷰 범위 | VFX + Camera + Animation 전체 |
+| 씬 생명주기 | `OnEnable` 생성 / `OnDisable` 소멸, 카드·등급 전환 시 오브젝트만 교체 |
+| 레이아웃 데이터 | `SkillPreviewLayoutSO` (EditorWindow에서 `[SerializeField]`로 연결) |
+| Animation 스크럽 | Rebind + `CrossFadeInFixedTime(hash, 0.1f)` + `animator.Update(delta)` fast-forward |
+| VFX 스크럽 | `particleSystem.Simulate(t - spawnTime, withChildren:true, restart:true)` 매 프레임 |
+| Camera | 단순 `Camera` 컴포넌트. `baseOffset + keyframeDelta` 방식. CamShake는 프리뷰 스킵 |
+| VFX 스폰 기준 | Caster=casterPosition, Target=targetPositions[0], Between=두 위치 중간점 |
+
+---
+
+### SkillPreviewLayoutSO 구조
+
+파일 위치: `Assets/00. Work/_Resources/02. Scripts/Battle/Presentation/SkillPreviewLayoutSO.cs`
+
+```csharp
+[CreateAssetMenu(menuName = "Battle/Skill Preview Layout")]
+public class SkillPreviewLayoutSO : ScriptableObject
+{
+    public GameObject   casterPrefab;
+    public GameObject[] targetPrefabs;        // 슬롯 0~2 (최대 3)
+    public Vector3      casterPosition;
+    public Vector3[]    targetPositions;      // 슬롯 0~2 고정
+    public GameObject   environmentPrefab;   // null이면 단색 배경
+    public Vector3      cameraPosition;
+    public Vector3      cameraRotationEuler;
+    public float        cameraFov = 60f;
+}
 ```
 
 ---
 
-### Phase S-7. Stage Clear / Stage Fail Branch
+### SkillPreviewScene 구조 (Editor-only 클래스)
 
-**Goal**: Wave 결과를 Stage 결과로 연결
+파일 위치: `Assets/00. Work/_Resources/02. Scripts/Battle/Presentation/Editor/SkillPreviewScene.cs`
 
-**완료 기준:**
-```text
-마지막 Wave 완료 → 스킬 연출 완료 대기 → Stage Clear.
-플레이어 사망 → DeathState 완료 대기 → Stage Fail.
-전투 UI 트위닝 아웃 가능.
-Stage Clear / Fail 이후 카드 입력 + 턴 진행 중단.
-```
+- `NewPreviewScene()` 래퍼. 씬 내 오브젝트 생성·소멸·갱신 전담.
+- 외부에서 `Rebuild(layout, timeline, grade)` 호출 시 씬 내 오브젝트 전체 교체.
+- `Sample(float t)` 호출 시 해당 시각 기준으로 Animator·VFX·Camera 갱신.
+- `RenderTexture` 프로퍼티로 IMGUIContainer에 연결.
 
 ---
 
-### Phase S-8. Stage Result UI Placeholder
+### RT-2 구현 페이즈
 
-**Goal**: 임시 결과 UI 표시
-
-**완료 기준:**
-```text
-Stage Clear 시 "Stage Clear" UI 표시.
-Stage Fail 시 "Stage Failed" UI 표시.
-결과 UI 중 카드 입력 + 턴 진행 불가.
-임시 재시작 / 닫기 버튼 배치.
-```
+#### ~~Phase 1~~ — 완료 (RT-2 Phase 1 요약 참고)
 
 ---
 
-### Stage Framework 이후 순서
+#### ~~Phase 2~~ — 완료
 
-```text
-1. DI Refactoring (전투 컨트롤러 Reflect DI 적용 + Player 직접 참조 제거)
-2. Card Grave System
-3. Skill Presentation Editor
-4. Fusion / Grade / Resonance System
-5. Reward System
-```
-
-**DI 리팩토링 범위 (Stage Framework 완료 후):**
-- `BattleResultController`, `BattleTurnController`, `BattleActionExecutor` 등 전투 컨트롤러의 `[SerializeField] Player player` 직접 참조 → Reflect DI로 교체
-- Enemy 직접 참조는 S-4에서 동적 스폰 + Registry 패턴으로 자연 해소됨
-- Stage Framework 완료 전에 DI 적용 시 S-4, S-6 구조 변경 때 재수정 필요 — 의도적으로 후순위
+- `SkillPreviewScene`: `_timeline`, `_casterAnimator`, `_lastSampledTime` 필드. `Sample(t)` → `SampleAnimators(t)`.
+- `SampleAnimators`: t 이하 **마지막 AnimParam 키프레임** 탐색 → `Animator.Play(hash, 0, 0f)` + `Update(0f)` + `Update(timeIntoClip)`. 트랜지션 없는 PlayClip 구조에서 fast-forward 방식은 잘못된 상태를 유발하므로 마지막 키프레임만 사용.
+- `SkillPresentationEditorWindow.Preview.cs`: `_lastSampledTime` 필드. `DrawPreview()` 에서 시각 변화 감지 시 `Sample()` 호출.
 
 ---
 
-## Out of Scope
+#### ~~Phase 3~~ — 완료
 
-Stage Framework 완료 전까지 구현하지 않는다.
+- `VfxEntry` struct: Data/Go/Particles/BasePosition/BaseRotation/BaseScale + PosKeys/RotKeys/ScaleKeys/ActiveKeys (spawn 시 정렬 캐시)
+- `SampleVfx(t)`: localT 기반 active 판단, VfxActive 키프레임 우선, `ps.Simulate()`, `base + additive delta` 보간
+- `InterpolateDelta`: isHold=snap, `EaseUtility.Evaluate(normalizedT, ease)`
+- `ApplyVfxObjectChange` → `RebuildPreview()`, `ApplyKeyframeChange` → `_lastSampledTime=MinValue; Repaint()`
+- 키프레임 추가/삭제/드래그/붙여넣기/시간변경 → `RebuildPreview()` (VfxEntry 캐시 무효화)
 
-```text
-범위 공격 타겟팅 완성
-합성 UI / 카드 합성 시스템
-카드 등급 표시 UI / 카드 등급별 스킬 데이터 분기
-공명 게이지 UI
-스킬 연출 에디터 연동 (DamageCastTrigger 타이밍 연동 포함)
-카드 보상 UI
-버프/디버프 UI
-스킬 실행 중 UI 슬라이드 아웃 연출
-적 행동 의도 표시 UI
-```
+---
 
-단, 위 기능이 나중에 추가될 수 있도록 구조를 막지 않는다.
+#### ~~Phase 4a~~ — Camera 키프레임 연동 (완료)
+
+- `_layout: SkillPreviewLayoutSO` 필드 추가 (Rebuild 시 저장)
+- `IsRecordingCamera` 프로퍼티 + `SetRecordingCameraTransform(pos, euler)` 공개 메서드 추가
+- `SampleCamera(t)`: CamPos/Rot → `base + InterpolateDelta`, CamZoom → `InterpolateFov` (absolute FOV)
+- `FilterCameraKeys()` / `InterpolateFov()` 헬퍼 추가, CamShake 스킵
+- `Sample(t)` → `SampleCamera(t)` 호출 추가
+
+---
+
+#### ~~Phase 4b~~ — 카메라 녹화 모드 (완료)
+
+- UIToolkit `Button`으로 REC 버튼 분리 (IMGUIContainer `PickingMode.Ignore` 제거)
+- `_isCameraFree` 토글(CAM 버튼): OFF 시 키프레임 그대로, ON 시 WASD/QE/우클릭 자유 이동
+- `EditorApplication.update` 항상 등록 (`OnEnable`/`OnDisable`), `OnCameraUpdate()`로 이동 처리
+- Snapshot 방식: REC 종료 시 현재 Playhead 시각에 CamPosition + CamRotation delta 키프레임 생성
+- `IsRecordingCamera`: 자유 이동 중 또는 REC 중 `true` → `SampleCamera(t)` 스킵
+
+---
+
+#### Phase 5 — 환경 맵 + 조명
+
+**목표**: environmentPrefab이 지정된 경우 맵이 배경으로 렌더링됨.
+
+**구현 항목**:
+1. `SkillPreviewScene.Create()` 시:
+   - Directional Light (intensity=1.0f, rotation=(50,-30,0)) 기본 생성
+   - `_layout.environmentPrefab != null`이면 `SceneManager.MoveGameObjectToScene(Instantiate(environmentPrefab), _previewScene)` 호출
+2. `RebuildEnvironment(layout)`: layout 변경 시 환경 오브젝트 교체
+3. null이면 Camera의 `clearFlags = SolidColor`, `backgroundColor = new Color(0.15f, 0.15f, 0.17f)` 유지
+
+**검증**: SkillPreviewLayoutSO의 environmentPrefab 슬롯에 맵 프리팹 연결 시 배경에 맵이 렌더링됨.
+
+---
+
+### 주의사항
+
+- `SkillPreviewScene`은 `#if UNITY_EDITOR` 가드 필수. 런타임 빌드에 포함되면 안 됨.
+- `NewPreviewScene`에서 스폰된 오브젝트는 Reflex DI 주입 불필요 (에디터 전용 시각화).
+- Animator가 없는 프리팹(환경 오브젝트 등)은 null 체크로 조용히 스킵.
+- VfxDefinitionSO.prefab이 null인 경우 해당 VFX 슬롯 스킵.
+- RenderTexture는 `OnDisable`에서 반드시 `Release()` 후 `DestroyImmediate()` 호출.

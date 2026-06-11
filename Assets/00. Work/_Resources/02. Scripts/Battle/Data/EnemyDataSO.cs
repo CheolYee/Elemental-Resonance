@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using _02._Scripts.CombatSystem.Skills;
-using Battle.Effects;
 using UnityEngine;
 
 namespace Battle.Data
@@ -12,7 +9,6 @@ namespace Battle.Data
         public string enemyName;
         public GameObject enemyPrefab;
         public int maxHp;
-        public SkillDataSO attackSkill;
-        public List<CardEffectSO> attackEffects;
+        public CardDataSO attackCard;
     }
 }

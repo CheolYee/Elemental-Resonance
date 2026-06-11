@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 14e1083682bd22e41864b8069923b0a0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320774
+  packageName: TMPEffect
+  packageVersion: 1.0
+  assetPath: Assets/TMPEffect/Scripts/TMPEffect.cs
+  uploadId: 758010

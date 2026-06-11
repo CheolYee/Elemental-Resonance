@@ -19,6 +19,7 @@ namespace Battle.UI
         [SerializeField] private Image artworkImage;
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text costText;
+        [SerializeField] private TMP_Text descText;
 
         [Header("Hover")]
         [SerializeField] private EventChannelSO battleEventChannel;
@@ -51,9 +52,11 @@ namespace Battle.UI
         private float _currentRotZ;
         private Vector2 _layoutPos;
         private float _layoutRotZ;
+        private float _layoutScale = 1f;
         private bool _isHovered;
         private CardDragHandler _dragHandler;
-        private bool _canUse = true;
+        private bool _canAfford = true;
+        private bool _conditionMet = true;
         private bool _isInteractable = true;
         private Color _originalCostColor;
 
@@ -63,6 +66,7 @@ namespace Battle.UI
             _canvas = GetComponent<Canvas>();
             _originalCostColor = costText.color;
             _dragHandler = GetComponent<CardDragHandler>();
+            InitializeUsabilityOverlay();
         }
 
         private void OnEnable() => battleEventChannel.AddListener<CostChangedEvent>(OnCostChanged);
@@ -72,17 +76,20 @@ namespace Battle.UI
         {
             CardInstance = instance;
             nameText.text = instance.data.cardName;
+            descText.text = instance.data.description;
             costText.text = instance.data.cost.ToString();
             artworkImage.sprite = instance.data.artwork;
 
-            SetUsability(costModel.currentCost >= instance.data.cost);
+            RefreshUsability(costModel.currentCost);
         }
 
-        private void OnCostChanged(CostChangedEvent evt) => SetUsability(evt.CurrentCost >= CardInstance.data.cost);
+        private void OnCostChanged(CostChangedEvent evt) => RefreshUsability(evt.CurrentCost);
 
-        private void SetUsability(bool canUse)
+        private void RefreshUsability(int currentCost)
         {
-            _canUse = canUse;
+            _canAfford = CardInstance.data.CanAfford(currentCost);
+            _conditionMet = CardInstance.data.IsConditionMet(currentCost);
+            bool canUse = _canAfford && _conditionMet;
             TweenOverlayAlpha(canUse ? 0f : overlayTargetAlpha);
             costText.color = canUse ? _originalCostColor : Color.red;
         }
@@ -90,10 +97,23 @@ namespace Battle.UI
         private void TweenOverlayAlpha(float targetAlpha)
         {
             if (usabilityOverlay == null) return;
+            if (!usabilityOverlay.gameObject.activeSelf)
+                usabilityOverlay.gameObject.SetActive(true);
             if (_overlayHandle.IsActive()) _overlayHandle.Cancel();
             var c = usabilityOverlay.color;
             _overlayHandle = LMotion.Create(c.a, targetAlpha, overlayFadeDuration)
                 .Bind(a => usabilityOverlay.color = new Color(c.r, c.g, c.b, a));
+        }
+
+        private void InitializeUsabilityOverlay()
+        {
+            if (usabilityOverlay == null) return;
+
+            usabilityOverlay.gameObject.SetActive(true);
+            usabilityOverlay.raycastTarget = false;
+
+            var c = usabilityOverlay.color;
+            usabilityOverlay.color = new Color(c.r, c.g, c.b, 0f);
         }
 
         public void SnapRotation(float rotZ)
@@ -127,12 +147,18 @@ namespace Battle.UI
         {
             if (!_isInteractable) return;
 
-            if (!_canUse)
+            if (!_canAfford)
             {
                 PlayShakeAsync(destroyCancellationToken).Forget();
                 FlashCostRed();
                 PopCostText();
                 battleEventChannel.RaiseEvent(new InsufficientCostEvent());
+                return;
+            }
+
+            if (!_conditionMet)
+            {
+                PlayShakeAsync(destroyCancellationToken).Forget();
                 return;
             }
 
@@ -171,6 +197,13 @@ public void OnPointerEnter(PointerEventData eventData)
             ForceExitHover(tweenBack: !isDragging);
         }
 
+        public void SetLayoutScale(float scale, float duration, Ease ease)
+        {
+            _layoutScale = scale;
+            if (_isHovered || (_dragHandler != null && _dragHandler.IsDragging)) return;
+            TweenScaleTo(new Vector3(scale, scale, 1f), duration, ease);
+        }
+
         public void ForceExitHover(bool tweenBack = true)
         {
             if (!_isHovered) return;
@@ -182,7 +215,7 @@ public void OnPointerEnter(PointerEventData eventData)
             if (tweenBack)
                 ApplyLayoutTween(_layoutPos, _layoutRotZ, hoverDuration, hoverEase);
 
-            TweenScaleTo(Vector3.one, hoverDuration, hoverEase);
+            TweenScaleTo(new Vector3(_layoutScale, _layoutScale, 1f), hoverDuration, hoverEase);
             battleEventChannel.RaiseEvent(new CardHoverExitEvent());
         }
 
@@ -282,7 +315,9 @@ private float CalculateSnapToBottomY()
             costText.transform.localScale = Vector3.one;
 
             _isHovered = false;
-            _canUse = true;
+            _layoutScale = 1f;
+            _canAfford = true;
+            _conditionMet = true;
             _isInteractable = true;
             _dragHandler?.ResetDragState();
             _currentRotZ = 0f;
@@ -303,6 +338,7 @@ private float CalculateSnapToBottomY()
             CardInstance = null;
             if (artworkImage != null) artworkImage.sprite = null;
             if (nameText != null) nameText.text = string.Empty;
+            if (descText != null) descText.text = string.Empty;
             if (costText != null) costText.text = string.Empty;
         }
     }

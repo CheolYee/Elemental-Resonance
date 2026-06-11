@@ -1,0 +1,348 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e899caa56398af74a8e46dc01474e20c, type: 3}
+  m_Name: TestCost
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Presentation.SkillPresentationDataSO
+  hideBattleUIDuringSkill: 0
+  normalTimeline:
+    animationTrack:
+      keyframes:
+      - property: 0
+        timeSeconds: 0.5
+        animParam: {fileID: 11400000, guid: 62d70af80841b0349bb5658c91a6070a, type: 2}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxId: 
+    effectTrack:
+      keyframes:
+      - property: 1
+        timeSeconds: 0.7
+        animParam: {fileID: 0}
+        effectSlotId: 1c6badd5-51bd-4f12-8d45-b16383da6a29
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxId: 
+    vfxObjects:
+    - vfxDefinition: {fileID: 11400000, guid: 38789b615ba8f3643aa95489e71609c2, type: 2}
+      spawnTime: 0
+      lifeTime: 5
+      spawnTarget: 0
+      spawnPositionOffset: {x: 0, y: 1, z: 0}
+      spawnRotationEuler: {x: 0, y: 0, z: 0}
+      keyframes:
+      - property: 5
+        timeSeconds: 0.5
+        animParam: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxId: 
+      - property: 5
+        timeSeconds: 1.8000001
+        animParam: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 1
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxId: 
+    cameraTrack:
+      keyframes:
+      - property: 6
+        timeSeconds: 0
+        animParam: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxId: 
+      - property: 7
+        timeSeconds: 0
+        animParam: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 360, z: -0.00000010836805}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxId: 
+      - property: 8
+        timeSeconds: 0.5
+        animParam: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxId: 
+      - property: 6
+        timeSeconds: 0.5083333
+        animParam: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: -1.2322314, y: 0.15125275, z: 3.0767612}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxId: 
+      - property: 7
+        timeSeconds: 0.5083333
+        animParam: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 5.750002, y: 207.99997, z: -0.00000033069867}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxId: 
+      - property: 8
+        timeSeconds: 0.7166667
+        animParam: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 8
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 80
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxId: 
+    uiTrack:
+      keyframes:
+      - property: 10
+        timeSeconds: 0
+        animParam: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 2
+        sfxId: 
+    sfxTrack:
+      keyframes: []
+    addedObjects: 0100000004000000070000000200000005000000
+    endMarkerKeyframe:
+      property: 12
+      timeSeconds: 1.9
+      animParam: {fileID: 0}
+      effectSlotId: 
+      valueMultiplier: 1
+      position: {x: 0, y: 0, z: 0}
+      rotationEuler: {x: 0, y: 0, z: 0}
+      scale: {x: 1, y: 1, z: 1}
+      isHold: 0
+      easing: 0
+      vfxActiveAction: 0
+      cameraPosition: {x: 0, y: 0, z: 0}
+      cameraRotationEuler: {x: 0, y: 0, z: 0}
+      fieldOfView: 60
+      amplitude: 1
+      shakeDuration: 0.2
+      uiAction: 0
+      sfxId: 
+  rareTimeline:
+    animationTrack:
+      keyframes: []
+    effectTrack:
+      keyframes: []
+    vfxObjects: []
+    cameraTrack:
+      keyframes: []
+    uiTrack:
+      keyframes: []
+    sfxTrack:
+      keyframes: []
+    addedObjects: 
+    endMarkerKeyframe:
+      property: 0
+      timeSeconds: 0
+      animParam: {fileID: 0}
+      effectSlotId: 
+      valueMultiplier: 1
+      position: {x: 0, y: 0, z: 0}
+      rotationEuler: {x: 0, y: 0, z: 0}
+      scale: {x: 1, y: 1, z: 1}
+      isHold: 0
+      easing: 0
+      vfxActiveAction: 0
+      cameraPosition: {x: 0, y: 0, z: 0}
+      cameraRotationEuler: {x: 0, y: 0, z: 0}
+      fieldOfView: 60
+      amplitude: 1
+      shakeDuration: 0.2
+      uiAction: 0
+      sfxId: 
+  epicTimeline:
+    animationTrack:
+      keyframes: []
+    effectTrack:
+      keyframes: []
+    vfxObjects: []
+    cameraTrack:
+      keyframes: []
+    uiTrack:
+      keyframes: []
+    sfxTrack:
+      keyframes: []
+    addedObjects: 
+    endMarkerKeyframe:
+      property: 0
+      timeSeconds: 0
+      animParam: {fileID: 0}
+      effectSlotId: 
+      valueMultiplier: 1
+      position: {x: 0, y: 0, z: 0}
+      rotationEuler: {x: 0, y: 0, z: 0}
+      scale: {x: 1, y: 1, z: 1}
+      isHold: 0
+      easing: 0
+      vfxActiveAction: 0
+      cameraPosition: {x: 0, y: 0, z: 0}
+      cameraRotationEuler: {x: 0, y: 0, z: 0}
+      fieldOfView: 60
+      amplitude: 1
+      shakeDuration: 0.2
+      uiAction: 0
+      sfxId: 
+  legendaryTimeline:
+    animationTrack:
+      keyframes: []
+    effectTrack:
+      keyframes: []
+    vfxObjects: []
+    cameraTrack:
+      keyframes: []
+    uiTrack:
+      keyframes: []
+    sfxTrack:
+      keyframes: []
+    addedObjects: 
+    endMarkerKeyframe:
+      property: 0
+      timeSeconds: 0
+      animParam: {fileID: 0}
+      effectSlotId: 
+      valueMultiplier: 1
+      position: {x: 0, y: 0, z: 0}
+      rotationEuler: {x: 0, y: 0, z: 0}
+      scale: {x: 1, y: 1, z: 1}
+      isHold: 0
+      easing: 0
+      vfxActiveAction: 0
+      cameraPosition: {x: 0, y: 0, z: 0}
+      cameraRotationEuler: {x: 0, y: 0, z: 0}
+      fieldOfView: 60
+      amplitude: 1
+      shakeDuration: 0.2
+      uiAction: 0
+      sfxId: 

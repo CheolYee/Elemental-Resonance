@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Battle.Enums;
 using Battle.Events;
 using Gamelib.EventSystem;
@@ -12,6 +13,7 @@ namespace Battle.UI
         [SerializeField] private EventChannelSO battleEventChannel;
         [SerializeField] private RectTransform handAreaRect;
         [SerializeField] private int dragSortingOrder = 20;
+        private List<RectTransform> _blockedDropAreas;
 
         private BattleTargetingController _targetingController;
         private CardView _cardView;
@@ -24,6 +26,7 @@ namespace Battle.UI
         public bool IsDragging => _isDragging;
 
         public void SetHandAreaRect(RectTransform rect) => handAreaRect = rect;
+        public void SetBlockedAreas(List<RectTransform> areas) => _blockedDropAreas = areas;
 
         private void Awake()
         {
@@ -83,22 +86,35 @@ namespace Battle.UI
             }
         }
 
+        private bool IsOverBlockedArea(PointerEventData eventData)
+        {
+            if (_blockedDropAreas == null) return false;
+            foreach (var area in _blockedDropAreas)
+            {
+                if (area != null && RectTransformUtility.RectangleContainsScreenPoint(
+                    area, eventData.position, eventData.pressEventCamera))
+                    return true;
+            }
+            return false;
+        }
+
         public void HandleEndDrag(PointerEventData eventData)
         {
             if (!_isDragging) return;
 
             var targetType = _cardView.CardInstance?.data?.targetType ?? CardTargetType.None;
+            bool isNoneCard = targetType == CardTargetType.None;
             bool isValidDrop = _isTargeting &&
-                (targetType == CardTargetType.None || _targetingController.HasValidHoverTarget);
+                (isNoneCard ? !IsOverBlockedArea(eventData) : _targetingController.HasValidHoverTarget);
 
             if (isValidDrop)
             {
-                var target = _targetingController.CurrentHoveredTarget;
+                var target = isNoneCard ? null : _targetingController.CurrentHoveredTarget;
                 _isDragging = false;
                 _isTargeting = false;
                 _canvas.overrideSorting = false;
                 battleEventChannel.RaiseEvent(new CardTargetingEndEvent());
-                battleEventChannel.RaiseEvent(new CardDroppedOnTargetEvent(_cardView.CardInstance, target));
+                battleEventChannel.RaiseEvent(new CardDroppedOnTargetEvent(_cardView.CardInstance, target, _rectTransform.position));
             }
             else
             {

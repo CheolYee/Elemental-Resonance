@@ -78,5 +78,6 @@ namespace Battle.UI
             characterOverlayCamera.cullingMask = 0;
             characterOverlayCamera.gameObject.SetActive(false);
         }
+
     }
 }

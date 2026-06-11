@@ -39,11 +39,13 @@ namespace _00._Work._Resources._02._Scripts.Agents.Enemies
 
         public UniTask WaitForEntryComplete() => GetOrCreateEntryCompletion().Task;
 
+        public event Action OnDeathStarted;
         public event Action OnDeathAnimationComplete;
 
         protected override void HandleDeath()
         {
             base.HandleDeath();
+            OnDeathStarted?.Invoke();
             ChangeState(EnemyState.DEATH);
             var deathState = StateMachine.CurrentState;
             void OnDeathComplete()

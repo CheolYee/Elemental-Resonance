@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 703187e54c5149645907c679735dd6df
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 233672
+  packageName: 101 Artistic Noise Textures
+  packageVersion: 1.0
+  assetPath: Assets/Alvios/101ArtisticNoise/NoiseFlow.shader
+  uploadId: 533095

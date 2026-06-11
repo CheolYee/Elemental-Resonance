@@ -58,10 +58,10 @@ namespace Battle.Modules
             for (int i = 0; i < _renderers.Length; i++)
             {
                 var mat = _renderers[i].sharedMaterial;
-                _originalWidths[i] = mat != null && mat.HasFloat("_OutlineWidth")
-                    ? mat.GetFloat("_OutlineWidth") : 1f;
-                _originalColors[i] = mat != null && mat.HasColor("_OutlineColor")
-                    ? mat.GetColor("_OutlineColor") : Color.gray;
+                _originalWidths[i] = mat != null && mat.HasFloat(OutlineWidthId)
+                    ? mat.GetFloat(OutlineWidthId) : 1f;
+                _originalColors[i] = mat != null && mat.HasColor(OutlineColorId)
+                    ? mat.GetColor(OutlineColorId) : Color.gray;
                 _originalRenderingLayers[i] = _renderers[i].renderingLayerMask;
             }
             _initialized = true;
@@ -98,7 +98,10 @@ namespace Battle.Modules
         {
             if (!_initialized) return;
             foreach (var r in _renderers)
+            {
+                if (r == null) continue;
                 r.material.SetFloat(OutlineWidthId, 0f);
+            }
         }
 
         public void RestoreOutline()
@@ -106,6 +109,7 @@ namespace Battle.Modules
             if (!_initialized) return;
             for (int i = 0; i < _renderers.Length; i++)
             {
+                if (_renderers[i] == null) continue;
                 _renderers[i].material.SetFloat(OutlineWidthId, _originalWidths[i]);
                 _renderers[i].material.SetColor(OutlineColorId, _originalColors[i]);
                 _renderers[i].material.SetFloat(OutlinePureColorId, 0f);
@@ -118,6 +122,7 @@ namespace Battle.Modules
             if (!_initialized) return;
             foreach (var r in _renderers)
             {
+                if (r == null) continue;
                 r.material.SetFloat(OutlineWidthId, validOutlineWidth);
                 r.material.SetColor(OutlineColorId, validOutlineColor);
                 r.material.SetFloat(OutlinePureColorId, 1f);
@@ -130,6 +135,7 @@ namespace Battle.Modules
             if (!_initialized) return;
             foreach (var r in _renderers)
             {
+                if (r == null) continue;
                 r.material.SetFloat(OutlineWidthId, hoveredOutlineWidth);
                 r.material.SetColor(OutlineColorId, hoveredOutlineColor);
                 r.material.SetFloat(OutlinePureColorId, 1f);

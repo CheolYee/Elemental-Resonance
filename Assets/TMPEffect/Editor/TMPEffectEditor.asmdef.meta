@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 136315ced1d37174abf6a2f530bd7002
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320774
+  packageName: TMPEffect
+  packageVersion: 1.0
+  assetPath: Assets/TMPEffect/Editor/TMPEffectEditor.asmdef
+  uploadId: 758010

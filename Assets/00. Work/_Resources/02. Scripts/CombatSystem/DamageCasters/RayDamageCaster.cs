@@ -43,7 +43,7 @@ namespace CombatSystem
                 
                 damageable.TakeDamage(new DamageData
                 {
-                    DamageAmount = (int)(sampleDamage * skillData.damageMultiplier),
+                    DamageAmount = sampleDamage,
                     Attacker = CasterOwner,
                     HitPoint = LastHitPosition,
                     HitNormal = LastHitNormal,

@@ -1,10 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using _00._Work._Resources._02._Scripts.Agents;
 using _00._Work._Resources._02._Scripts.Modules;
+using _00._Work._Resources._02._Scripts.Systems.AnimationSystems;
+using Battle.Presentation;
 using Cysharp.Threading.Tasks;
+using Reflex.Attributes;
 using UnityEngine;
 
 namespace _02._Scripts.CombatSystem.Skills
@@ -14,8 +15,11 @@ namespace _02._Scripts.CombatSystem.Skills
         [SerializeField] private int skillStateIndex;
         [SerializeField] private int idleStateIndex;
 
+        [Inject] private ISkillPresentationPlayer _skillPresentationPlayer;
+
         public ModuleOwner Owner { get; private set; }
         public SkillDataSO CurrentSkill { get; private set; }
+        public AnimParamSO CurrentEntryAnimParam { get; private set; }
 
         public event Action OnCurrentSkillEnd;
 
@@ -23,46 +27,104 @@ namespace _02._Scripts.CombatSystem.Skills
 
         public async UniTask UseSkillAsync(SkillUsageData data, GameObject target, CancellationToken ct = default)
         {
-            if (Owner is not Agent agent) return;
+            if (Owner is not Agent agent || data == null) return;
 
             CurrentSkill = data.SkillData;
+            bool isCardUsage = data.CardInstance != null;
 
-            List<Battle.Effects.CardEffectSO> repeatEffects = data.Effects.Where(e => e.isRepeat).ToList();
-            List<Battle.Effects.CardEffectSO> onceEffects = data.Effects.Where(e => !e.isRepeat).ToList();
+            SkillPresentationTimeline resolvedTimeline = ResolvePlayableTimeline(data);
 
-            for (int i = 0; i < data.RepeatCount; i++)
+            if (data.PresentationData != null && resolvedTimeline == null)
             {
-                foreach (var effect in repeatEffects)
-                    effect.Apply(agent.gameObject, target);
-
-                if (data.SkillData != null)
+                string name = isCardUsage ? (data.CardInstance?.data?.cardName ?? "Unknown") : "Enemy";
+                Debug.LogWarning($"[SkillPresentation] '{name}'에 재생 가능한 Timeline이 없습니다. 코스트와 카드 소비만 처리합니다.");
+                if (isCardUsage)
                 {
-                    agent.StateMachine.ChangeState(skillStateIndex);
-
-                    var tcs = new UniTaskCompletionSource();
-                    var state = agent.StateMachine.CurrentState;
-                    void OnComplete() => tcs.TrySetResult();
-                    state.OnStateCompleted += OnComplete;
-
-                    try
-                    {
-                        await tcs.Task.AttachExternalCancellation(ct);
-                    }
-                    finally
-                    {
-                        state.OnStateCompleted -= OnComplete;
-                    }
-
-                    agent.StateMachine.ChangeState(idleStateIndex);
+                    CurrentEntryAnimParam = null;
+                    OnCurrentSkillEnd?.Invoke();
+                    return;
                 }
             }
 
-            foreach (var effect in onceEffects)
-                effect.Apply(agent.gameObject, target);
+            // 적: 효과를 프레젠테이션 시작 전에 즉시 적용
+            if (!isCardUsage)
+                ApplyImmediateEnemyEffects(agent, target, data);
 
+            bool shouldPlayPresentation = resolvedTimeline != null && _skillPresentationPlayer != null;
+            bool shouldWaitForSkillState = shouldPlayPresentation
+                && resolvedTimeline.animationTrack?.keyframes?.Count > 0;
+
+            // AnimationKeyframe이 애니메이션을 담당하므로 SkillState 자체는 애니메이션을 재생하지 않는다
+            CurrentEntryAnimParam = null;
+
+            UniTask stateTask = shouldWaitForSkillState
+                ? WaitForSkillStateAsync(agent, ct)
+                : UniTask.CompletedTask;
+
+            UniTask presentationTask = UniTask.CompletedTask;
+            if (shouldPlayPresentation)
+            {
+                Agent targetAgent = target != null ? target.GetComponentInParent<Agent>() : null;
+                var playbackContext = new SkillPresentationPlaybackContext(
+                    data.PresentationData,
+                    data.Grade,
+                    data,
+                    data.CardInstance,
+                    agent,
+                    targetAgent,
+                    ct);
+                presentationTask = _skillPresentationPlayer.PlayAsync(playbackContext);
+            }
+
+            await UniTask.WhenAll(stateTask, presentationTask);
+
+            if (shouldWaitForSkillState)
+                agent.StateMachine.ChangeState(idleStateIndex);
+
+            CurrentEntryAnimParam = null;
             OnCurrentSkillEnd?.Invoke();
         }
 
         public void StopSkillIfNotFinished() { }
+
+        private async UniTask WaitForSkillStateAsync(Agent agent, CancellationToken ct)
+        {
+            agent.StateMachine.ChangeState(skillStateIndex);
+
+            var tcs = new UniTaskCompletionSource();
+            var state = agent.StateMachine.CurrentState;
+            void OnComplete() => tcs.TrySetResult();
+            state.OnStateCompleted += OnComplete;
+
+            try
+            {
+                await tcs.Task.AttachExternalCancellation(ct);
+            }
+            finally
+            {
+                state.OnStateCompleted -= OnComplete;
+            }
+        }
+
+        private static SkillPresentationTimeline ResolvePlayableTimeline(SkillUsageData data)
+        {
+            if (data?.PresentationData == null) return null;
+            return data.PresentationData.TryGetPlayableTimeline(data.Grade, out SkillPresentationTimeline timeline)
+                ? timeline
+                : null;
+        }
+
+        private static void ApplyImmediateEnemyEffects(Agent agent, GameObject target, SkillUsageData data)
+        {
+            if (agent == null || data?.Effects == null) return;
+
+            foreach (var effect in data.Effects)
+            {
+                if (effect == null) continue;
+                int repeatCount = effect.isRepeat ? Mathf.Max(1, data.RepeatCount) : 1;
+                for (int i = 0; i < repeatCount; i++)
+                    effect.Apply(agent.gameObject, target, effect.BaseValue);
+            }
+        }
     }
 }

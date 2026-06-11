@@ -16,6 +16,4 @@ MonoBehaviour:
   enemyName: "\uC655\uBC15\uC950"
   enemyPrefab: {fileID: 1308748609954290718, guid: 8bc70d0752c74d24ab7be75ab9e4f3f3, type: 3}
   maxHp: 40
-  attackSkill: {fileID: 11400000, guid: 33d4fbcc24938064d8a9811e5aef1228, type: 2}
-  attackEffects:
-  - {fileID: 11400000, guid: 9b6d5357fa3736c4e832ce1c59d18fcc, type: 2}
+  attackCard: {fileID: 11400000, guid: 8d818724090ca6241a360abc16a53c8c, type: 2}

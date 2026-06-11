@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f808eaf5876411c971c6cfd51d25487, type: 3}
+  m_Name: FlyingCardView
+  m_EditorClassIdentifier: PoolRuntime::Gamelib.ObjectPool.Runtime.PoolItemSo
+  poolingName: FlyingCardView
+  prefab: {fileID: 8906610269243405825, guid: 3de60a03eacc8f9429c4b670358238af, type: 3}
+  initCount: 10

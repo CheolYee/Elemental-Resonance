@@ -67,6 +67,12 @@ CBUFFER_START(UnityPerMaterial)
     float   _EdgeWidth;
     half4   _EdgeColor;
     half    _EdgeIntensity;
+    float   _DissolveYMin;
+    float   _DissolveYMax;
+    float   _HeightBlend;
+    float   _DustScale;
+    float   _DustSpread;
+    float   _DustDensity;
 CBUFFER_END
 
 float3 _LightDirection;
@@ -240,18 +246,31 @@ half4 ShadeFinalColor(Varyings input) : SV_TARGET
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
-    // dissolve clip
-    float noiseValue = tex2D(_DissolveNoiseTex, input.uv).r;
-    clip(noiseValue - _DissolveAmount);
+    // dissolve: bottom-to-top with floating dust particles
+    float worldY = input.positionWSAndFogFactor.y;
+    float normalizedY = saturate((worldY - _DissolveYMin) / max(_DissolveYMax - _DissolveYMin, 0.001));
+
+    float coarseNoise = tex2D(_DissolveNoiseTex, input.uv).r;
+    float fineNoise   = tex2D(_DissolveNoiseTex, input.uv * _DustScale).r;
+
+    // solid body: height-driven, coarse noise adds irregular edge
+    float mainEdge = normalizedY + (coarseNoise - 0.5) * (1.0 - _HeightBlend) * 0.3;
+    float solidMask = step(_DissolveAmount, mainEdge);
+
+    // dust particles: sparse fine-noise dots floating in the transparent band above the edge
+    float inDustZone = step(_DissolveAmount, normalizedY) * step(normalizedY, _DissolveAmount + _DustSpread);
+    float dustDotMask = step(1.0 - _DustDensity, fineNoise) * inDustZone * (1.0 - solidMask);
+
+    clip(solidMask + dustDotMask - 0.5);
 
     ToonSurfaceData surfaceData = InitializeSurfaceData(input);
     ToonLightingData lightingData = InitializeLightingData(input);
 
-    // edge glow (only when dissolve is active)
+    // edge glow: solid edge + dust dot glow
     if (_DissolveAmount > 0.001)
     {
-        float edge = smoothstep(_DissolveAmount, _DissolveAmount + _EdgeWidth, noiseValue);
-        surfaceData.emission += _EdgeColor.rgb * (1.0 - edge) * _EdgeIntensity;
+        float edgeFactor = (1.0 - smoothstep(_DissolveAmount, _DissolveAmount + _EdgeWidth, mainEdge)) * solidMask;
+        surfaceData.emission += _EdgeColor.rgb * _EdgeIntensity * max(edgeFactor, dustDotMask);
     }
 
     half3 color = ShadeAllLights(surfaceData, lightingData);

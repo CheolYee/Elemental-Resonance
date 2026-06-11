@@ -119,6 +119,14 @@ Are UI, gameplay logic, and animation/presentation logic kept separate?
 If the structure is unclear, do not guess.
 Ask the user in Korean before implementing.
 
+## 페이즈 구현 방식
+
+모든 구현사항은 별개의 md파일을 읽으라는 지시를 받으면 그 md파일에 적인 페이즈를 순차적으로 구현한다.
+또한 페이즈는 한번에 구현하지 않으며, 반드시 한페이즈만 구현한 후 다음 페이즈 시작이 나오기 전까지 기다린다.
+다만 구현하기 전에 반드시 grill-me 스킬을 사용해 구조를 확정한다.
+페이즈가 완료되었고, 테스트까지 완료되어 페이즈 완료 응답을 받으면 md지시문에 완료를 반영하고, 필요 없어진 페이즈는 요약하거나 지운다.
+모든 페이즈가 완료되면 어떻게 구현했는지, 어떻게 완료했는지를 토대로 완료 보고서를 작성한다.
+
 ## Dependency Injection (Reflect)
 
 의존성 주입은 반드시 Reflect DI를 사용한다.

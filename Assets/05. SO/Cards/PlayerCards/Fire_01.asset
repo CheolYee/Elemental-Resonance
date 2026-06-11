@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: Fire_01
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: Test_2
+  cardName: "\uBD88 \uD3ED\uD30C"
+  cost: 2
+  artwork: {fileID: 21300000, guid: 55f9652c7ce7c0149a746ebd8824b5eb, type: 3}
+  description: "\uB2E8\uC77C \uC801\uC5D0\uAC8C \uBD88\uB369\uC774\uB97C \uB5A8\uC5B4\uB728\uB824
+    10\uC758 \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4.\n(\uC18C\uBA78 \uCE74\uB4DC)"
+  targetType: 1
+  disposePolicy: 1
+  effectSlots:
+  - effectSlotId: 008c753d-0b4f-43cb-af36-c7185ca6d919
+    effect:
+      rid: 3413309807165177941
+  skillData: {fileID: 11400000, guid: 33d4fbcc24938064d8a9811e5aef1228, type: 2}
+  presentationData: {fileID: 11400000, guid: a3fc9df9b2aba3e4da2525e896426124, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413309807165177941
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 10

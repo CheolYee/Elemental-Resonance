@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d2c57fba3cc922a47af2aece3bc68990
+timeCreated: 1484171296
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320774
+  packageName: TMPEffect
+  packageVersion: 1.0
+  assetPath: Assets/TMPEffect/Examples/LiberationSans - OFL.txt
+  uploadId: 758010

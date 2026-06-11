@@ -15,13 +15,16 @@ MonoBehaviour:
   cards:
   - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
   - {fileID: 11400000, guid: 00514f90a9a018a48becca8c9e06df81, type: 2}
+  - {fileID: 11400000, guid: 00514f90a9a018a48becca8c9e06df81, type: 2}
+  - {fileID: 11400000, guid: 00514f90a9a018a48becca8c9e06df81, type: 2}
   - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
   - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
-  - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
-  - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
-  - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
-  - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
-  - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
-  - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
-  - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
-  - {fileID: 11400000, guid: 26200824044cabf4e8bf38ab336034aa, type: 2}
+  - {fileID: 11400000, guid: 43198ee5fc18de8489d35a04e1963170, type: 2}
+  - {fileID: 11400000, guid: 1220923c22195234881466e6d374fd82, type: 2}
+  - {fileID: 11400000, guid: 43198ee5fc18de8489d35a04e1963170, type: 2}
+  - {fileID: 11400000, guid: 1220923c22195234881466e6d374fd82, type: 2}
+  - {fileID: 11400000, guid: 43198ee5fc18de8489d35a04e1963170, type: 2}
+  - {fileID: 11400000, guid: 1220923c22195234881466e6d374fd82, type: 2}
+  - {fileID: 11400000, guid: 756fb4b4350d3d74b8bc1e7c8ce12da7, type: 2}
+  - {fileID: 11400000, guid: 756fb4b4350d3d74b8bc1e7c8ce12da7, type: 2}
+  - {fileID: 11400000, guid: 756fb4b4350d3d74b8bc1e7c8ce12da7, type: 2}

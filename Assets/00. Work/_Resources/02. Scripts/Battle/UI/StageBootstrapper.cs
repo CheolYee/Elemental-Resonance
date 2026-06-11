@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using _00._Work._Resources._02._Scripts.Agents.Enemies;
 using _00._Work._Resources._02._Scripts.Agents.Players;
@@ -5,6 +6,9 @@ using Battle.Data;
 using Battle.Events;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
+using Reflex.Attributes;
+using Reflex.Core;
+using Reflex.Injectors;
 using UnityEngine;
 
 namespace Battle.UI
@@ -13,24 +17,92 @@ namespace Battle.UI
     {
         [SerializeField] private BattleStageSO stageData;
         [SerializeField] private Transform[] slotPositions;
-        [SerializeField] private Player player;
         [SerializeField] private RuntimeEnemyRegistrySO enemyRegistry;
         [SerializeField] private EventChannelSO battleEventChannel;
+        [SerializeField] private DeckController deckController;
+        [SerializeField] private float waveTransitionDelay = 1.0f;
 
-        private async UniTaskVoid Start()
+        [Inject] private Player _player;
+        [Inject] private Container _container;
+
+        private int _currentWaveIndex;
+        private bool _battleEnded;
+
+        private void OnEnable()
         {
-            await UniTask.Yield(); // 모든 Start() 완료 대기
+            battleEventChannel.AddListener<WaveClearEvent>(OnWaveClear);
+            battleEventChannel.AddListener<BattleVictoryEvent>(OnBattleEnded);
+            battleEventChannel.AddListener<BattleDefeatEvent>(OnBattleEnded);
+        }
 
-            SpawnWave(0);
+        private void OnDisable()
+        {
+            battleEventChannel.RemoveListener<WaveClearEvent>(OnWaveClear);
+            battleEventChannel.RemoveListener<BattleVictoryEvent>(OnBattleEnded);
+            battleEventChannel.RemoveListener<BattleDefeatEvent>(OnBattleEnded);
+        }
 
-            // 씬에 존재하는 모든 AbstractEnemy(씬 배치 + 동적 스폰)를 수집
-            // lazy TCS 덕분에 InitializeEntry() 호출 전에 수집해도 안전
-            var tasks = new List<UniTask> { player.WaitForEntryComplete() };
-            foreach (var enemy in FindObjectsByType<AbstractEnemy>(FindObjectsSortMode.None))
+        private void OnBattleEnded(BattleVictoryEvent _) => _battleEnded = true;
+        private void OnBattleEnded(BattleDefeatEvent _) => _battleEnded = true;
+
+        public async UniTask BeginStage(BattleStageSO stage)
+        {
+            foreach (var enemy in enemyRegistry.Enemies)
+                if (enemy != null) Destroy(enemy.gameObject);
+            enemyRegistry.Clear();
+
+            _battleEnded = false;
+            _currentWaveIndex = 0;
+            stageData = stage;
+
+            battleEventChannel.RaiseEvent(new BattleSessionStartEvent());
+
+            await UniTask.Yield();
+
+            deckController.Initialize();
+
+            SpawnWave(_currentWaveIndex);
+            battleEventChannel.RaiseEvent(new WaveStartEvent(_currentWaveIndex, stageData.waves.Count));
+
+            var tasks = new List<UniTask> { _player.BeginEntryAsync() };
+            foreach (var enemy in enemyRegistry.Enemies)
                 tasks.Add(enemy.WaitForEntryComplete());
 
             await UniTask.WhenAll(tasks);
-            battleEventChannel.RaiseEvent(new BattleReadyEvent());
+            battleEventChannel.RaiseEvent(new PlayerTurnStartEvent());
+        }
+
+        [ContextMenu("Debug: Begin Stage")]
+        private void DebugBeginStage() => BeginStage(stageData).Forget();
+
+        private void OnWaveClear(WaveClearEvent _)
+        {
+            if (_battleEnded) return;
+            TransitionToNextWaveAsync().Forget();
+        }
+
+        private async UniTaskVoid TransitionToNextWaveAsync()
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(waveTransitionDelay), cancellationToken: destroyCancellationToken);
+
+            _currentWaveIndex++;
+
+            if (_currentWaveIndex >= stageData.waves.Count)
+            {
+                _battleEnded = true;
+                battleEventChannel.RaiseEvent(new BattleVictoryEvent());
+                return;
+            }
+
+            SpawnWave(_currentWaveIndex);
+            battleEventChannel.RaiseEvent(new WaveStartEvent(_currentWaveIndex, stageData.waves.Count));
+
+            var tasks = new List<UniTask>();
+            foreach (var enemy in enemyRegistry.Enemies)
+                tasks.Add(enemy.WaitForEntryComplete());
+
+            await UniTask.WhenAll(tasks);
+            battleEventChannel.RaiseEvent(new PlayerTurnStartEvent());
         }
 
         private void SpawnWave(int waveIndex)
@@ -42,6 +114,7 @@ namespace Battle.UI
                 int slot = entry.isLargeEnemy ? 1 : entry.slotIndex;
                 var pos = slotPositions[slot].position + entry.localOffset;
                 var go = Instantiate(entry.enemyData.enemyPrefab, pos, Quaternion.identity);
+                GameObjectInjector.InjectRecursive(go, _container);
                 var enemy = go.GetComponent<AbstractEnemy>();
                 enemyRegistry.Register(enemy);
             }

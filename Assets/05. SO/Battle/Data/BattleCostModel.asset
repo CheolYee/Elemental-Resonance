@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: BattleCostModel
   m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.BattleCostModelSO
   maxCost: 3
-  currentCost: 65
+  currentCost: 1

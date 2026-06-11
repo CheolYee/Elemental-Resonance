@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 22f9bf900eabc1242a0a9533164e7142
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320774
+  packageName: TMPEffect
+  packageVersion: 1.0
+  assetPath: Assets/TMPEffect/Shaders/TMPEffect_Properties.cginc
+  uploadId: 758010

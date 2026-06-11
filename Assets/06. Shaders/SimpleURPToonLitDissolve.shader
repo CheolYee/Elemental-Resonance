@@ -66,6 +66,12 @@ Shader "SimpleURPToonLitDissolve(With Outline)"
         _EdgeWidth("Edge Width", Range(0, 0.2)) = 0.05
         [HDR]_EdgeColor("Edge Color", Color) = (1, 0.5, 0, 1)
         _EdgeIntensity("Edge Intensity", Range(0, 10)) = 3
+        _DissolveYMin("Height Min (World Y)", Float) = 0
+        _DissolveYMax("Height Max (World Y)", Float) = 2
+        _HeightBlend("Height Blend", Range(0, 1)) = 0.7
+        _DustScale("Dust Scale", Range(1, 20)) = 8
+        _DustSpread("Dust Spread", Range(0, 0.5)) = 0.12
+        _DustDensity("Dust Density", Range(0, 1)) = 0.35
     }
     SubShader
     {

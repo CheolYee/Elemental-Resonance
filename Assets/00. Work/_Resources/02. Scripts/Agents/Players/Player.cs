@@ -39,6 +39,11 @@ namespace _00._Work._Resources._02._Scripts.Agents.Players
 
         private void Start()
         {
+            StateMachine.ChangeState((int)PlayerState.IDLE, transitionDuration: 0);
+        }
+
+        public UniTask BeginEntryAsync()
+        {
             _entryCompletion = new UniTaskCompletionSource();
             StateMachine.ChangeState((int)PlayerState.ENTRY, transitionDuration: 0);
             var entryState = StateMachine.CurrentState;
@@ -49,9 +54,8 @@ namespace _00._Work._Resources._02._Scripts.Agents.Players
                 _entryCompletion.TrySetResult();
             }
             entryState.OnStateCompleted += OnEntryComplete;
+            return _entryCompletion.Task;
         }
-
-        public UniTask WaitForEntryComplete() => _entryCompletion.Task;
 
         protected override void HandleDeath()
         {
