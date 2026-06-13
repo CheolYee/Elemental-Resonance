@@ -273,14 +273,9 @@ namespace _00._Work.CheolYee._02._Scripts.Motion
                 if (tasks.Count > 0)
                     await UniTask.WhenAll(tasks);
             }
-            catch (OperationCanceledException)
-            {
-                ApplyFinalState(seq);
-                throw;
-            }
             finally
             {
-                CancelAll();
+                ApplyFinalState(seq);
                 IsAnimating = false;
             }
         }
