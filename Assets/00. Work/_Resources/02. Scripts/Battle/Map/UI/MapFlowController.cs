@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Battle.Events;
 using Battle.Map.Data;
 using Battle.Map.Enums;
@@ -8,6 +9,7 @@ using Battle.UI;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
 using LitMotion;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace Battle.Map.UI
@@ -22,6 +24,8 @@ namespace Battle.Map.UI
         [SerializeField] private RestPanelController _restPanel;
         [SerializeField] private ShopPanelController _shopPanel;
         [SerializeField] private CanvasGroup _fadeCanvasGroup;
+        [SerializeField] private EnvironmentController _skyboxController;
+        [SerializeField] private CinemachineBrain _cinemachineBrain;
 
         [SerializeField] private float _mapOpenDelay = 0.5f;
         [SerializeField] private bool _openForSelectionOnStart = false;
@@ -160,9 +164,16 @@ namespace Battle.Map.UI
                     && node.stageRef != null && _stageBootstrapper != null)
                     _stageBootstrapper.BeginStage(node.stageRef).Forget();
                 else if (node.nodeType == MapNodeType.Rest)
+                {
+                    _skyboxController?.SetNight();
                     _restPanel?.Open(node.restContent);
+                    await WaitForCameraBlend(ct);
+                }
                 else if (node.nodeType == MapNodeType.Shop)
+                {
                     _shopPanel?.Open(node.shopContent);
+                    await WaitForCameraBlend(ct);
+                }
             }
 
             // 5. 페이드 아웃
@@ -192,8 +203,17 @@ namespace Battle.Map.UI
 
             // 2. 패널 닫기 + MarkResolved
             var node = _mapGraph.GetNode(_runMapState.currentNodeId);
-            if (node?.nodeType == MapNodeType.Rest)       _restPanel?.Close();
-            else if (node?.nodeType == MapNodeType.Shop)  _shopPanel?.Close();
+            if (node?.nodeType == MapNodeType.Rest)
+            {
+                _skyboxController?.SetDay();
+                _restPanel?.Close();
+                await WaitForCameraBlend(ct);
+            }
+            else if (node?.nodeType == MapNodeType.Shop)
+            {
+                _shopPanel?.Close();
+                await WaitForCameraBlend(ct);
+            }
 
             _runMapState.MarkResolved(_runMapState.currentNodeId);
 
@@ -253,6 +273,13 @@ namespace Battle.Map.UI
         {
             _mapOverlayController.OpenForSelection();
             RefreshPresenter();
+        }
+
+        private async UniTask WaitForCameraBlend(CancellationToken ct)
+        {
+            if (_cinemachineBrain == null) return;
+            await UniTask.NextFrame(ct);
+            await UniTask.WaitUntil(() => !_cinemachineBrain.IsBlending, cancellationToken: ct);
         }
     }
 }

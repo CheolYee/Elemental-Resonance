@@ -19,6 +19,8 @@ MonoBehaviour:
     nodeType: 0
     nextNodeIds:
     - cfea8bea
+    - f4162d3b
+    - 7d4645b1
     stageRef: {fileID: 0}
     restContent: {fileID: 0}
     shopContent: {fileID: 0}
@@ -47,4 +49,20 @@ MonoBehaviour:
     nextNodeIds: []
     stageRef: {fileID: 11400000, guid: a96ed993c472c8a4f95761ea5dea0bdc, type: 2}
     restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f4162d3b
+    floorIndex: 1
+    xOffset: -0.2
+    nodeType: 4
+    nextNodeIds: []
+    stageRef: {fileID: 0}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 11400000, guid: 8ae85b2103dae2443b39dc41323e1a05, type: 2}
+  - nodeId: 7d4645b1
+    floorIndex: 1
+    xOffset: 0.2
+    nodeType: 3
+    nextNodeIds: []
+    stageRef: {fileID: 0}
+    restContent: {fileID: 11400000, guid: a9ba16d95cb493c4a970559197c8c772, type: 2}
     shopContent: {fileID: 0}

@@ -9,10 +9,9 @@ namespace Battle.Map.UI
 {
     public class MapScreenPresenter : MonoBehaviour
     {
-        [SerializeField] private MapNodeView         _nodePrefab;
-        [SerializeField] private MapLineView         _linePrefab;
-        [SerializeField] private MapInfoPanelPresenter _infoPanel;
-        [SerializeField] private RectTransform       _contentRoot;
+        [SerializeField] private MapNodeView   _nodePrefab;
+        [SerializeField] private MapLineView   _linePrefab;
+        [SerializeField] private RectTransform _contentRoot;
 
         [Header("Map Layout")]
         [SerializeField] private float _mapWidth    = 400f;
@@ -25,6 +24,13 @@ namespace Battle.Map.UI
         [SerializeField] private Sprite _eliteSprite;
         [SerializeField] private Sprite _restSprite;
         [SerializeField] private Sprite _shopSprite;
+
+        [Header("Node Type Colors")]
+        [SerializeField] private Color _startColor  = Color.white;
+        [SerializeField] private Color _battleColor = Color.white;
+        [SerializeField] private Color _eliteColor  = Color.white;
+        [SerializeField] private Color _restColor   = Color.white;
+        [SerializeField] private Color _shopColor   = Color.white;
 
         private MapGraphSO _graph;
         private RunMapState _state;
@@ -118,10 +124,8 @@ namespace Battle.Map.UI
             var visualState = GetVisualState(node.nodeId);
             bool interactable = _overlayState == MapOverlayState.SelectionPending
                                 && visualState == MapNodeVisualState.Selectable;
-            view.Setup(node.nodeId, GetSprite(node.nodeType), visualState, interactable);
-            view.OnHoverEnter += OnNodeHoverEnter;
-            view.OnHoverExit  += OnNodeHoverExit;
-            view.OnClicked    += id => OnNodeClicked?.Invoke(id);
+            view.Setup(node.nodeId, GetSprite(node.nodeType), GetNodeColor(node.nodeType), visualState, interactable);
+            view.OnClicked += id => OnNodeClicked?.Invoke(id);
             _nodeViews.Add(view);
             _nodeViewDict[node.nodeId] = view;
         }
@@ -150,15 +154,6 @@ namespace Battle.Map.UI
             rt.anchoredPosition = pos;
         }
 
-        private void OnNodeHoverEnter(string nodeId)
-        {
-            var node = _graph.GetNode(nodeId);
-            if (node == null) return;
-            _infoPanel.ShowNode(node, GetVisualState(nodeId));
-        }
-
-        private void OnNodeHoverExit(string nodeId) => _infoPanel.HideDelayed();
-
         private Sprite GetSprite(MapNodeType type) => type switch
         {
             MapNodeType.Battle => _battleSprite,
@@ -166,6 +161,15 @@ namespace Battle.Map.UI
             MapNodeType.Rest   => _restSprite,
             MapNodeType.Shop   => _shopSprite,
             _                  => _startSprite
+        };
+
+        private Color GetNodeColor(MapNodeType type) => type switch
+        {
+            MapNodeType.Battle => _battleColor,
+            MapNodeType.Elite  => _eliteColor,
+            MapNodeType.Rest   => _restColor,
+            MapNodeType.Shop   => _shopColor,
+            _                  => _startColor
         };
     }
 }

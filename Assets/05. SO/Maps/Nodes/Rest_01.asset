@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60be0781fe52386458b425bb371cf85f, type: 3}
   m_Name: Rest_01
   m_EditorClassIdentifier: Assembly-CSharp::Battle.Map.Data.RestContentSO
-  displayName: 
+  displayName: "\uD734\uC2DD"
   descriptionText: "\uC26C\uC790"

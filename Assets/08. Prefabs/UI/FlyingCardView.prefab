@@ -82,7 +82,7 @@ TrailRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Time: 0.2
-  m_PreviewTimeScale: 1
+  m_PreviewTimeScale: 0
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -5094,6 +5094,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.FlyingCardView
   <PoolItem>k__BackingField: {fileID: 11400000, guid: 228539cdac700a6459aa849c88a68dcc, type: 2}
-  spriteRenderer: {fileID: 7414397790769704994}
   trailRenderer: {fileID: 1852889318444487413}
   trailParticle: {fileID: 3865470419559441135}

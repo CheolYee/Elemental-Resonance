@@ -1,7 +1,7 @@
 # Slay the Spire 식 맵 이동/선택 UI 설계
 
 작성일: 2026-06-10  
-상태: Phase 5 완료 / Phase 6 대기 중 (맵 노드 UI 개발 잠시 중단)
+상태: Phase 6 완료 / Phase 7 대기 중
 
 ---
 
@@ -40,7 +40,7 @@ Assets/00. Work/_Resources/02. Scripts/Battle/Map/
   Enums/    — MapNodeType, MapOverlayState
   Events/   — Map 전용 이벤트
   Runtime/  — RunMapState, MapRouteRuleService
-  UI/       — MapOverlayController, MapFlowController, MapScreenPresenter, MapNodeView, MapLineView, MapInfoPanelPresenter, MapTransitionController, MapNodeResolutionService
+  UI/       — MapOverlayController, MapFlowController, MapScreenPresenter, MapNodeView, MapLineView, MapTransitionController, MapNodeResolutionService, RestPanelController, ShopPanelController, EnvironmentController
   Editor/   — MapGraphEditorWindow
 ```
 
@@ -153,6 +153,19 @@ Assets/00. Work/_Resources/02. Scripts/Battle/Map/
 - `MapGraphSO`: `[ContextMenu] Auto Generate Node IDs` 추가, nodeId 인스펙터 노출
 - `MapFlowController.OpenInspect()` 공개 API로 분리, `MapTopBarButton`이 `MapFlowController` 경유하도록 수정
 
+**Phase 4 추가 개선 (2026-06-14):**
+- `MapInfoPanelPresenter` 제거 — hover 정보 패널 불필요 판단으로 삭제
+- `MapNodeView` 노드 시각 전면 개편:
+  - 펄스 애니메이션 제거. Selectable = 원본 알파 0.6, Locked = 알파 0.25, Visited/Current = 알파 1.0
+  - 호버(Selectable만): 스케일 1→1.18 + 알파 0.6→1.0 LitMotion 보간. 호버 종료 시 복귀
+  - TransitionSelected: `_pulseRingImage` fillAmount 0→1 + 스케일 1→1.15 (LitMotion 0.35s 원형 드로잉)
+  - Visited/Current: `_currentRingImage` 정적 표시
+  - `MapScreenPresenter`에 노드 타입별 Color 필드 추가 (`_battleColor` 등), `Setup()`에 색상 전달
+- `MapLineView` 대시 방식으로 전환:
+  - 단일 Image → 동적 대시 스폰 방식 (`_dashLength`, `_dashGap`, `_lineThickness`)
+  - 라인 길이와 무관하게 대시 간격 항상 일정
+  - 색상: Visited=알파1.0, Selectable=알파0.6, Locked=알파0.25 (흰색 통일)
+
 ---
 
 ### ✅ Phase 5 — 노드 선택 연출과 컨텍스트 전환 (완료)
@@ -179,17 +192,22 @@ Assets/00. Work/_Resources/02. Scripts/Battle/Map/
 
 ---
 
-### Phase 6 — `Rest` / `Shop` 최소 루프
+### ✅ Phase 6 — `Rest` / `Shop` 최소 루프 (완료)
 
 **목표:** `Rest`/`Shop` 진입 후 `나가기`로 맵 복귀까지 동작.
 
-**작업:**
-- Rest / Shop 전용 시네머신 카메라 각 1개 (`Priority = 0` 기본, 진입 시 20으로 상승)
-- 각 패널 UI에 `나가기` 버튼 1개
-- 종료 시: 패널 닫기 → 카메라 priority 복귀 → 노드 `Resolved` → `MapFlowController`가 다음 selectable 계산 → `MapOverlayController.OpenForSelection()`
+**구현 요약:**
+- `RestPanelController` / `ShopPanelController`: `GameObject.SetActive` → `CanvasGroup` 방식 전환
+  - `SetPanelVisible(bool)`: alpha/interactable/blocksRaycasts 일괄 제어
+  - 나중에 카메라 연출 + LitMotion 페이드 확장 가능한 구조로 설계
+- `MapFlowController`에 `CinemachineBrain` 추가:
+  - `WaitForCameraBlend(ct)`: Priority 변경 후 `NextFrame` + `WaitUntil(!IsBlending)` 대기
+  - Rest/Shop Open 후, Close 후 각각 호출 → 카메라 블렌드 완료 후 페이드아웃 시작
+  - `_cinemachineBrain` null 시 대기 없이 기존 동작 유지
 
-**완료 기준:**
+**완료 기준 충족:**
 - `Rest`/`Shop` 노드 진입 후 `나가기`를 누르면 맵 선택 모드로 돌아온다.
+- 카메라 전환이 페이드 아웃 전에 완료되어 화면이 열릴 때 카메라가 이동 중이지 않다.
 
 ---
 

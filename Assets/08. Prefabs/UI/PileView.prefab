@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: TMPEffectRuntime::TMProEffect.TMPEffect
   useVertexColor: 0
   outline: 1
-  outlineColor: {r: 0.509434, g: 0.24938004, b: 0, a: 1}
+  outlineColor: {r: 0.5411765, g: 0.078431375, b: 0.06666667, a: 1}
   outlineWidth: 0.5
   outline2: 0
   outlineColor2: {r: 0, g: 0, b: 0, a: 1}
@@ -567,14 +567,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: MPUIKit::MPUIKIT.MPImage
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7735849, g: 0.39784956, b: 0.11311854, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -2413806693520163455, guid: ebe73ca9363db456bacf42c025bb4847, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4ad4a6198434656449fde6b210754806, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

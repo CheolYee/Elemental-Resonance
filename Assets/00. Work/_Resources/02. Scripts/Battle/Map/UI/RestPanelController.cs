@@ -10,7 +10,7 @@ namespace Battle.Map.UI
     public class RestPanelController : MonoBehaviour
     {
         [SerializeField] private CinemachineCamera _camera;
-        [SerializeField] private GameObject _panelRoot;
+        [SerializeField] private CanvasGroup _panelGroup;
         [SerializeField] private TextMeshProUGUI _titleText;
         [SerializeField] private TextMeshProUGUI _descText;
         [SerializeField] private Button _exitButton;
@@ -20,7 +20,7 @@ namespace Battle.Map.UI
         private void Awake()
         {
             _exitButton.onClick.AddListener(() => OnExited?.Invoke());
-            _panelRoot.SetActive(false);
+            SetPanelVisible(false);
             if (_camera != null) _camera.Priority = 0;
         }
 
@@ -31,14 +31,22 @@ namespace Battle.Map.UI
                 _titleText.text = content.displayName;
                 _descText.text  = content.descriptionText;
             }
-            _panelRoot.SetActive(true);
+            SetPanelVisible(true);
             if (_camera != null) _camera.Priority = 20;
         }
 
         public void Close()
         {
-            _panelRoot.SetActive(false);
+            SetPanelVisible(false);
             if (_camera != null) _camera.Priority = 0;
+        }
+
+        // 나중에 카메라 연출 + LitMotion 페이드로 확장 예정
+        private void SetPanelVisible(bool visible)
+        {
+            _panelGroup.alpha          = visible ? 1f : 0f;
+            _panelGroup.interactable   = visible;
+            _panelGroup.blocksRaycasts = visible;
         }
     }
 }
