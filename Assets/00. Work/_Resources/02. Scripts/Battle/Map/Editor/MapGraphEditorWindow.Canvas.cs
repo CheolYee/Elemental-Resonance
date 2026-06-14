@@ -9,22 +9,24 @@ namespace Battle.Map.Editor
     {
         // ── 색상 ─────────────────────────────────────────────────────────────────
 
-        private static readonly Color BgColor         = new(0.15f, 0.15f, 0.17f);
-        private static readonly Color LaneLineColor   = new(0.22f, 0.22f, 0.25f);
-        private static readonly Color LaneLabelColor  = new(0.30f, 0.30f, 0.34f);
-        private static readonly Color NodeColorStart  = new(0.32f, 0.32f, 0.36f);
-        private static readonly Color NodeColorBattle = new(0.52f, 0.16f, 0.16f);
-        private static readonly Color NodeColorElite  = new(0.36f, 0.14f, 0.50f);
-        private static readonly Color NodeColorRest   = new(0.16f, 0.42f, 0.18f);
-        private static readonly Color NodeColorShop   = new(0.14f, 0.28f, 0.52f);
-        private static readonly Color BorderSelected  = new(1.00f, 0.85f, 0.00f);
-        private static readonly Color BorderNormal    = new(0.45f, 0.45f, 0.48f);
-        private static readonly Color LineColor       = new(0.65f, 0.65f, 0.68f);
-        private static readonly Color PortColor       = new(0.72f, 0.72f, 0.76f);
+        private static readonly Color BgColor           = new(0.11f, 0.13f, 0.18f);
+        private static readonly Color LaneLineColor     = new(0.48f, 0.50f, 0.58f);
+        private static readonly Color LaneLabelColor    = new(0.55f, 0.58f, 0.65f);
+        private static readonly Color NodeColorStart    = new(0.32f, 0.32f, 0.36f);
+        private static readonly Color NodeColorBattle   = new(0.52f, 0.16f, 0.16f);
+        private static readonly Color NodeColorElite    = new(0.36f, 0.14f, 0.50f);
+        private static readonly Color NodeColorRest     = new(0.16f, 0.42f, 0.18f);
+        private static readonly Color NodeColorShop     = new(0.14f, 0.28f, 0.52f);
+        private static readonly Color BorderSelected    = new(1.00f, 0.85f, 0.00f);
+        private static readonly Color BorderError      = new(1.00f, 0.25f, 0.20f);
+        private static readonly Color BorderNormal     = new(0.45f, 0.45f, 0.48f);
+        private static readonly Color LineColor         = new(1.00f, 1.00f, 1.00f);
+        private static readonly Color LineSelectedColor = new(0.10f, 0.85f, 1.00f);
+        private static readonly Color PortColor         = new(0.80f, 0.82f, 0.88f);
+        private static readonly Color PortDragLineColor = new(1.00f, 1.00f, 1.00f, 1.00f);
 
-        private const float PortRadius    = 5f;
-        private const float BorderWidth  = 1.5f;
-        private const float XOffsetScale = 400f; // 런타임 MapScreenPresenter._mapWidth 기준
+        private const float PortRadius  = 5f;
+        private const float BorderWidth = 1.5f;
 
         // ── 캔버스 메인 그리기 ───────────────────────────────────────────────────
 
@@ -44,7 +46,8 @@ namespace Battle.Map.Editor
             DrawLanes(w, h);
             DrawConnections(w, h);
             DrawNodes(w, h);
-            HandleMouseEvents(w, h);
+            DrawPortDragLine(w, h);
+            HandleInput(w, h);
         }
 
         // ── 레인 구분선 ──────────────────────────────────────────────────────────
@@ -52,7 +55,6 @@ namespace Battle.Map.Editor
         private void DrawLanes(float w, float h)
         {
             int maxFloor = _target.GetMaxFloorIndex();
-
             var labelStyle = new GUIStyle(GUI.skin.label)
             {
                 fontSize  = 9,
@@ -63,16 +65,12 @@ namespace Battle.Map.Editor
             for (int floor = 0; floor <= maxFloor; floor++)
             {
                 float nodeTop = GetNodeY(floor, h);
-
-                // 층 레이블
                 GUI.Label(new Rect(6, nodeTop + (NodeHeight - 14f) * 0.5f, 36f, 14f), $"F{floor}", labelStyle);
 
-                // 층 간 구분선 (레인 하단)
                 if (floor < maxFloor)
                 {
-                    float lineY = nodeTop + NodeHeight + (FloorSpacing - NodeHeight) * 0.5f;
-                    Handles.color = LaneLineColor;
-                    Handles.DrawLine(new Vector3(0, lineY), new Vector3(w, lineY));
+                    float lineY = nodeTop + NodeHeight + (_floorSpacing - NodeHeight) * 0.5f;
+                    EditorGUI.DrawRect(new Rect(0, lineY - 3.5f, w, 7f), LaneLineColor);
                 }
             }
         }
@@ -81,7 +79,6 @@ namespace Battle.Map.Editor
 
         private void DrawConnections(float w, float h)
         {
-            Handles.color = LineColor;
             foreach (var node in _target.nodes)
             {
                 Vector2 fromPort = GetOutputPort(node, w, h);
@@ -94,16 +91,24 @@ namespace Battle.Map.Editor
                     float   dist   = Mathf.Abs(toPort.y - fromPort.y);
                     float   tang   = dist * 0.45f;
 
+                    bool  isSelected = _hasSelectedConnection
+                                       && _selectedConnectionFrom == node.nodeId
+                                       && _selectedConnectionTo   == nextId;
+                    Color color = isSelected ? LineSelectedColor : LineColor;
+                    float width = isSelected ? 7f : 5f;
+
                     Handles.DrawBezier(
                         new Vector3(fromPort.x, fromPort.y),
                         new Vector3(toPort.x,   toPort.y),
                         new Vector3(fromPort.x, fromPort.y - tang),
                         new Vector3(toPort.x,   toPort.y   + tang),
-                        LineColor, null, 2f
+                        color, null, width
                     );
                 }
             }
         }
+
+
 
         // ── 노드 ─────────────────────────────────────────────────────────────────
 
@@ -122,61 +127,53 @@ namespace Battle.Map.Editor
                 Rect nodeRect = GetNodeRect(node, w, h);
                 bool selected = node == _selectedNode;
 
-                // 배경
+                bool hasError = ErrorNodeIds.Contains(node.nodeId);
                 EditorGUI.DrawRect(nodeRect, GetNodeColor(node.nodeType));
-
-                // 테두리
-                DrawBorder(nodeRect, selected ? BorderSelected : BorderNormal, selected ? 2f : BorderWidth);
-
-                // 레이블
+                Color border = selected ? BorderSelected : hasError ? BorderError : BorderNormal;
+                float bWidth = selected ? 2f : hasError ? 2f : BorderWidth;
+                DrawBorder(nodeRect, border, bWidth);
                 GUI.Label(
                     new Rect(nodeRect.x + 4, nodeRect.y + 4, nodeRect.width - 8, nodeRect.height - 8),
                     GetNodeLabel(node),
                     textStyle
                 );
 
-                // 출력 포트 (노드 상단)
                 DrawPort(GetOutputPort(node, w, h));
-
-                // 입력 포트 (노드 하단, Start 제외)
                 if (node.nodeType != MapNodeType.Start)
                     DrawPort(GetInputPort(node, w, h));
             }
         }
 
-        // ── 마우스 이벤트 ────────────────────────────────────────────────────────
+        // ── 포트 드래그 임시 선 ──────────────────────────────────────────────────
 
-        private void HandleMouseEvents(float w, float h)
+        private void DrawPortDragLine(float w, float h)
         {
-            Event e = Event.current;
-            if (e.type != EventType.MouseDown || e.button != 0) return;
+            if (!_isDraggingPort || _portDragFromNode == null) return;
 
-            MapNodeDefinition hit = GetNodeAt(e.mousePosition, w, h);
-            if (hit == _selectedNode) return;
+            Vector2 from = GetOutputPort(_portDragFromNode, w, h);
+            Vector2 to   = _portDragCurrentPos;
+            float   dist = Vector2.Distance(from, to);
+            float   tang = dist * 0.45f;
 
-            _selectedNode = hit;
-            RefreshInspector();
-            _canvasContainer?.MarkDirtyRepaint();
-            if (hit != null) e.Use();
+            Handles.DrawBezier(
+                new Vector3(from.x, from.y),
+                new Vector3(to.x,   to.y),
+                new Vector3(from.x, from.y - tang),
+                new Vector3(to.x,   to.y   + tang),
+                PortDragLineColor, null, 5f
+            );
         }
 
         // ── 좌표 계산 ────────────────────────────────────────────────────────────
 
-        private float GetNodeY(int floorIndex, float canvasH)
-        {
-            // floorIndex=0 이 하단, 위로 올라갈수록 Y 감소
-            return canvasH - BottomPadding - floorIndex * FloorSpacing - NodeHeight;
-        }
+        private float GetNodeY(int floorIndex, float canvasH) =>
+            canvasH - BottomPadding - floorIndex * _floorSpacing - NodeHeight;
 
-        private float GetNodeX(MapNodeDefinition node, float canvasW)
-        {
-            return canvasW * 0.5f + node.xOffset * XOffsetScale - NodeWidth * 0.5f;
-        }
+        private float GetNodeX(MapNodeDefinition node, float canvasW) =>
+            canvasW * 0.5f + node.xOffset * _xOffsetScale - NodeWidth * 0.5f;
 
-        private Rect GetNodeRect(MapNodeDefinition node, float canvasW, float canvasH)
-        {
-            return new Rect(GetNodeX(node, canvasW), GetNodeY(node.floorIndex, canvasH), NodeWidth, NodeHeight);
-        }
+        private Rect GetNodeRect(MapNodeDefinition node, float canvasW, float canvasH) =>
+            new(GetNodeX(node, canvasW), GetNodeY(node.floorIndex, canvasH), NodeWidth, NodeHeight);
 
         private Vector2 GetOutputPort(MapNodeDefinition node, float canvasW, float canvasH)
         {
@@ -201,7 +198,7 @@ namespace Battle.Map.Editor
             return null;
         }
 
-        // ── 헬퍼 ─────────────────────────────────────────────────────────────────
+        // ── 색상/레이블 헬퍼 ─────────────────────────────────────────────────────
 
         private static Color GetNodeColor(MapNodeType type) => type switch
         {
@@ -223,20 +220,18 @@ namespace Battle.Map.Editor
             _                  => "???"
         };
 
-        private static void DrawPort(Vector2 center)
-        {
+        private static void DrawPort(Vector2 center) =>
             EditorGUI.DrawRect(
                 new Rect(center.x - PortRadius, center.y - PortRadius, PortRadius * 2f, PortRadius * 2f),
                 PortColor
             );
-        }
 
         private static void DrawBorder(Rect r, Color color, float t)
         {
-            EditorGUI.DrawRect(new Rect(r.x,          r.y,          r.width, t),        color);
-            EditorGUI.DrawRect(new Rect(r.x,          r.yMax - t,   r.width, t),        color);
-            EditorGUI.DrawRect(new Rect(r.x,          r.y,          t,       r.height), color);
-            EditorGUI.DrawRect(new Rect(r.xMax - t,   r.y,          t,       r.height), color);
+            EditorGUI.DrawRect(new Rect(r.x,        r.y,        r.width, t),        color);
+            EditorGUI.DrawRect(new Rect(r.x,        r.yMax - t, r.width, t),        color);
+            EditorGUI.DrawRect(new Rect(r.x,        r.y,        t,       r.height), color);
+            EditorGUI.DrawRect(new Rect(r.xMax - t, r.y,        t,       r.height), color);
         }
 
         private static void DrawPlaceholderLabel(float w, float h, string msg)

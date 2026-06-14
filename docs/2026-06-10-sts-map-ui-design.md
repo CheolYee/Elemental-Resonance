@@ -1,7 +1,7 @@
 # Slay the Spire 식 맵 이동/선택 UI 설계
 
 작성일: 2026-06-10  
-상태: Phase 6 완료 / Phase 7 대기 중
+상태: Phase 7 완료 / Phase 8 대기 중
 
 ---
 
@@ -211,17 +211,24 @@ Assets/00. Work/_Resources/02. Scripts/Battle/Map/
 
 ---
 
-### Phase 7 — `MapGraphEditorWindow` authoring 도구
+### ✅ Phase 7 — `MapGraphEditorWindow` authoring 도구 (완료)
 
 **목표:** 수동 맵 제작을 빠르게 할 수 있는 에디터 창.
 
-**작업:**
+**구현 요약:**
 - `MapGraphEditorWindow` + partial 5개 (`Layout`, `Canvas`, `Inspector`, `Validation`, `Actions`)
-- 노드 추가/드래그/연결/타입 변경, `Create And Assign`, 자동 nodeId 생성
-- validation: Start 1개 강제, 도달 불가 노드, 중간 층 outgoing 없음, 마지막 층 outgoing 존재, same-floor/skip-floor 연결
-- 오류 표시: 하단 리스트 + 오류 클릭 시 포커스 + 캔버스 빨간 강조
+- **캔버스**: IMGUI + Handles.DrawBezier, 배경색 `(0.11,0.13,0.18)`, 층 구분선 7px
+- **노드**: 55×55 정사각형, 타입별 색상, 포트(상/하) 드래그로 연결선 생성
+- **연결선**: 베지어 곡선, 기본 5px 흰색 / 선택 시 7px 청록색
+- **입력**: 좌클릭 노드 선택·드래그, 우클릭 컨텍스트 메뉴(노드 추가/삭제), 연결선 클릭 선택
+- **단축키 (IMGUI EventType.KeyDown)**: Delete/Backspace 노드·연결 삭제, Ctrl+Z/Y Undo/Redo, Ctrl+C/V 노드 복사·붙여넣기
+- **스냅**: 툴바 토글 + Step FloatField (기본 off, step=0.1)
+- **툴바**: MapGraphSO ObjectField, New MapGraphSO 버튼, Map Width / Floor Spacing 편집 (런타임과 동일한 스케일)
+- **Inspector (UIToolkit)**: nodeType EnumField, floorIndex IntegerField, nodeId 읽기전용 Label, stageRef ObjectField (Battle/Elite만 표시), 변경 시 Undo+SetDirty+Validation 즉시 갱신
+- **Validation**: Start 1개 강제, same-floor/skip-floor/역방향/끊긴 연결, 중간 층 outgoing 없음, 마지막 층 outgoing 존재, BFS 도달 불가 노드 — 오류 클릭 시 캔버스 포커스 + 빨간 테두리
+- **리사이즈 핸들**: Inspector(좌우, 150~500px) / Validation(상하, 60~350px), 호버 시 파란 강조
 
-**완료 기준:**
+**완료 기준 충족:**
 - `MapGraphSO` 하나를 창 안에서 생성·연결·검증할 수 있다.
 
 ---

@@ -54,15 +54,17 @@ MonoBehaviour:
     floorIndex: 1
     xOffset: -0.2
     nodeType: 4
-    nextNodeIds: []
+    nextNodeIds:
+    - e2e1b3fd
     stageRef: {fileID: 0}
     restContent: {fileID: 0}
     shopContent: {fileID: 11400000, guid: 8ae85b2103dae2443b39dc41323e1a05, type: 2}
   - nodeId: 7d4645b1
     floorIndex: 1
     xOffset: 0.2
-    nodeType: 3
-    nextNodeIds: []
+    nodeType: 1
+    nextNodeIds:
+    - c62ecf99
     stageRef: {fileID: 0}
     restContent: {fileID: 11400000, guid: a9ba16d95cb493c4a970559197c8c772, type: 2}
     shopContent: {fileID: 0}

@@ -1,4 +1,8 @@
+using Battle.Data;
+using Battle.Map.Data;
 using Battle.Map.Enums;
+using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,79 +10,147 @@ namespace Battle.Map.Editor
 {
     public sealed partial class MapGraphEditorWindow
     {
-        private Label _inspectorNodeType;
-        private Label _inspectorFloor;
-        private Label _inspectorNodeId;
-        private Label _inspectorConnections;
+        private Label         _noSelectionLabel;
+        private VisualElement _inspectorContent;
+        private EnumField     _nodeTypeField;
+        private IntegerField  _floorIndexField;
+        private Label         _nodeIdLabel;
+        private ObjectField   _stageRefField;
+        private VisualElement _stageRefRow;
+
+        // ── UI 구성 ──────────────────────────────────────────────────────────────
 
         private void BuildInspectorContent()
         {
-            var header = MakeSectionHeader("Inspector");
-            _inspectorPanel.Add(header);
+            _inspectorPanel.Add(MakeSectionHeader("Inspector"));
 
-            _inspectorNodeType   = MakeInfoLabel();
-            _inspectorFloor      = MakeInfoLabel();
-            _inspectorNodeId     = MakeInfoLabel();
-            _inspectorConnections = MakeInfoLabel();
+            _noSelectionLabel = new Label("노드를 선택하세요.")
+            {
+                style =
+                {
+                    fontSize   = 10,
+                    color      = new StyleColor(new Color(0.50f, 0.50f, 0.55f)),
+                    marginTop  = 8,
+                    whiteSpace = WhiteSpace.Normal
+                }
+            };
+            _inspectorPanel.Add(_noSelectionLabel);
 
-            _inspectorPanel.Add(MakeFieldRow("Type",        _inspectorNodeType));
-            _inspectorPanel.Add(MakeFieldRow("Floor",       _inspectorFloor));
-            _inspectorPanel.Add(MakeFieldRow("Node ID",     _inspectorNodeId));
-            _inspectorPanel.Add(MakeFieldRow("Connections", _inspectorConnections));
+            _inspectorContent = new VisualElement
+            {
+                style = { display = DisplayStyle.None, flexDirection = FlexDirection.Column }
+            };
+            _inspectorPanel.Add(_inspectorContent);
+
+            // nodeType 드롭다운
+            _nodeTypeField = new EnumField(MapNodeType.Battle);
+            _nodeTypeField.RegisterValueChangedCallback(evt =>
+            {
+                if (_selectedNode == null) return;
+                Undo.RecordObject(_target, "Change Node Type");
+                _selectedNode.nodeType = (MapNodeType)evt.newValue;
+                EditorUtility.SetDirty(_target);
+                UpdateStageRefVisibility();
+                RefreshAll();
+            });
+            _inspectorContent.Add(MakeRow("Type", _nodeTypeField));
+
+            // floorIndex
+            _floorIndexField = new IntegerField { value = 0 };
+            _floorIndexField.RegisterValueChangedCallback(evt =>
+            {
+                if (_selectedNode == null) return;
+                int clamped = Mathf.Max(0, evt.newValue);
+                if (clamped != evt.newValue)
+                    _floorIndexField.SetValueWithoutNotify(clamped);
+                Undo.RecordObject(_target, "Change Node Floor");
+                _selectedNode.floorIndex = clamped;
+                EditorUtility.SetDirty(_target);
+                UpdateCanvasHeight();
+                RefreshAll();
+            });
+            _inspectorContent.Add(MakeRow("Floor", _floorIndexField));
+
+            // nodeId (읽기 전용)
+            _nodeIdLabel = new Label
+            {
+                style =
+                {
+                    fontSize   = 9,
+                    color      = new StyleColor(new Color(0.45f, 0.45f, 0.50f)),
+                    marginBottom = 10,
+                    whiteSpace = WhiteSpace.Normal
+                }
+            };
+            _inspectorContent.Add(MakeRow("ID", _nodeIdLabel));
+
+            // stageRef (Battle 전용)
+            _stageRefField = new ObjectField { objectType = typeof(BattleStageSO) };
+            _stageRefField.RegisterValueChangedCallback(evt =>
+            {
+                if (_selectedNode == null) return;
+                Undo.RecordObject(_target, "Set Stage Ref");
+                _selectedNode.stageRef = evt.newValue as BattleStageSO;
+                EditorUtility.SetDirty(_target);
+                _canvasContainer?.MarkDirtyRepaint();
+            });
+            _stageRefRow = MakeRow("Stage", _stageRefField);
+            _inspectorContent.Add(_stageRefRow);
 
             RefreshInspector();
         }
 
+        // ── 갱신 ─────────────────────────────────────────────────────────────────
+
         private void RefreshInspector()
         {
-            if (_inspectorNodeType == null) return;
+            if (_noSelectionLabel == null) return;
 
             if (_selectedNode == null)
             {
-                _inspectorNodeType.text    = "—";
-                _inspectorFloor.text       = "—";
-                _inspectorNodeId.text      = "—";
-                _inspectorConnections.text = "—";
+                _noSelectionLabel.style.display = DisplayStyle.Flex;
+                _inspectorContent.style.display  = DisplayStyle.None;
                 return;
             }
 
-            _inspectorNodeType.text    = _selectedNode.nodeType.ToString();
-            _inspectorFloor.text       = _selectedNode.floorIndex.ToString();
-            _inspectorNodeId.text      = _selectedNode.nodeId;
-            _inspectorConnections.text = _selectedNode.nextNodeIds.Count.ToString();
+            _noSelectionLabel.style.display = DisplayStyle.None;
+            _inspectorContent.style.display  = DisplayStyle.Flex;
+
+            _nodeTypeField.SetValueWithoutNotify(_selectedNode.nodeType);
+            _floorIndexField.SetValueWithoutNotify(_selectedNode.floorIndex);
+            _nodeIdLabel.text = _selectedNode.nodeId;
+            _stageRefField.SetValueWithoutNotify(_selectedNode.stageRef);
+            UpdateStageRefVisibility();
         }
 
-        // ── UIToolkit 헬퍼 ───────────────────────────────────────────────────────
+        private void UpdateStageRefVisibility()
+        {
+            if (_stageRefRow == null || _selectedNode == null) return;
+            bool needsStage = _selectedNode.nodeType is MapNodeType.Battle or MapNodeType.Elite;
+            _stageRefRow.style.display = needsStage ? DisplayStyle.Flex : DisplayStyle.None;
+        }
 
-        private static Label MakeSectionHeader(string text) => new(text)
+        // ── 공용 UIToolkit 헬퍼 ─────────────────────────────────────────────────
+
+        internal static Label MakeSectionHeader(string text) => new(text)
         {
             style =
             {
-                fontSize               = 11,
+                fontSize                = 11,
                 unityFontStyleAndWeight = FontStyle.Bold,
-                color                  = new StyleColor(new Color(0.70f, 0.70f, 0.75f)),
-                marginBottom           = 10
+                color                   = new StyleColor(new Color(0.70f, 0.70f, 0.75f)),
+                marginBottom            = 10
             }
         };
 
-        private static Label MakeInfoLabel() => new("—")
-        {
-            style =
-            {
-                fontSize    = 10,
-                color       = new StyleColor(new Color(0.82f, 0.82f, 0.85f)),
-                flexGrow    = 1,
-                unityTextAlign = TextAnchor.MiddleRight
-            }
-        };
-
-        private static VisualElement MakeFieldRow(string labelText, VisualElement valueEl)
+        private static VisualElement MakeRow(string labelText, VisualElement field)
         {
             var row = new VisualElement
             {
                 style =
                 {
                     flexDirection = FlexDirection.Row,
+                    alignItems    = Align.Center,
                     marginBottom  = 6
                 }
             };
@@ -86,12 +158,14 @@ namespace Battle.Map.Editor
             {
                 style =
                 {
-                    fontSize = 10,
-                    color    = new StyleColor(new Color(0.55f, 0.55f, 0.60f)),
-                    width    = 90
+                    fontSize   = 10,
+                    color      = new StyleColor(new Color(0.55f, 0.55f, 0.60f)),
+                    width      = 48,
+                    flexShrink = 0
                 }
             });
-            row.Add(valueEl);
+            field.style.flexGrow = 1;
+            row.Add(field);
             return row;
         }
     }
