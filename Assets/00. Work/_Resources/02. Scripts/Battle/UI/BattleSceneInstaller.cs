@@ -18,10 +18,20 @@ namespace Battle.UI
         [SerializeField] private PoolItemSo           vfxContainerItem;
         [SerializeField] private CinemachineCamera    skillPresentationCamera;
         [SerializeField] private CinemachineImpulseSource skillCameraImpulseSource;
+        [SerializeField] private BattleUIController   battleUIController;
+        [SerializeField] private DamageTextSpawner    damageTextSpawner;
 
         public void InstallBindings(ContainerBuilder builder)
         {
             builder.RegisterValue(player);
+            builder.RegisterValue(damageTextSpawner);
+
+            builder.RegisterFactory(
+                _ => (IBattleUIController)battleUIController,
+                typeof(BattleUIController),
+                new[] { typeof(BattleUIController), typeof(IBattleUIController) },
+                Reflex.Enums.Lifetime.Singleton,
+                Reflex.Enums.Resolution.Lazy);
 
             builder.RegisterFactory(
                 _ => new SkillEffectExecutionService(costModel, battleEventChannel),
@@ -45,6 +55,13 @@ namespace Battle.UI
                 Reflex.Enums.Resolution.Lazy);
 
             builder.RegisterFactory(
+                _ => new SkillCasterExecutionService(),
+                typeof(SkillCasterExecutionService),
+                new[] { typeof(SkillCasterExecutionService) },
+                Reflex.Enums.Lifetime.Singleton,
+                Reflex.Enums.Resolution.Lazy);
+
+            builder.RegisterFactory(
                 _ => new SkillPresentationSampler(),
                 typeof(SkillPresentationSampler),
                 new[] { typeof(SkillPresentationSampler), typeof(ISkillPresentationSampler) },
@@ -53,7 +70,8 @@ namespace Battle.UI
 
             builder.RegisterFactory(
                 container => new SkillPresentationKeyframeExecutor(
-                    container.Resolve<SkillEffectExecutionService>()),
+                    container.Resolve<SkillEffectExecutionService>(),
+                    container.Resolve<IBattleUIController>()),
                 typeof(SkillPresentationKeyframeExecutor),
                 new[] { typeof(SkillPresentationKeyframeExecutor), typeof(ISkillPresentationKeyframeExecutor) },
                 Reflex.Enums.Lifetime.Singleton,
@@ -64,6 +82,7 @@ namespace Battle.UI
                     container.Resolve<ISkillPresentationSampler>(),
                     container.Resolve<ISkillPresentationKeyframeExecutor>(),
                     container.Resolve<SkillCameraExecutionService>(),
+                    container.Resolve<SkillCasterExecutionService>(),
                     container.Resolve<SkillVfxExecutionService>()),
                 typeof(SkillPresentationPlayer),
                 new[] { typeof(SkillPresentationPlayer), typeof(ISkillPresentationPlayer) },

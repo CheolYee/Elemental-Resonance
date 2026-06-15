@@ -102,11 +102,15 @@ StageDataSO는 덱을 알면 안 된다 — 적 Wave 정보만 보유.
 5. ✅ EndMarker + 카메라 Priority 수정 (Bug 6)
 6. ✅ 맵 UI Phase 5 — 노드 선택 → 스테이지 진입 연출
 7. ✅ 덱 빌딩 시스템 (임시) — DeckBuilder 씬, CardDatabaseSO
-8. 맵 UI Phase 6 — Rest/Shop 최소 루프 ← 다음
-9. 3D 타임라인 프리뷰 (RT-2 Phase 1~4b 완료, Phase 5 대기)
-10. Fusion / Grade / Resonance System
-11. Reward System
-12. Scene Transition System
+8. ✅ 맵 UI Phase 6~7 — Rest/Shop 루프, MapGraphEditorWindow
+9. ✅ 3D 타임라인 프리뷰 RT-2 (Phase 1~5 전체 완료) — 환경 맵+조명, 애니메이터, VFX, 카메라, 캐스터 이동
+10. ✅ 스킬 연출 개편 — docs/2026-06-15-skill-presentation-refactor.md (Phase 1~4 완료)
+11. ✅ 슬로우 모션 타겟팅 + VFX/캐스터 이동 — docs/2026-06-15-slowmo-targeting-vfx-caster.md (Phase 1~6 완료)
+12. 맵 UI Phase 8 — 씬 연결 수동 검증 (코드 완료, Inspector 연결 + 검증 대기)
+13. 배틀 UI 리뉴얼 — HP바·방어도·데미지 텍스트·적 인텐트 (docs/2026-06-15-battle-ui-renewal.md, 설계 중)
+14. Fusion / Grade / Resonance System
+15. Reward System
+16. Scene Transition System
 ```
 
 ---
@@ -280,7 +284,7 @@ public class SkillPreviewLayoutSO : ScriptableObject
 
 ---
 
-#### Phase 5 — 환경 맵 + 조명
+#### ~~Phase 5~~ — 환경 맵 + 조명 (완료)
 
 **목표**: environmentPrefab이 지정된 경우 맵이 배경으로 렌더링됨.
 

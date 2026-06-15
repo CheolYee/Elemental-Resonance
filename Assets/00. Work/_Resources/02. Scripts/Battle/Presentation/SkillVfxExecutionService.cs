@@ -53,7 +53,7 @@ namespace Battle.Presentation
                 {
                     var tasks = new List<UniTask>
                     {
-                        AnimateActiveAsync(container, vfxObject.vfxDefinition.key, activeKeys, vfxObject.spawnTime, token)
+                        AnimateActiveAsync(container, vfxObject, activeKeys, vfxObject.spawnTime, token)
                     };
                     if (vfxObject.keyframes != null && vfxObject.keyframes.Count > 0)
                         tasks.Add(AnimateTransformAsync(container.transform, vfxObject.keyframes, vfxObject.spawnTime, token));
@@ -61,7 +61,7 @@ namespace Battle.Presentation
                 }
                 else
                 {
-                    container.Play(vfxObject.vfxDefinition.key);
+                    container.Play(vfxObject.vfxDefinition.key, vfxObject.simulationSpeed, vfxObject.startLifetimeMultiplier);
                     if (vfxObject.keyframes != null && vfxObject.keyframes.Count > 0)
                         AnimateTransformAsync(container.transform, vfxObject.keyframes, vfxObject.spawnTime, token).Forget(); // fire-and-forget in legacy path
 
@@ -78,14 +78,17 @@ namespace Battle.Presentation
             catch (OperationCanceledException) { }
             finally
             {
-                container.Stop();
-                _pool.Push(container);
+                if (container != null)
+                {
+                    container.Stop();
+                    _pool.Push(container);
+                }
             }
         }
 
         private async UniTask AnimateActiveAsync(
             SkillVfxContainer container,
-            SkillVfxKey key,
+            SkillVfxObjectData vfxObject,
             List<SkillKeyframeData> activeKeys,
             float spawnTime,
             CancellationToken token)
@@ -101,7 +104,7 @@ namespace Battle.Presentation
                     elapsed = k.timeSeconds;
 
                     if (k.vfxActiveAction == SkillVfxActiveAction.Play)
-                        container.Play(key);
+                        container.Play(vfxObject.vfxDefinition.key, vfxObject.simulationSpeed, vfxObject.startLifetimeMultiplier);
                     else
                         container.Stop();
                 }

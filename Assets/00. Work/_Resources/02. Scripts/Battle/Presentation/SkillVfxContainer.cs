@@ -20,14 +20,19 @@ namespace Battle.Presentation
             }
         }
 
-        public void Play(SkillVfxKey key)
+        public void Play(SkillVfxKey key, float simulationSpeed = 1f, float startLifetimeMultiplier = 1f)
         {
             foreach (var e in entries)
             {
                 if (e.key != key || e.vfx == null) continue;
                 e.vfx.SetActive(true);
                 foreach (var ps in e.vfx.GetComponentsInChildren<ParticleSystem>(includeInactive: true))
+                {
+                    var main = ps.main;
+                    main.simulationSpeed           = simulationSpeed;
+                    main.startLifetimeMultiplier   = startLifetimeMultiplier;
                     ps.Play();
+                }
             }
         }
 

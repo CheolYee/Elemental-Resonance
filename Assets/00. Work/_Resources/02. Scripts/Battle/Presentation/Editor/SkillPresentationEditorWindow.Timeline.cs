@@ -19,6 +19,8 @@ namespace Battle.Presentation.Editor
         private static readonly Color ColorCameraRot    = new(0.90f, 0.62f, 0.22f);
         private static readonly Color ColorCameraZoom   = new(0.85f, 0.52f, 0.18f);
         private static readonly Color ColorCameraShake  = new(0.90f, 0.38f, 0.38f);
+        private static readonly Color ColorCasterPos    = new(0.42f, 0.88f, 0.75f);
+        private static readonly Color ColorCasterRot    = new(0.28f, 0.72f, 0.62f);
         private static readonly Color ColorUi           = new(0.72f, 0.42f, 0.95f);
         private static readonly Color ColorSfx          = new(0.40f, 0.82f, 0.95f);
         private static readonly Color ColorSelected     = new(1.00f, 0.85f, 0.20f);
@@ -286,6 +288,7 @@ namespace Battle.Presentation.Editor
             SortByTime(tl.animationTrack.keyframes);
             SortByTime(tl.effectTrack.keyframes);
             SortByTime(tl.cameraTrack.keyframes);
+            SortByTime(tl.casterTrack.keyframes);
             SortByTime(tl.uiTrack.keyframes);
             SortByTime(tl.sfxTrack.keyframes);
             if (tl.vfxObjects != null)
@@ -412,6 +415,10 @@ namespace Battle.Presentation.Editor
                     AddPropertyMenuItem(menu, tl, SkillKeyframeProperty.CamZoom);
                     AddPropertyMenuItem(menu, tl, SkillKeyframeProperty.CamShake);
                     break;
+                case SkillObjectKind.Caster:
+                    AddPropertyMenuItem(menu, tl, SkillKeyframeProperty.CasterPosition);
+                    AddPropertyMenuItem(menu, tl, SkillKeyframeProperty.CasterRotation);
+                    break;
                 case SkillObjectKind.Ui:
                     AddPropertyMenuItem(menu, tl, SkillKeyframeProperty.UiAction);
                     break;
@@ -453,6 +460,11 @@ namespace Battle.Presentation.Editor
                 case SkillObjectKind.Camera:
                     if (tl.cameraTrack?.keyframes == null) return false;
                     foreach (var k in tl.cameraTrack.keyframes)
+                        if (k != null && k.property == property) return true;
+                    return false;
+                case SkillObjectKind.Caster:
+                    if (tl.casterTrack?.keyframes == null) return false;
+                    foreach (var k in tl.casterTrack.keyframes)
                         if (k != null && k.property == property) return true;
                     return false;
                 case SkillObjectKind.Vfx:
@@ -513,6 +525,7 @@ namespace Battle.Presentation.Editor
         {
             if (kind == SkillObjectKind.Vfx)    return $"vfx_{vfxIndex}_{property}";
             if (kind == SkillObjectKind.Camera)  return "camera_" + property;
+            if (kind == SkillObjectKind.Caster)  return "caster_" + property;
             return kind switch
             {
                 SkillObjectKind.Animation  => "animation",
@@ -552,6 +565,11 @@ namespace Battle.Presentation.Editor
                     any |= TryBuildCameraRow(content, tl, SkillKeyframeProperty.CamRotation,  "Cam Rotation", ColorCameraRot,    laneWidth, duration);
                     any |= TryBuildCameraRow(content, tl, SkillKeyframeProperty.CamZoom,      "Cam Zoom",     ColorCameraZoom,   laneWidth, duration);
                     any |= TryBuildCameraRow(content, tl, SkillKeyframeProperty.CamShake,     "Cam Shake",    ColorCameraShake,  laneWidth, duration);
+                    break;
+
+                case SkillObjectKind.Caster:
+                    any |= TryBuildCasterRow(content, tl, SkillKeyframeProperty.CasterPosition, "Caster Pos", ColorCasterPos, laneWidth, duration);
+                    any |= TryBuildCasterRow(content, tl, SkillKeyframeProperty.CasterRotation, "Caster Rot", ColorCasterRot, laneWidth, duration);
                     break;
 
                 case SkillObjectKind.Ui:
@@ -597,6 +615,58 @@ namespace Battle.Presentation.Editor
             if (!HasProperty(tl, SkillObjectKind.Camera, -1, property)) return false;
             content.Add(BuildCameraRow(label, tl, property, color, laneWidth, duration));
             return true;
+        }
+
+        private bool TryBuildCasterRow(VisualElement content, SkillPresentationTimeline tl, SkillKeyframeProperty property, string label, Color color, float laneWidth, float duration)
+        {
+            if (!HasProperty(tl, SkillObjectKind.Caster, -1, property)) return false;
+            content.Add(BuildCasterRow(label, tl, property, color, laneWidth, duration));
+            return true;
+        }
+
+        private VisualElement BuildCasterRow(
+            string label,
+            SkillPresentationTimeline tl,
+            SkillKeyframeProperty property,
+            Color markerColor,
+            float laneWidth,
+            float duration)
+        {
+            string rowTag = "caster_" + property;
+            var row  = MakeRowContainer();
+            row.Add(MakeRowLabel(label));
+            var lane = CreateLane(laneWidth, RowHeight, new Color(0.095f, 0.095f, 0.105f));
+
+            lane.RegisterCallback<PointerDownEvent>(e =>
+            {
+                if (e.button == 1) { float t = PixelToTime(e.localPosition.x); _currentTime = t; UpdateTimeLabel(); ShowAddKeyframeMenu(rowTag, t); e.StopPropagation(); return; }
+                if (e.button != 0) return;
+                TimelinePanel?.Focus();
+                bool additive = e.ctrlKey || e.commandKey;
+                if (!additive) ClearKeyframeSelection();
+                _currentTime = PixelToTime(e.localPosition.x);
+                UpdateTimeLabel();
+                StartBoxSelection(e);
+                e.StopPropagation();
+            });
+
+            if (tl.casterTrack?.keyframes != null)
+            {
+                if (NeedsEasingLine(property))
+                    AddEasingLines(lane, tl.casterTrack.keyframes, property, rowTag);
+
+                int globalIndex = 0;
+                foreach (var key in tl.casterTrack.keyframes)
+                {
+                    if (key != null && key.property == property)
+                        AddKeyMarker(lane, key, globalIndex, markerColor, rowTag);
+                    globalIndex++;
+                }
+            }
+
+            AddPlayhead(lane, duration, RowHeight);
+            row.Add(lane);
+            return row;
         }
 
         private bool TryBuildVfxPropertyRow(VisualElement content, SkillPresentationTimeline tl, SkillKeyframeProperty property, string label, Color color, float laneWidth, float duration)
@@ -994,6 +1064,8 @@ namespace Battle.Presentation.Editor
                 }
                 else if (tag != null && tag.StartsWith("camera_"))
                     removed = tl.cameraTrack?.keyframes.Remove(key) ?? false;
+                else if (tag != null && tag.StartsWith("caster_"))
+                    removed = tl.casterTrack?.keyframes.Remove(key) ?? false;
                 else if (tag == "endmarker")
                 {
                     tl.endMarkerKeyframe = null;
@@ -1106,6 +1178,12 @@ namespace Battle.Presentation.Editor
                 SortByTime(tl.cameraTrack.keyframes);
                 return;
             }
+            if (rowTag != null && rowTag.StartsWith("caster_"))
+            {
+                tl.casterTrack.keyframes.Add(key);
+                SortByTime(tl.casterTrack.keyframes);
+                return;
+            }
             switch (rowTag)
             {
                 case "animation":  tl.animationTrack.keyframes.Add(key); SortByTime(tl.animationTrack.keyframes); break;
@@ -1123,6 +1201,7 @@ namespace Battle.Presentation.Editor
             if (tl.animationTrack?.keyframes?.Contains(key) == true) return "animation";
             if (tl.effectTrack?.keyframes?.Contains(key)    == true) return "effect";
             if (tl.cameraTrack?.keyframes?.Contains(key)    == true) return "camera_" + key.property;
+            if (tl.casterTrack?.keyframes?.Contains(key)    == true) return "caster_" + key.property;
             if (tl.uiTrack?.keyframes?.Contains(key)        == true) return "ui";
             if (tl.sfxTrack?.keyframes?.Contains(key)       == true) return "sfx";
             if (tl.vfxObjects != null)
@@ -1153,7 +1232,7 @@ namespace Battle.Presentation.Editor
                 amplitude         = src.amplitude,
                 shakeDuration     = src.shakeDuration,
                 uiAction          = src.uiAction,
-                sfxId             = src.sfxId,
+                sfxSound          = src.sfxSound,
                 vfxActiveAction   = src.vfxActiveAction
             };
         }
@@ -1191,13 +1270,15 @@ namespace Battle.Presentation.Editor
 
         private static bool NeedsEasingLine(SkillKeyframeProperty property) => property switch
         {
-            SkillKeyframeProperty.CamPosition => true,
-            SkillKeyframeProperty.CamRotation => true,
-            SkillKeyframeProperty.CamZoom     => true,
-            SkillKeyframeProperty.VfxPosition => true,
-            SkillKeyframeProperty.VfxRotation => true,
-            SkillKeyframeProperty.VfxScale    => true,
-            _                                 => false
+            SkillKeyframeProperty.CamPosition    => true,
+            SkillKeyframeProperty.CamRotation    => true,
+            SkillKeyframeProperty.CamZoom        => true,
+            SkillKeyframeProperty.VfxPosition    => true,
+            SkillKeyframeProperty.VfxRotation    => true,
+            SkillKeyframeProperty.VfxScale       => true,
+            SkillKeyframeProperty.CasterPosition => true,
+            SkillKeyframeProperty.CasterRotation => true,
+            _                                    => false
         };
 
         private void AddEasingLines(VisualElement lane, List<SkillKeyframeData> allKeys, SkillKeyframeProperty property, string rowTag)

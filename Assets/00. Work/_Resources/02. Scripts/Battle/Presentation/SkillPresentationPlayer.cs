@@ -11,17 +11,20 @@ namespace Battle.Presentation
         private readonly ISkillPresentationSampler          _sampler;
         private readonly ISkillPresentationKeyframeExecutor _keyframeExecutor;
         private readonly SkillCameraExecutionService        _cameraService;
+        private readonly SkillCasterExecutionService        _casterService;
         private readonly SkillVfxExecutionService           _vfxService;
 
         public SkillPresentationPlayer(
             ISkillPresentationSampler          sampler,
             ISkillPresentationKeyframeExecutor keyframeExecutor,
             SkillCameraExecutionService        cameraService,
+            SkillCasterExecutionService        casterService,
             SkillVfxExecutionService           vfxService)
         {
             _sampler          = sampler;
             _keyframeExecutor = keyframeExecutor;
             _cameraService    = cameraService;
+            _casterService    = casterService;
             _vfxService       = vfxService;
         }
 
@@ -41,6 +44,7 @@ namespace Battle.Presentation
             await UniTask.WhenAll(
                 RunKeyframeScheduleAsync(runtimeContext, schedule, timeline),
                 RunCameraAsync(runtimeContext, timeline),
+                RunCasterAsync(runtimeContext, timeline),
                 RunVfxAsync(runtimeContext, timeline));
         }
 
@@ -86,6 +90,16 @@ namespace Battle.Presentation
                 return UniTask.CompletedTask;
 
             return _cameraService.PlayAsync(timeline.cameraTrack, context, timeline.GetEffectiveDuration(), context.CancellationToken);
+        }
+
+        private UniTask RunCasterAsync(SkillPresentationPlaybackContext context, SkillPresentationTimeline timeline)
+        {
+            if (_casterService == null
+                || timeline.casterTrack?.keyframes == null
+                || timeline.casterTrack.keyframes.Count == 0)
+                return UniTask.CompletedTask;
+
+            return _casterService.PlayAsync(timeline.casterTrack, context, timeline.GetEffectiveDuration(), context.CancellationToken);
         }
 
         private UniTask RunVfxAsync(SkillPresentationPlaybackContext context, SkillPresentationTimeline timeline)

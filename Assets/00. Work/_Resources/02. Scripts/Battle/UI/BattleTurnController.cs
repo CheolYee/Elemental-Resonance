@@ -43,7 +43,8 @@ namespace Battle.UI
 
         private void OnPlayerTurnStart(PlayerTurnStartEvent _)
         {
-            costModel.currentCost = Mathf.Max(costModel.currentCost, costModel.baseCost);
+            _player.ResetBlock();
+            costModel.currentCost = costModel.baseCost;
             battleEventChannel.RaiseEvent(new CostChangedEvent(costModel.currentCost));
         }
 
@@ -55,6 +56,9 @@ namespace Battle.UI
 
         private async UniTaskVoid RunEnemyTurnAsync()
         {
+            foreach (var enemy in enemyRegistry.Enemies)
+                enemy?.ResetBlock();
+
             battleEventChannel.RaiseEvent(new EnemyTurnStartEvent());
             battleEventChannel.RaiseEvent(new SkillExecutionStartEvent());
 

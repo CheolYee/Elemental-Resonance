@@ -10,6 +10,8 @@ namespace _00._Work._Resources._02._Scripts.Agents
     {
         public event Action OnDeath;
         public event Action<int, int> OnHpChanged;
+        public event Action<int, int> OnDamageTaken; // (damageToHp, damageToBlock)
+        public event Action<int> OnBlockChanged;      // (currentBlock)
         
         [SerializeField] private StatSO hpStatSO;
 
@@ -35,13 +37,17 @@ namespace _00._Work._Resources._02._Scripts.Agents
         {
             if (IsDead) return;
 
-            int damageToHp = amount - Block;
+            int damageToBlock = Mathf.Min(amount, Block);
+            int damageToHp = Mathf.Max(0, amount - Block);
             Block = Mathf.Max(0, Block - amount);
 
             if (damageToHp > 0)
                 CurrentHp = Mathf.Max(0, CurrentHp - damageToHp);
 
             OnHpChanged?.Invoke(CurrentHp, MaxHp);
+            OnDamageTaken?.Invoke(damageToHp, damageToBlock);
+            if (damageToBlock > 0)
+                OnBlockChanged?.Invoke(Block);
 
             if (CurrentHp == 0)
             {
@@ -53,11 +59,14 @@ namespace _00._Work._Resources._02._Scripts.Agents
         public void AddBlock(int amount)
         {
             Block += amount;
+            OnBlockChanged?.Invoke(Block);
         }
 
         public void ResetBlock()
         {
+            if (Block == 0) return;
             Block = 0;
+            OnBlockChanged?.Invoke(Block);
         }
 
         public void Reinitialize()

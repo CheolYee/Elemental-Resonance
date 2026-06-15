@@ -25,4 +25,4 @@ MonoBehaviour:
   environmentPrefab: {fileID: 7638571463770537307, guid: 996b648b816a0244ca65852e5c0b7d63, type: 3}
   cameraPosition: {x: 1.5858643, y: 15.018379, z: 31.658499}
   cameraRotationEuler: {x: 10, y: -15, z: 0}
-  cameraFov: 60
+  cameraFov: 70

@@ -105,7 +105,7 @@ namespace Battle.Presentation.Editor
         private void Initialize(SkillPreviewLayoutSO layout)
         {
             _scene = EditorSceneManager.NewPreviewScene();
-            Debug.Log($"[SkillPreview] 프리뷰 씬 생성. layout={layout?.name ?? "NULL"}");
+            //Debug.Log($"[SkillPreview] 프리뷰 씬 생성. layout={layout?.name ?? "NULL"}");
 
             _renderTexture = new RenderTexture(1024, 512, 24, RenderTextureFormat.Default);
             _renderTexture.Create();
@@ -180,11 +180,11 @@ namespace Battle.Presentation.Editor
 
             if (layout == null)
             {
-                Debug.Log("[SkillPreview] RebuildCharacters: layout이 null — 스폰 건너뜀");
+                //Debug.Log("[SkillPreview] RebuildCharacters: layout이 null — 스폰 건너뜀");
                 return;
             }
 
-            Debug.Log($"[SkillPreview] RebuildCharacters: casterPrefab={layout.casterPrefab?.name ?? "NULL"}, casterPos={layout.casterPosition}");
+            //Debug.Log($"[SkillPreview] RebuildCharacters: casterPrefab={layout.casterPrefab?.name ?? "NULL"}, casterPos={layout.casterPosition}");
 
             if (layout.casterPrefab != null)
             {
@@ -193,7 +193,7 @@ namespace Battle.Presentation.Editor
                 SceneManager.MoveGameObjectToScene(_caster, _scene);
                 SetLayerRecursively(_caster, PreviewLayer);
                 _casterAnimator = _caster.GetComponentInChildren<Animator>();
-                Debug.Log($"[SkillPreview] Caster 스폰: {_caster.name} at {layout.casterPosition + posOff}, layer={_caster.layer}");
+                //Debug.Log($"[SkillPreview] Caster 스폰: {_caster.name} at {layout.casterPosition + posOff}, layer={_caster.layer}");
             }
 
             int slotCount = Mathf.Min(
@@ -208,7 +208,7 @@ namespace Battle.Presentation.Editor
                 SceneManager.MoveGameObjectToScene(go, _scene);
                 SetLayerRecursively(go, PreviewLayer);
                 _targets.Add(go);
-                Debug.Log($"[SkillPreview] Target[{i}] 스폰: {go.name} at {layout.targetPositions[i] + posOff}, layer={go.layer}");
+                //Debug.Log($"[SkillPreview] Target[{i}] 스폰: {go.name} at {layout.targetPositions[i] + posOff}, layer={go.layer}");
             }
         }
 
@@ -240,6 +240,7 @@ namespace Battle.Presentation.Editor
             SampleAnimators(t);
             SampleVfx(t);
             SampleCamera(t);
+            SampleCaster(t);
         }
 
         private void SampleAnimators(float t)
@@ -305,7 +306,13 @@ namespace Battle.Presentation.Editor
 
                 // ParticleSystem 스크러빙
                 foreach (var ps in entry.Particles)
-                    if (ps != null) ps.Simulate(Mathf.Max(0f, simulateT), true, true);
+                {
+                    if (ps == null) continue;
+                    var main = ps.main;
+                    main.simulationSpeed         = entry.Data.simulationSpeed;
+                    main.startLifetimeMultiplier = entry.Data.startLifetimeMultiplier;
+                    ps.Simulate(Mathf.Max(0f, simulateT), true, true);
+                }
 
                 // Transform 보간 (base + additive delta)
                 entry.Go.transform.position   = entry.BasePosition + InterpolateDelta(entry.PosKeys,   t, kf => kf.position);
@@ -360,6 +367,21 @@ namespace Battle.Presentation.Editor
             _camera.fieldOfView           = InterpolateFov(zoomKeys, t, _layout.cameraFov);
         }
 
+        private void SampleCaster(float t)
+        {
+            if (_caster == null || _layout == null || _timeline?.casterTrack?.keyframes == null) return;
+
+            var posKeys = FilterCameraKeys(_timeline.casterTrack, SkillKeyframeProperty.CasterPosition);
+            var rotKeys = FilterCameraKeys(_timeline.casterTrack, SkillKeyframeProperty.CasterRotation);
+
+            var (posOff, rotOff) = GetSpawnOffsets(_layout.casterPrefab != null ? _layout.casterPrefab : _caster);
+            Vector3 basePos   = _layout.casterPosition + posOff;
+            Vector3 baseEuler = rotOff.eulerAngles;
+
+            _caster.transform.position    = basePos   + InterpolateDelta(posKeys, t, kf => kf.position);
+            _caster.transform.eulerAngles = baseEuler + InterpolateDelta(rotKeys, t, kf => kf.rotationEuler);
+        }
+
         private static List<SkillKeyframeData> FilterCameraKeys(SkillSingleTrackData track, SkillKeyframeProperty prop)
         {
             var result = new List<SkillKeyframeData>();
@@ -403,7 +425,7 @@ namespace Battle.Presentation.Editor
             if (now - _lastRenderLogTime > 2.0)
             {
                 _lastRenderLogTime = now;
-                Debug.Log($"[SkillPreview] RenderCamera. cam.enabled={_camera.enabled}, RT.created={_renderTexture.IsCreated()}, scene.valid={_scene.IsValid()}, caster={(_caster != null ? _caster.name : "NULL")}, targets={_targets.Count}, vfx={_vfxEntries.Count}");
+                //Debug.Log($"[SkillPreview] RenderCamera. cam.enabled={_camera.enabled}, RT.created={_renderTexture.IsCreated()}, scene.valid={_scene.IsValid()}, caster={(_caster != null ? _caster.name : "NULL")}, targets={_targets.Count}, vfx={_vfxEntries.Count}");
             }
 
             _camera.Render();

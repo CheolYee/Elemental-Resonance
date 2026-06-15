@@ -38,42 +38,48 @@ namespace Battle.UI
         private void OnEnable()
         {
             battleEventChannel.AddListener<BattleSessionStartEvent>(OnSessionStart);
+            battleEventChannel.AddListener<NodeContextEnteredEvent>(OnContextEntered);
             battleEventChannel.AddListener<CostChangedEvent>(OnCostChanged);
-            battleEventChannel.AddListener<SkillExecutionStartEvent>(OnLock);
-            battleEventChannel.AddListener<CardDrawStartEvent>(OnLock);
+            battleEventChannel.AddListener<BattleUIHiddenEvent>(OnBattleUIHidden);
+            battleEventChannel.AddListener<BattleUIShownEvent>(OnBattleUIShown);
+            battleEventChannel.AddListener<CardDrawStartEvent>(OnCardDrawStart);
             battleEventChannel.AddListener<WaveClearEvent>(OnWaveClear);
             battleEventChannel.AddListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.AddListener<BattleDefeatEvent>(OnBattleEnded);
-            battleEventChannel.AddListener<SkillExecutionEndEvent>(OnUnlock);
-            battleEventChannel.AddListener<CardDrawEndEvent>(OnUnlock);
+            battleEventChannel.AddListener<CardDrawEndEvent>(OnCardDrawEnd);
             battleEventChannel.AddListener<PileDetailPanelOpenedEvent>(OnPileDetailOpened);
             battleEventChannel.AddListener<PileDetailPanelClosedEvent>(OnPileDetailClosed);
+            battleEventChannel.AddListener<EnemyTurnStartEvent>(OnEnemyTurnStart);
         }
 
         private void OnDisable()
         {
             battleEventChannel.RemoveListener<BattleSessionStartEvent>(OnSessionStart);
+            battleEventChannel.RemoveListener<NodeContextEnteredEvent>(OnContextEntered);
             battleEventChannel.RemoveListener<CostChangedEvent>(OnCostChanged);
-            battleEventChannel.RemoveListener<SkillExecutionStartEvent>(OnLock);
-            battleEventChannel.RemoveListener<CardDrawStartEvent>(OnLock);
+            battleEventChannel.RemoveListener<BattleUIHiddenEvent>(OnBattleUIHidden);
+            battleEventChannel.RemoveListener<BattleUIShownEvent>(OnBattleUIShown);
+            battleEventChannel.RemoveListener<CardDrawStartEvent>(OnCardDrawStart);
             battleEventChannel.RemoveListener<WaveClearEvent>(OnWaveClear);
             battleEventChannel.RemoveListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.RemoveListener<BattleDefeatEvent>(OnBattleEnded);
-            battleEventChannel.RemoveListener<SkillExecutionEndEvent>(OnUnlock);
-            battleEventChannel.RemoveListener<CardDrawEndEvent>(OnUnlock);
+            battleEventChannel.RemoveListener<CardDrawEndEvent>(OnCardDrawEnd);
             battleEventChannel.RemoveListener<PileDetailPanelOpenedEvent>(OnPileDetailOpened);
             battleEventChannel.RemoveListener<PileDetailPanelClosedEvent>(OnPileDetailClosed);
+            battleEventChannel.RemoveListener<EnemyTurnStartEvent>(OnEnemyTurnStart);
         }
 
+        private void OnEnemyTurnStart(EnemyTurnStartEvent _) => SlideOut();
         private void OnSessionStart(BattleSessionStartEvent _) { _battleEnded = false; _waveClearPending = false; }
+        private void OnContextEntered(NodeContextEnteredEvent _) => SlideOut();
         private void OnCostChanged(CostChangedEvent _) => costText.text = $"{costModel.currentCost}/{costModel.baseCost}";
         private void OnPileDetailOpened(PileDetailPanelOpenedEvent _) => SlideOut();
         private void OnPileDetailClosed(PileDetailPanelClosedEvent _) { if (!_battleEnded && !_waveClearPending) SlideIn(); }
-        private void OnLock(SkillExecutionStartEvent _) => SlideOut();
-        private void OnLock(CardDrawStartEvent _) => SlideOut();
+        private void OnBattleUIHidden(BattleUIHiddenEvent _) => SlideOut();
+        private void OnBattleUIShown(BattleUIShownEvent _) { if (!_battleEnded && !_waveClearPending) SlideIn(); }
+        private void OnCardDrawStart(CardDrawStartEvent _) => SlideOut();
         private void OnWaveClear(WaveClearEvent _) { _waveClearPending = true; SlideOut(); }
-        private void OnUnlock(SkillExecutionEndEvent _) { if (!_battleEnded && !_waveClearPending) SlideIn(); }
-        private void OnUnlock(CardDrawEndEvent _) { _waveClearPending = false; if (!_battleEnded) SlideIn(); }
+        private void OnCardDrawEnd(CardDrawEndEvent _) { _waveClearPending = false; if (!_battleEnded) SlideIn(); }
         private void OnBattleEnded(BattleVictoryEvent _) { _battleEnded = true; SlideOut(); }
         private void OnBattleEnded(BattleDefeatEvent _) { _battleEnded = true; SlideOut(); }
 

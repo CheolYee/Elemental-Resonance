@@ -11,6 +11,7 @@ namespace Battle.Presentation
         public SkillSingleTrackData    effectTrack    = new();
         public List<SkillVfxObjectData> vfxObjects    = new();
         public SkillSingleTrackData    cameraTrack    = new();
+        public SkillSingleTrackData    casterTrack    = new();
         public SkillSingleTrackData    uiTrack        = new();
         public SkillSingleTrackData    sfxTrack       = new();
         public List<SkillObjectKind>   addedObjects        = new();
@@ -21,6 +22,7 @@ namespace Battle.Presentation
             (effectTrack?.keyframes    == null || effectTrack.keyframes.Count    == 0) &&
             (vfxObjects                == null || vfxObjects.Count               == 0) &&
             (cameraTrack?.keyframes    == null || cameraTrack.keyframes.Count    == 0) &&
+            (casterTrack?.keyframes    == null || casterTrack.keyframes.Count    == 0) &&
             (uiTrack?.keyframes        == null || uiTrack.keyframes.Count        == 0) &&
             (sfxTrack?.keyframes       == null || sfxTrack.keyframes.Count       == 0);
 
@@ -33,6 +35,7 @@ namespace Battle.Presentation
             CollectMax(animationTrack, ref max);
             CollectMax(effectTrack,    ref max);
             CollectMax(cameraTrack,    ref max);
+            CollectMax(casterTrack,    ref max);
             CollectMax(uiTrack,        ref max);
             CollectMax(sfxTrack,       ref max);
 

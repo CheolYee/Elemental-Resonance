@@ -165,12 +165,14 @@ namespace Battle.Map.UI
                     _stageBootstrapper.BeginStage(node.stageRef).Forget();
                 else if (node.nodeType == MapNodeType.Rest)
                 {
+                    _battleEventChannel.RaiseEvent(new NodeContextEnteredEvent());
                     _skyboxController?.SetNight();
                     _restPanel?.Open(node.restContent);
                     await WaitForCameraBlend(ct);
                 }
                 else if (node.nodeType == MapNodeType.Shop)
                 {
+                    _battleEventChannel.RaiseEvent(new NodeContextEnteredEvent());
                     _shopPanel?.Open(node.shopContent);
                     await WaitForCameraBlend(ct);
                 }

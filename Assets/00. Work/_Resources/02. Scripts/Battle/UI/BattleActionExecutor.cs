@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using _00._Work._Resources._02._Scripts.Agents.Players;
 using _02._Scripts.CombatSystem.Skills;
 using Battle.Data;
@@ -19,7 +20,8 @@ namespace Battle.UI
         [Inject] private Player _player;
 
         private SkillModule _playerSkillModule;
-        private bool _isExecuting;
+        private readonly Queue<CardDroppedOnTargetEvent> _queue = new();
+        private bool _isRunning;
         private bool _battleEnded;
 
         private void Start()
@@ -43,33 +45,54 @@ namespace Battle.UI
             battleEventChannel.RemoveListener<BattleDefeatEvent>(OnBattleEnded);
         }
 
-        private void OnSessionStart(BattleSessionStartEvent _) { _battleEnded = false; _isExecuting = false; }
-        private void OnBattleEnded(BattleVictoryEvent _) => _battleEnded = true;
-        private void OnBattleEnded(BattleDefeatEvent _) => _battleEnded = true;
+        private void OnSessionStart(BattleSessionStartEvent _) { _battleEnded = false; _queue.Clear(); _isRunning = false; }
+        private void OnBattleEnded(BattleVictoryEvent _) { _battleEnded = true; _queue.Clear(); }
+        private void OnBattleEnded(BattleDefeatEvent _) { _battleEnded = true; _queue.Clear(); }
 
         private void OnCardDropped(CardDroppedOnTargetEvent evt)
         {
-            if (_isExecuting || _battleEnded) return;
-            ExecuteCardAsync(evt).Forget();
+            if (_battleEnded) return;
+
+            costModel.currentCost -= evt.CardInstance.data.cost;
+            battleEventChannel.RaiseEvent(new CostChangedEvent(costModel.currentCost));
+            _queue.Enqueue(evt);
+            RaiseQueueChanged(currentCard: null);
+
+            if (!_isRunning)
+                RunQueueAsync().Forget();
         }
 
-        private async UniTaskVoid ExecuteCardAsync(CardDroppedOnTargetEvent evt)
+        private async UniTaskVoid RunQueueAsync()
         {
-            _isExecuting = true;
+            _isRunning = true;
+            battleEventChannel.RaiseEvent(new SkillQueueStartedEvent());
 
-            var card = evt.CardInstance;
-            var targetGo = evt.Target?.gameObject;
+            while (_queue.Count > 0 && !_battleEnded)
+            {
+                var evt      = _queue.Dequeue();
+                var card     = evt.CardInstance;
+                var targetGo = evt.Target?.gameObject;
 
-            costModel.currentCost -= card.data.cost;
-            battleEventChannel.RaiseEvent(new CostChangedEvent(costModel.currentCost));
-            battleEventChannel.RaiseEvent(new SkillExecutionStartEvent());
+                RaiseQueueChanged(currentCard: card);
+                battleEventChannel.RaiseEvent(new SkillExecutionStartEvent());
+                var data = SkillUsageData.FromCard(card);
+                await _playerSkillModule.UseSkillAsync(data, targetGo, destroyCancellationToken);
+                deckController.UseCard(card);
+                battleEventChannel.RaiseEvent(new SkillExecutionEndEvent());
+                await UniTask.Delay(System.TimeSpan.FromSeconds(0.1f), DelayType.DeltaTime, PlayerLoopTiming.Update, destroyCancellationToken);
+            }
 
-            var data = SkillUsageData.FromCard(card);
-            await _playerSkillModule.UseSkillAsync(data, targetGo, destroyCancellationToken);
+            _isRunning = false;
+            RaiseQueueChanged(currentCard: null);
+            battleEventChannel.RaiseEvent(new SkillQueueCompletedEvent());
+        }
 
-            deckController.UseCard(card);
-            battleEventChannel.RaiseEvent(new SkillExecutionEndEvent());
-            _isExecuting = false;
+        private void RaiseQueueChanged(CardInstance currentCard)
+        {
+            var pending = new List<CardInstance>();
+            foreach (var q in _queue)
+                pending.Add(q.CardInstance);
+            battleEventChannel.RaiseEvent(new SkillQueueChangedEvent(currentCard, pending));
         }
     }
 }

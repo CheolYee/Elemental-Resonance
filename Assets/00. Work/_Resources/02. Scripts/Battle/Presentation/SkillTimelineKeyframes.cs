@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using _00._Work._Resources._02._Scripts.Systems.AnimationSystems;
+using Gamelib.SoundSystem;
 using LitMotion;
 using UnityEngine;
 
@@ -42,7 +43,7 @@ namespace Battle.Presentation
         public SkillUiAction uiAction;
 
         // SFX
-        public string sfxId;
+        public SfxSounds sfxSound;
     }
 
     // ── 단일 트랙 (하나의 오브젝트 종류가 갖는 키프레임 리스트) ───────────────
@@ -61,6 +62,8 @@ namespace Battle.Presentation
         public VfxDefinitionSO     vfxDefinition;
         public float               spawnTime;                        // 인스펙터에서 편집 (타임라인 Row 아님)
         public float               lifeTime             = 1f;
+        public float               simulationSpeed      = 1f;
+        public float               startLifetimeMultiplier = 1f;
         public SkillVfxSpawnTarget spawnTarget          = SkillVfxSpawnTarget.Caster;
         public Vector3             spawnPositionOffset;
         public Vector3             spawnRotationEuler;
@@ -91,6 +94,9 @@ namespace Battle.Presentation
         SfxId,
         // Timeline End Marker
         TimelineEndTime,
+        // Caster Transform
+        CasterPosition,
+        CasterRotation,
     }
 
     // ── 오브젝트 선택 종류 (에디터 선택 상태용) ───────────────────────────────
@@ -102,6 +108,7 @@ namespace Battle.Presentation
         Effect,
         Vfx,
         Camera,
+        Caster,
         Ui,
         Sfx,
         EndMarker,

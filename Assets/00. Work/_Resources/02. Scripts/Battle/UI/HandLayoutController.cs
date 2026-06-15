@@ -68,7 +68,6 @@ namespace Battle.UI
         }
 
         private bool _battleEnded;
-        private bool _waveClearPending;
 
         private void OnEnable()
         {
@@ -76,8 +75,6 @@ namespace Battle.UI
             battleEventChannel.AddListener<CardDragStartEvent>(OnCardDragStart);
             battleEventChannel.AddListener<CardDroppedOnTargetEvent>(OnCardDropped);
             battleEventChannel.AddListener<CardReturnToHandEvent>(OnCardReturnToHand);
-            battleEventChannel.AddListener<SkillExecutionStartEvent>(OnSkillExecutionStart);
-            battleEventChannel.AddListener<SkillExecutionEndEvent>(OnSkillExecutionEnd);
             battleEventChannel.AddListener<WaveClearEvent>(OnWaveClear);
             battleEventChannel.AddListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.AddListener<BattleDefeatEvent>(OnBattleEnded);
@@ -85,6 +82,7 @@ namespace Battle.UI
             battleEventChannel.AddListener<CardDrawEndEvent>(OnCardDrawEnd);
             battleEventChannel.AddListener<PileDetailPanelOpenedEvent>(OnPileDetailPanelOpened);
             battleEventChannel.AddListener<PileDetailPanelClosedEvent>(OnPileDetailPanelClosed);
+            battleEventChannel.AddListener<EnemyTurnStartEvent>(OnEnemyTurnStart);
         }
 
         private void OnDisable()
@@ -93,8 +91,6 @@ namespace Battle.UI
             battleEventChannel.RemoveListener<CardDragStartEvent>(OnCardDragStart);
             battleEventChannel.RemoveListener<CardDroppedOnTargetEvent>(OnCardDropped);
             battleEventChannel.RemoveListener<CardReturnToHandEvent>(OnCardReturnToHand);
-            battleEventChannel.RemoveListener<SkillExecutionStartEvent>(OnSkillExecutionStart);
-            battleEventChannel.RemoveListener<SkillExecutionEndEvent>(OnSkillExecutionEnd);
             battleEventChannel.RemoveListener<WaveClearEvent>(OnWaveClear);
             battleEventChannel.RemoveListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.RemoveListener<BattleDefeatEvent>(OnBattleEnded);
@@ -102,11 +98,12 @@ namespace Battle.UI
             battleEventChannel.RemoveListener<CardDrawEndEvent>(OnCardDrawEnd);
             battleEventChannel.RemoveListener<PileDetailPanelOpenedEvent>(OnPileDetailPanelOpened);
             battleEventChannel.RemoveListener<PileDetailPanelClosedEvent>(OnPileDetailPanelClosed);
+            battleEventChannel.RemoveListener<EnemyTurnStartEvent>(OnEnemyTurnStart);
         }
 
-        private void OnSessionStart(BattleSessionStartEvent _) { _battleEnded = false; _waveClearPending = false; }
+        private void OnSessionStart(BattleSessionStartEvent _) { _battleEnded = false; }
         private void OnCardDrawStart(CardDrawStartEvent _) { SetAllCardsInteractable(false); SlideIn(); }
-        private void OnCardDrawEnd(CardDrawEndEvent _) { _waveClearPending = false; if (!_battleEnded) { SetAllCardsInteractable(true); SlideIn(); } }
+        private void OnCardDrawEnd(CardDrawEndEvent _) { if (!_battleEnded) { SetAllCardsInteractable(true); SlideIn(); } }
         private void OnBattleEnded(BattleVictoryEvent _) => LockBattle();
         private void OnBattleEnded(BattleDefeatEvent _) => LockBattle();
         private void OnPileDetailPanelOpened(PileDetailPanelOpenedEvent _) => SetAllCardsInteractable(false);
@@ -193,9 +190,8 @@ namespace Battle.UI
             _cardPool.Push(view);
         }
 
-        private void OnSkillExecutionStart(SkillExecutionStartEvent _) { SetAllCardsInteractable(false); SlideOut(); }
-        private void OnSkillExecutionEnd(SkillExecutionEndEvent _) { if (!_battleEnded && !_waveClearPending) { SetAllCardsInteractable(true); SlideIn(); } }
-        private void OnWaveClear(WaveClearEvent _) { _waveClearPending = true; SetAllCardsInteractable(false); SlideOut(); }
+        private void OnEnemyTurnStart(EnemyTurnStartEvent _) { SetAllCardsInteractable(false); SlideOut(); }
+        private void OnWaveClear(WaveClearEvent _) { SetAllCardsInteractable(false); SlideOut(); }
 
         private void SetAllCardsInteractable(bool interactable)
         {

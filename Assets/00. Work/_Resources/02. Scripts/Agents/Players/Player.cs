@@ -18,6 +18,7 @@ namespace _00._Work._Resources._02._Scripts.Agents.Players
         [SerializeField] private EventChannelSO battleEventChannel;
 
         private UniTaskCompletionSource _entryCompletion;
+        private bool _isSkillPresenting;
 
         protected override void InitializeComponents()
         {
@@ -29,12 +30,16 @@ namespace _00._Work._Resources._02._Scripts.Agents.Players
         {
             battleEventChannel.AddListener<CardTargetingStartEvent>(OnTargetingStart);
             battleEventChannel.AddListener<CardTargetingEndEvent>(OnTargetingEnd);
+            battleEventChannel.AddListener<SkillExecutionStartEvent>(OnSkillExecutionStart);
+            battleEventChannel.AddListener<SkillExecutionEndEvent>(OnSkillExecutionEnd);
         }
 
         private void OnDisable()
         {
             battleEventChannel.RemoveListener<CardTargetingStartEvent>(OnTargetingStart);
             battleEventChannel.RemoveListener<CardTargetingEndEvent>(OnTargetingEnd);
+            battleEventChannel.RemoveListener<SkillExecutionStartEvent>(OnSkillExecutionStart);
+            battleEventChannel.RemoveListener<SkillExecutionEndEvent>(OnSkillExecutionEnd);
         }
 
         private void Start()
@@ -89,11 +94,20 @@ namespace _00._Work._Resources._02._Scripts.Agents.Players
             hitState.OnStateCompleted += OnHitComplete;
         }
 
+        private void OnSkillExecutionStart(SkillExecutionStartEvent _) => _isSkillPresenting = true;
+        private void OnSkillExecutionEnd(SkillExecutionEndEvent _) => _isSkillPresenting = false;
+
         private void OnTargetingStart(CardTargetingStartEvent _)
-            => StateMachine.ChangeState((int)PlayerState.TARGETING);
+        {
+            if (_isSkillPresenting) return;
+            StateMachine.ChangeState((int)PlayerState.TARGETING);
+        }
 
         private void OnTargetingEnd(CardTargetingEndEvent _)
-            => StateMachine.ChangeState((int)PlayerState.IDLE);
+        {
+            if (_isSkillPresenting) return;
+            StateMachine.ChangeState((int)PlayerState.IDLE);
+        }
         
         public void ChangeState(PlayerState newStateIndex, float transitionDuration = 0.1f)
             => StateMachine.ChangeState((int)newStateIndex, transitionDuration);

@@ -21,7 +21,7 @@ namespace Battle.Map.UI
         {
             _exitButton.onClick.AddListener(() => OnExited?.Invoke());
             SetPanelVisible(false);
-            if (_camera != null) _camera.Priority = 0;
+            if (_camera != null) _camera.Priority = -5;
         }
 
         public void Open(ShopContentSO content)
@@ -38,7 +38,7 @@ namespace Battle.Map.UI
         public void Close()
         {
             SetPanelVisible(false);
-            if (_camera != null) _camera.Priority = 0;
+            if (_camera != null) _camera.Priority = -5;
         }
 
         // 나중에 카메라 연출 + LitMotion 페이드로 확장 예정

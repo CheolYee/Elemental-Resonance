@@ -96,8 +96,8 @@ namespace Battle.Presentation.Editor
             foreach (SkillObjectKind kind in new[]
             {
                 SkillObjectKind.Animation, SkillObjectKind.Effect,
-                SkillObjectKind.Camera,    SkillObjectKind.Ui,
-                SkillObjectKind.Sfx,
+                SkillObjectKind.Camera,    SkillObjectKind.Caster,
+                SkillObjectKind.Ui,        SkillObjectKind.Sfx,
             })
             {
                 SkillObjectKind captured = kind;
@@ -190,6 +190,7 @@ namespace Battle.Presentation.Editor
                 case SkillObjectKind.Animation:  tl.animationTrack?.keyframes?.Clear(); break;
                 case SkillObjectKind.Effect:     tl.effectTrack?.keyframes?.Clear();    break;
                 case SkillObjectKind.Camera:     tl.cameraTrack?.keyframes?.Clear();    break;
+                case SkillObjectKind.Caster:     tl.casterTrack?.keyframes?.Clear();    break;
                 case SkillObjectKind.Ui:         tl.uiTrack?.keyframes?.Clear();        break;
                 case SkillObjectKind.Sfx:        tl.sfxTrack?.keyframes?.Clear();       break;
                 case SkillObjectKind.EndMarker:  tl.endMarkerKeyframe = null;           break;
@@ -202,6 +203,7 @@ namespace Battle.Presentation.Editor
             SkillObjectKind.Effect    => new Color(0.95f, 0.62f, 0.30f),
             SkillObjectKind.Vfx       => new Color(0.38f, 0.82f, 0.42f),
             SkillObjectKind.Camera    => new Color(0.95f, 0.72f, 0.28f),
+            SkillObjectKind.Caster    => new Color(0.42f, 0.88f, 0.75f),
             SkillObjectKind.Ui        => new Color(0.72f, 0.42f, 0.95f),
             SkillObjectKind.Sfx       => new Color(0.40f, 0.82f, 0.95f),
             SkillObjectKind.EndMarker => new Color(0.95f, 0.90f, 0.40f),
@@ -264,12 +266,21 @@ namespace Battle.Presentation.Editor
                     AddCameraKeyframeInspector(content, _selectedKeyframe);
                     break;
 
+                case SkillKeyframeProperty.CasterPosition:
+                case SkillKeyframeProperty.CasterRotation:
+                    AddCasterKeyframeInspector(content, _selectedKeyframe);
+                    break;
+
                 case SkillKeyframeProperty.UiAction:
                     content.Add(CreateEnumField("Action", _selectedKeyframe.uiAction, v => _selectedKeyframe.uiAction = v));
                     break;
 
                 case SkillKeyframeProperty.SfxId:
-                    content.Add(CreateTextField("Sfx Id", _selectedKeyframe.sfxId, v => _selectedKeyframe.sfxId = v));
+                    if (Enum.GetValues(typeof(Gamelib.SoundSystem.SfxSounds)).Length == 0)
+                        content.Add(MakeInspectorInfoLabel("효과음이 존재하지 않습니다"));
+                    else
+                        content.Add(CreateEnumField("Sfx Sound", _selectedKeyframe.sfxSound,
+                            v => _selectedKeyframe.sfxSound = v));
                     break;
 
                 case SkillKeyframeProperty.VfxActive:
@@ -384,6 +395,18 @@ namespace Battle.Presentation.Editor
             rotField.RegisterValueChangedCallback(evt => ApplyVfxObjectChange(() => vfxObj.spawnRotationEuler = evt.newValue));
             section.Add(rotField);
 
+            // simulationSpeed
+            var simSpeedField = new FloatField("Simulation Speed") { value = vfxObj.simulationSpeed };
+            StyleInspectorField(simSpeedField);
+            simSpeedField.RegisterValueChangedCallback(evt => ApplyVfxObjectChange(() => vfxObj.simulationSpeed = evt.newValue));
+            section.Add(simSpeedField);
+
+            // startLifetimeMultiplier
+            var lifetimeField = new FloatField("Lifetime Multiplier") { value = vfxObj.startLifetimeMultiplier };
+            StyleInspectorField(lifetimeField);
+            lifetimeField.RegisterValueChangedCallback(evt => ApplyVfxObjectChange(() => vfxObj.startLifetimeMultiplier = evt.newValue));
+            section.Add(lifetimeField);
+
             container.Add(section);
         }
 
@@ -482,6 +505,23 @@ namespace Battle.Presentation.Editor
                 case SkillKeyframeProperty.CamShake:
                     content.Add(CreateFloatField("Amplitude",     key.amplitude,     v => key.amplitude     = v));
                     content.Add(CreateFloatField("Shake Duration", key.shakeDuration, v => key.shakeDuration = v));
+                    break;
+            }
+        }
+
+        // ── Caster Keyframe Inspector ──────────────────────────────────────────
+
+        private void AddCasterKeyframeInspector(VisualElement content, SkillKeyframeData key)
+        {
+            content.Add(CreateReadOnlyTextField("Property", key.property.ToString()));
+
+            switch (key.property)
+            {
+                case SkillKeyframeProperty.CasterPosition:
+                    content.Add(CreateVector3Field("Position Offset", key.position, v => key.position = v));
+                    break;
+                case SkillKeyframeProperty.CasterRotation:
+                    content.Add(CreateVector3Field("Rotation Euler Offset", key.rotationEuler, v => key.rotationEuler = v));
                     break;
             }
         }

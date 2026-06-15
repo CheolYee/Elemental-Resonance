@@ -7,10 +7,14 @@ namespace Battle.Presentation
         private const float AnimationCrossFadeDuration = 0.1f;
 
         private readonly SkillEffectExecutionService _effectService;
+        private readonly IBattleUIController         _battleUIController;
 
-        public SkillPresentationKeyframeExecutor(SkillEffectExecutionService effectService)
+        public SkillPresentationKeyframeExecutor(
+            SkillEffectExecutionService effectService,
+            IBattleUIController         battleUIController)
         {
-            _effectService = effectService;
+            _effectService      = effectService;
+            _battleUIController = battleUIController;
         }
 
         public UniTask ExecuteAsync(SkillPresentationPlaybackContext context, SkillKeyframeData keyframe)
@@ -26,6 +30,18 @@ namespace Battle.Presentation
 
                 case SkillKeyframeProperty.EffectSlot:
                     _effectService?.Execute(context, keyframe);
+                    break;
+
+                case SkillKeyframeProperty.UiAction:
+                    switch (keyframe.uiAction)
+                    {
+                        case SkillUiAction.HideBattleUI: _battleUIController?.HideBattleUI(); break;
+                        case SkillUiAction.ShowBattleUI: _battleUIController?.ShowBattleUI(); break;
+                    }
+                    break;
+
+                case SkillKeyframeProperty.SfxId:
+                    _battleUIController?.PlaySfx(keyframe.sfxSound);
                     break;
             }
 

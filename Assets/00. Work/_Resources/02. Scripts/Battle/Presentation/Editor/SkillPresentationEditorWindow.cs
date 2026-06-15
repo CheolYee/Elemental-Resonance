@@ -496,6 +496,7 @@ namespace Battle.Presentation.Editor
                 return null;
             }
             if (rowTag.StartsWith("camera_")) return tl.cameraTrack?.keyframes;
+            if (rowTag.StartsWith("caster_")) return tl.casterTrack?.keyframes;
             return rowTag switch
             {
                 "animation" => tl.animationTrack?.keyframes,

@@ -1,4 +1,6 @@
+using Battle.Events;
 using Battle.Map.Enums;
+using Gamelib.EventSystem;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,19 +10,31 @@ namespace Battle.Map.UI
     {
         [SerializeField] private MapFlowController    _mapFlowController;
         [SerializeField] private MapOverlayController _mapOverlayController;
+        [SerializeField] private EventChannelSO       _battleEventChannel;
         [SerializeField] private Button _button;
+
+        private bool _isPileOpen;
+        private bool _isSessionStarting;
 
         private void OnEnable()
         {
             _button.onClick.AddListener(OnClick);
-            _mapOverlayController.OnStateChanged += RefreshInteractable;
-            RefreshInteractable(_mapOverlayController.State);
+            _mapOverlayController.OnStateChanged += OnMapStateChanged;
+            _battleEventChannel.AddListener<PileDetailPanelOpenedEvent>(OnPileOpened);
+            _battleEventChannel.AddListener<PileDetailPanelClosedEvent>(OnPileClosed);
+            _battleEventChannel.AddListener<BattleSessionStartEvent>(OnSessionStart);
+            _battleEventChannel.AddListener<CardDrawEndEvent>(OnCardDrawEnd);
+            Refresh();
         }
 
         private void OnDisable()
         {
             _button.onClick.RemoveListener(OnClick);
-            _mapOverlayController.OnStateChanged -= RefreshInteractable;
+            _mapOverlayController.OnStateChanged -= OnMapStateChanged;
+            _battleEventChannel.RemoveListener<PileDetailPanelOpenedEvent>(OnPileOpened);
+            _battleEventChannel.RemoveListener<PileDetailPanelClosedEvent>(OnPileClosed);
+            _battleEventChannel.RemoveListener<BattleSessionStartEvent>(OnSessionStart);
+            _battleEventChannel.RemoveListener<CardDrawEndEvent>(OnCardDrawEnd);
         }
 
         private void OnClick()
@@ -32,10 +46,17 @@ namespace Battle.Map.UI
                 _mapOverlayController.TryClose();
         }
 
-        private void RefreshInteractable(MapOverlayState state)
+        private void OnMapStateChanged(MapOverlayState _) => Refresh();
+        private void OnPileOpened(PileDetailPanelOpenedEvent _) { _isPileOpen = true;  Refresh(); }
+        private void OnPileClosed(PileDetailPanelClosedEvent _) { _isPileOpen = false; Refresh(); }
+        private void OnSessionStart(BattleSessionStartEvent _)  { _isSessionStarting = true;  Refresh(); }
+        private void OnCardDrawEnd(CardDrawEndEvent _)           { _isSessionStarting = false; Refresh(); }
+
+        private void Refresh()
         {
-            _button.interactable = state == MapOverlayState.Hidden
-                                || state == MapOverlayState.InspectOnly;
+            var state = _mapOverlayController.State;
+            bool mapOk = state == MapOverlayState.Hidden || state == MapOverlayState.InspectOnly;
+            _button.interactable = mapOk && !_isPileOpen && !_isSessionStarting;
         }
     }
 }
