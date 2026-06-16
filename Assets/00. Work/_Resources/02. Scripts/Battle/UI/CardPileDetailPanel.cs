@@ -6,6 +6,7 @@ using Battle.Instances;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
 using LitMotion;
+using TMPro;
 using UnityEngine;
 
 namespace Battle.UI
@@ -15,6 +16,7 @@ namespace Battle.UI
         [SerializeField] private EventChannelSO battleEventChannel;
         [SerializeField] private DeckController deckController;
         [SerializeField] private GameObject panelRoot;
+        [SerializeField] private TMP_Text pileName;
         [SerializeField] private CanvasGroup panelCanvasGroup;
         [SerializeField] private Transform gridContent;
         [SerializeField] private PileCardItem cardItemPrefab;
@@ -57,6 +59,15 @@ namespace Battle.UI
 
         private void OnPanelOpened(PileDetailPanelOpenedEvent evt)
         {
+            pileName.text = evt.Target switch
+            {
+                PileDisplayTarget.Draw        => "뽑을 카드 더미",
+                PileDisplayTarget.Hand        => "내 손패",
+                PileDisplayTarget.Discard     => "버린 카드 더미",
+                PileDisplayTarget.Grave       => "소멸된 카드 더미",
+                PileDisplayTarget.CurrentDeck => "현재 덱",
+                _ => "카드 더미"
+            };
             PopulateGrid(evt.Target);
             FadeInAsync().Forget();
         }

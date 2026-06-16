@@ -1,5 +1,5 @@
-using Battle.Enums;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Battle.Presentation
 {
@@ -8,33 +8,15 @@ namespace Battle.Presentation
     {
         public bool hideBattleUIDuringSkill;
 
-        public SkillPresentationTimeline normalTimeline = new();
-        public SkillPresentationTimeline rareTimeline = new();
-        public SkillPresentationTimeline epicTimeline = new();
-        public SkillPresentationTimeline legendaryTimeline = new();
+        [FormerlySerializedAs("normalTimeline")]
+        public SkillPresentationTimeline timeline = new();
 
-        public SkillPresentationTimeline GetTimeline(CardGrade grade)
-        {
-            return grade switch
-            {
-                CardGrade.Legendary => FirstNonEmpty(legendaryTimeline, epicTimeline, rareTimeline, normalTimeline),
-                CardGrade.Epic      => FirstNonEmpty(epicTimeline, rareTimeline, normalTimeline),
-                CardGrade.Rare      => FirstNonEmpty(rareTimeline, normalTimeline),
-                _                   => normalTimeline
-            };
-        }
+        public SkillPresentationTimeline GetTimeline() => timeline;
 
-        public bool TryGetPlayableTimeline(CardGrade grade, out SkillPresentationTimeline timeline)
+        public bool TryGetPlayableTimeline(out SkillPresentationTimeline result)
         {
-            timeline = GetTimeline(grade);
-            return timeline != null && !timeline.IsEmpty;
-        }
-
-        private static SkillPresentationTimeline FirstNonEmpty(params SkillPresentationTimeline[] timelines)
-        {
-            foreach (var t in timelines)
-                if (t != null && !t.IsEmpty) return t;
-            return timelines[^1];
+            result = timeline;
+            return result != null && !result.IsEmpty;
         }
     }
 }

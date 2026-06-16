@@ -1708,7 +1708,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cce72b535fdf5514dbe27666bcad839f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.DamageTextTrigger
-  spawnOffset: {x: 0, y: 2, z: 0}
+  spawnOffset: {x: 0, y: 1.5, z: 0}
 --- !u!1 &8296645951567364577
 GameObject:
   m_ObjectHideFlags: 0

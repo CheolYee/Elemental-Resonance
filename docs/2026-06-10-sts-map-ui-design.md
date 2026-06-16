@@ -1,7 +1,7 @@
 # Slay the Spire 식 맵 이동/선택 UI 설계
 
 작성일: 2026-06-10  
-상태: Phase 7 완료 / Phase 8 진행 중 (코드 완료, 수동 검증 대기)
+상태: ✅ 전체 완료 (Phase 1~8, 씬 연결 및 수동 검증 포함)
 
 ---
 
@@ -233,7 +233,7 @@ Assets/00. Work/_Resources/02. Scripts/Battle/Map/
 
 ---
 
-### Phase 8 — 씬 연결과 수동 검증
+### ✅ Phase 8 — 씬 연결과 수동 검증 (완료)
 
 **목표:** `Main.unity`에서 런 1회 완주 확인.
 
@@ -242,31 +242,14 @@ Assets/00. Work/_Resources/02. Scripts/Battle/Map/
 - TopBar 맵 버튼 → `MapFlowController` 연결 (`_openForSelectionOnStart = false`)
 - Rest/Shop 카메라 연결 (`CinemachineBrain`)
 - `MapFlowController`에 초기 `MapGraphSO` 연결
+- `MapTopBarButton._battleEventChannel`, `CardPileButton.mapOverlayController`(×3) Inspector 연결 완료
 
-**버그 수정 (2026-06-15, 코드 완료):**
+**버그 수정 (2026-06-15, 완료):**
 - `MapTopBarButton` + `CardPileButton` 상호 잠금 — Pile 패널 열림 중 Map 버튼 잠금, 맵 열림 중 Pile 버튼 잠금
 - `BattleSessionStartEvent` ~ `CardDrawEndEvent` 구간 잠금 — 스테이지 시작 연출 중 두 버튼 모두 잠금
-  - `MapTopBarButton`: `_battleEventChannel` 필드 추가 (Inspector 연결 필요)
-  - `CardPileButton`: `mapOverlayController` 필드 추가 (Inspector 연결 필요)
 - `NodeContextEnteredEvent` 신규 추가 — Rest/Shop 진입 시 `BattleDockSlide` / `CostDisplayPanel` / `TurnEndButton` SlideOut 보장
 
-**Inspector 연결 남은 항목:**
-- `MapTopBarButton` → `_battleEventChannel` 필드: BattleEventChannel SO 연결
-- `CardPileButton` (3개) → `mapOverlayController` 필드: MapOverlayController 오브젝트 연결
-
-**수동 검증 체크리스트:**
-- [ ] 게임 시작 시 `Start` 노드가 현재 위치로 보인다
-- [ ] 조회용 맵 버튼은 전투/휴식/상점에서 공통 노출
-- [ ] 조회용 맵은 닫을 수 있다
-- [ ] 승리 후 열린 맵은 닫을 수 없다
-- [ ] selectable 노드만 펄스 + 선택 가능
-- [ ] 클릭 시 링→페이드→컨텍스트 진입 순서 정상
-- [ ] `Battle` 두 번 이상 재진입해도 전투 UI 정상
-- [ ] `Rest`/`Shop` 나가기 시 맵 복귀
-- [ ] `Rest`/`Shop` 진입 시 코스트·Pile·TurnEnd UI 슬라이드 아웃
-- [ ] 마지막 층 완료 시 런 클리어 발생
-- [ ] 패배 시 맵 복귀 없이 런 종료
-- [ ] 스테이지 시작 연출 중 Map/Pile 버튼 잠금 확인
+**수동 검증 완료** — 런 1회 완주 확인됨 (노드 선택, Rest/Shop 진출입, 전투 재진입, 런 클리어/패배 흐름 정상)
 
 ---
 

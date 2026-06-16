@@ -1,5 +1,4 @@
 using _00._Work._Resources._02._Scripts.Agents.Players;
-using Battle.Data;
 using Battle.Presentation;
 using Gamelib.EventSystem;
 using Gamelib.ObjectPool.Runtime;
@@ -12,7 +11,6 @@ namespace Battle.UI
     public class BattleSceneInstaller : MonoBehaviour, IInstaller
     {
         [SerializeField] private Player               player;
-        [SerializeField] private BattleCostModelSO    costModel;
         [SerializeField] private EventChannelSO       battleEventChannel;
         [SerializeField] private PoolManagerSo        vfxPoolManager;
         [SerializeField] private PoolItemSo           vfxContainerItem;
@@ -34,7 +32,7 @@ namespace Battle.UI
                 Reflex.Enums.Resolution.Lazy);
 
             builder.RegisterFactory(
-                _ => new SkillEffectExecutionService(costModel, battleEventChannel),
+                _ => new SkillEffectExecutionService(battleEventChannel),
                 typeof(SkillEffectExecutionService),
                 new[] { typeof(SkillEffectExecutionService) },
                 Reflex.Enums.Lifetime.Singleton,

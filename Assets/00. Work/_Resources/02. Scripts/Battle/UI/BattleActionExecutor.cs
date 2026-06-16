@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using _00._Work._Resources._02._Scripts.Agents.Players;
 using _02._Scripts.CombatSystem.Skills;
 using Battle.Data;
+using Battle.Effects;
 using Battle.Events;
 using Battle.Instances;
+using Battle.Presentation;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
 using Reflex.Attributes;
@@ -54,12 +56,36 @@ namespace Battle.UI
             if (_battleEnded) return;
 
             costModel.currentCost -= evt.CardInstance.data.cost;
+            costModel.currentCost += ResolveCostGain(evt.CardInstance);
             battleEventChannel.RaiseEvent(new CostChangedEvent(costModel.currentCost));
             _queue.Enqueue(evt);
             RaiseQueueChanged(currentCard: null);
 
             if (!_isRunning)
                 RunQueueAsync().Forget();
+        }
+
+        // CostGainEffect는 연출(키프레임) 시점이 아니라 카드 적재 시점에 즉시 반영한다.
+        // 큐 대기 중에는 currentCost가 미래 값을 미리 반영해야 동일 조건 카드의 연속 사용을 막을 수 있다.
+        private static int ResolveCostGain(CardInstance card)
+        {
+            var data = card.data;
+            if (data.effectSlots == null || data.presentationData == null) return 0;
+            if (!data.presentationData.TryGetPlayableTimeline(out var timeline)) return 0;
+
+            int total = 0;
+            foreach (var slot in data.effectSlots)
+            {
+                if (slot?.effect is not CostGainEffect cge) continue;
+
+                foreach (var keyframe in timeline.effectTrack.keyframes)
+                {
+                    if (keyframe.property != SkillKeyframeProperty.EffectSlot) continue;
+                    if (keyframe.effectSlotId != slot.effectSlotId) continue;
+                    total += CardEffectValueCalculator.Calculate(cge.BaseValue, keyframe.valueMultiplier);
+                }
+            }
+            return total;
         }
 
         private async UniTaskVoid RunQueueAsync()

@@ -1,5 +1,4 @@
 using Battle.Data;
-using Battle.Enums;
 using Battle.Presentation;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -76,22 +75,6 @@ namespace Battle.Presentation.Editor
             };
             bar.Add(folderBtn);
 
-            _gradeButtons = new Button[4];
-            var gradeNames  = new[] { "Normal", "Rare", "Epic", "Legendary" };
-            var gradeValues = new[] { CardGrade.Normal, CardGrade.Rare, CardGrade.Epic, CardGrade.Legendary };
-            for (int i = 0; i < 4; i++)
-            {
-                var grade = gradeValues[i];
-                var btn = new Button(() => SelectGrade(grade))
-                {
-                    text  = gradeNames[i],
-                    style = { width = 72, height = 22, marginRight = 2, fontSize = 10 }
-                };
-                _gradeButtons[i] = btn;
-                bar.Add(btn);
-            }
-
-            RefreshGradeButtons();
             RefreshDurationField();
             return bar;
         }
@@ -529,34 +512,6 @@ namespace Battle.Presentation.Editor
 
             Undo.PerformRedo();
             evt.StopImmediatePropagation();
-        }
-
-        // ── 등급 선택 ────────────────────────────────────────────────────────────
-
-        private void SelectGrade(CardGrade grade)
-        {
-            _selectedGrade = grade;
-            ClearKeyframeSelection();
-            RefreshGradeButtons();
-            RefreshDurationField();
-            RefreshObjectList();
-            RefreshTimeline();
-            RefreshInspector();
-            RebuildPreview();
-        }
-
-        internal void RefreshGradeButtons()
-        {
-            if (_gradeButtons == null) return;
-            var gradeValues = new[] { CardGrade.Normal, CardGrade.Rare, CardGrade.Epic, CardGrade.Legendary };
-            for (int i = 0; i < _gradeButtons.Length; i++)
-            {
-                bool sel = gradeValues[i] == _selectedGrade;
-                _gradeButtons[i].style.backgroundColor = new StyleColor(sel
-                    ? new Color(0.25f, 0.52f, 0.25f)
-                    : new Color(0.26f, 0.26f, 0.30f));
-                _gradeButtons[i].SetEnabled(_target != null);
-            }
         }
 
         internal void RefreshDurationField() { /* duration은 키프레임 기반 자동 계산 — 별도 필드 없음 */ }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Battle.Data;
-using Battle.Enums;
 using Battle.Presentation;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -32,7 +31,6 @@ namespace Battle.Presentation.Editor
 
         [SerializeField] private SkillPresentationDataSO _target;
         [SerializeField] private CardDataSO              _referenceCard;
-        [SerializeField] private CardGrade               _selectedGrade        = CardGrade.Normal;
         [SerializeField] private float                   _inspectorWidth       = DefaultInspectorWidth;
         [SerializeField] private bool                    _snapEnabled;
         [SerializeField] private float                   _snapStep             = 0.1f;
@@ -114,7 +112,6 @@ namespace Battle.Presentation.Editor
         // ── UI 참조: Toolbar ─────────────────────────────────────────────────────
 
         private ObjectField   _referenceCardField;
-        private Button[]      _gradeButtons;
         private Button        _playBtn;
         private Button        _pauseBtn;
         private Button        _stopBtn;
@@ -223,7 +220,6 @@ namespace Battle.Presentation.Editor
             var previousSelection = new List<SkillKeyframeData>(SelectedKeyframes);
 
             RestoreKeyframeSelectionAfterUndoRedo(previousPrimary, previousRowTag, previousKeyIndex, previousSelection);
-            RefreshGradeButtons();
             RefreshDurationField();
             RefreshObjectList();
             RefreshTimeline();
@@ -272,7 +268,6 @@ namespace Battle.Presentation.Editor
             if (!refreshUi)
                 return;
 
-            RefreshGradeButtons();
             RefreshDurationField();
             RefreshObjectList();
             RefreshTimeline();
@@ -297,14 +292,7 @@ namespace Battle.Presentation.Editor
 
         internal SkillPresentationTimeline GetEditableTimeline()
         {
-            if (_target == null) return null;
-            return _selectedGrade switch
-            {
-                CardGrade.Legendary => _target.legendaryTimeline,
-                CardGrade.Epic      => _target.epicTimeline,
-                CardGrade.Rare      => _target.rareTimeline,
-                _                   => _target.normalTimeline
-            };
+            return _target?.timeline;
         }
 
         internal void ClearKeyframeSelection()

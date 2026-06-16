@@ -1,4 +1,3 @@
-using Battle.Data;
 using Battle.Effects;
 using Battle.Events;
 using Gamelib.EventSystem;
@@ -8,12 +7,10 @@ namespace Battle.Presentation
 {
     public sealed class SkillEffectExecutionService
     {
-        private readonly BattleCostModelSO _costModel;
-        private readonly EventChannelSO    _battleEventChannel;
+        private readonly EventChannelSO _battleEventChannel;
 
-        public SkillEffectExecutionService(BattleCostModelSO costModel, EventChannelSO battleEventChannel)
+        public SkillEffectExecutionService(EventChannelSO battleEventChannel)
         {
-            _costModel          = costModel;
             _battleEventChannel = battleEventChannel;
         }
 
@@ -38,19 +35,18 @@ namespace Battle.Presentation
             }
 
             int finalValue = CardEffectValueCalculator.Calculate(slot.effect.BaseValue, keyframe.valueMultiplier);
-            GameObject source = context.Caster?.gameObject;
 
-            switch (slot.effect)
+            // CostGainEffect의 실제 값은 BattleActionExecutor가 카드 적재 시점에 이미 적용했다.
+            // 여기서는 그 변화를 화면에 보여주는 시점(연출 타이밍)만 알린다.
+            if (slot.effect is CostGainEffect)
             {
-                case CostGainEffect:
-                    ApplyCostGain(finalValue);
-                    return;
-
-                default:
-                    GameObject target = ResolveEffectTarget(context, slot.effect)?.gameObject;
-                    slot.effect.Apply(source, target, finalValue);
-                    return;
+                _battleEventChannel?.RaiseEvent(new CostGainRevealedEvent(finalValue));
+                return;
             }
+
+            GameObject source = context.Caster?.gameObject;
+            GameObject target = ResolveEffectTarget(context, slot.effect)?.gameObject;
+            slot.effect.Apply(source, target, finalValue);
         }
 
         private CardEffectSlot ResolveSlot(SkillPresentationPlaybackContext context, string effectSlotId)
@@ -67,13 +63,6 @@ namespace Battle.Presentation
             return null;
         }
 
-        private void ApplyCostGain(int finalValue)
-        {
-            if (_costModel == null || finalValue == 0) return;
-            _costModel.currentCost += finalValue;
-            _battleEventChannel?.RaiseEvent(new CostChangedEvent(_costModel.currentCost));
-        }
-
         private static _00._Work._Resources._02._Scripts.Agents.Agent ResolveEffectTarget(
             SkillPresentationPlaybackContext context,
             CardEffect effect)
@@ -82,10 +71,9 @@ namespace Battle.Presentation
 
             return effect switch
             {
-                DamageEffect   => context.Target,
-                BlockEffect    => context.Caster,
-                CostGainEffect => context.Caster,
-                _              => context.Target
+                DamageEffect => context.Target,
+                BlockEffect  => context.Caster,
+                _            => context.Target
             };
         }
     }

@@ -19,6 +19,12 @@ namespace Battle.UI
         private readonly Queue<AnnouncementRequest> _queue = new();
         private bool _isProcessing;
 
+        private void Awake()
+        {
+            primaryText.rectTransform.localPosition = new Vector3(0f, 0f, 0f);
+            secondaryText.rectTransform.localPosition = new Vector3(0f, 0f, 0f);
+        }
+
         public void Enqueue(AnnouncementRequest request)
         {
             _queue.Enqueue(request);

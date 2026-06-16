@@ -16,6 +16,7 @@ namespace Battle.UI
         [SerializeField] private EventChannelSO battleEventChannel;
         [SerializeField] private CanvasGroup canvasGroup;
         [SerializeField] private Image artworkImage;
+        [SerializeField] private TMP_Text enemyNameText;
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text descriptionText;
 
@@ -52,6 +53,7 @@ namespace Battle.UI
 
             if (canvasGroup.alpha > 0f)
             {
+                _isOpen = true;
                 UpdateData(evt);
                 FadeTo(1f);
             }
@@ -83,6 +85,8 @@ namespace Battle.UI
 
         private void UpdateData(EnemyHoverEvent evt)
         {
+            if (enemyNameText != null) enemyNameText.text = evt.Enemy.EnemyData.enemyName;
+
             var card = evt.Enemy.EnemyData.attackCard;
             if (card == null) return;
 

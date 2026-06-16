@@ -33,7 +33,7 @@ namespace Battle.Presentation
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (context.PresentationData == null) return;
 
-            SkillPresentationTimeline timeline = context.PresentationData.GetTimeline(context.Grade);
+            SkillPresentationTimeline timeline = context.PresentationData.GetTimeline();
             if (timeline == null || timeline.IsEmpty) return;
 
             SkillPresentationPlaybackContext runtimeContext = context.WithTimeline(timeline);

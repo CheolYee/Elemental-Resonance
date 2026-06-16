@@ -106,11 +106,13 @@ StageDataSO는 덱을 알면 안 된다 — 적 Wave 정보만 보유.
 9. ✅ 3D 타임라인 프리뷰 RT-2 (Phase 1~5 전체 완료) — 환경 맵+조명, 애니메이터, VFX, 카메라, 캐스터 이동
 10. ✅ 스킬 연출 개편 — docs/2026-06-15-skill-presentation-refactor.md (Phase 1~4 완료)
 11. ✅ 슬로우 모션 타겟팅 + VFX/캐스터 이동 — docs/2026-06-15-slowmo-targeting-vfx-caster.md (Phase 1~6 완료)
-12. 맵 UI Phase 8 — 씬 연결 수동 검증 (코드 완료, Inspector 연결 + 검증 대기)
-13. 배틀 UI 리뉴얼 — HP바·방어도·데미지 텍스트·적 인텐트 (docs/2026-06-15-battle-ui-renewal.md, 설계 중)
-14. Fusion / Grade / Resonance System
+12. ✅ 맵 UI Phase 8 — 씬 연결 + 수동 검증 완료 (docs/2026-06-10-sts-map-ui-design.md)
+13. ✅ 배틀 UI 리뉴얼 — HP바·방어도·데미지 텍스트·적 인텐트 + 날아다니는 카드 트레일 연출 (docs/2026-06-15-battle-ui-renewal.md, docs/2026-06-16-flying-card-trail-effect.md)
+14. Fusion / Grade / Resonance System — 카드 합성 + 합성 단계 + 연출, 원소 속성에 따른 카드 색상 분기 ← 설계 진행 중
 15. Reward System
-16. Scene Transition System
+16. Gold System
+17. Shop / Rest 실제 기능 (현재는 진입·나가기 루프만 존재)
+18. Scene Transition System
 ```
 
 ---

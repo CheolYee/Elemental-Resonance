@@ -18,6 +18,8 @@ namespace Battle.Data
         [TextArea] public string description;
         public CardTargetType targetType;
         public CardDisposePolicy disposePolicy;
+        public ElementType elementType;
+        public CardGrade grade;
         public List<CardEffectSlot> effectSlots;
         public SkillDataSO skillData;
         public SkillPresentationDataSO presentationData;

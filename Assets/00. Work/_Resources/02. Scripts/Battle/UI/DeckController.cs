@@ -116,21 +116,13 @@ namespace Battle.UI
                 MoveToDiscard(card);
         }
 
-        // 턴 종료 시 손패 전체 버리기 — C-11: disposePolicy 기준으로 분기
+        // 턴 종료 시 손패 전체 버리기 — 미사용 카드는 disposePolicy와 무관하게 항상 DiscardPile로 순환
         public void DiscardAllHand()
         {
             foreach (var card in _hand)
             {
-                if (card.data.disposePolicy == CardDisposePolicy.Grave)
-                {
-                    card.currentPile = PileType.GravePile;
-                    _gravePile.Add(card);
-                }
-                else
-                {
-                    card.currentPile = PileType.DiscardPile;
-                    _discardPile.Add(card);
-                }
+                card.currentPile = PileType.DiscardPile;
+                _discardPile.Add(card);
             }
             _hand.Clear();
             NotifyPileChanged();

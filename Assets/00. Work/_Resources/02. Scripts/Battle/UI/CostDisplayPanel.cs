@@ -23,6 +23,7 @@ namespace Battle.UI
         private MotionHandle _slideHandle;
         private bool _battleEnded;
         private bool _waveClearPending;
+        private int _displayCost;
 
         private void Awake()
         {
@@ -33,13 +34,19 @@ namespace Battle.UI
             }
         }
 
-        private void Start() => costText.text = $"{costModel.currentCost}/{costModel.baseCost}";
+        private void Start()
+        {
+            _displayCost = costModel.currentCost;
+            RefreshCostText();
+        }
 
         private void OnEnable()
         {
             battleEventChannel.AddListener<BattleSessionStartEvent>(OnSessionStart);
             battleEventChannel.AddListener<NodeContextEnteredEvent>(OnContextEntered);
-            battleEventChannel.AddListener<CostChangedEvent>(OnCostChanged);
+            battleEventChannel.AddListener<PlayerTurnStartEvent>(OnPlayerTurnStart);
+            battleEventChannel.AddListener<CardDroppedOnTargetEvent>(OnCardDropped);
+            battleEventChannel.AddListener<CostGainRevealedEvent>(OnCostGainRevealed);
             battleEventChannel.AddListener<BattleUIHiddenEvent>(OnBattleUIHidden);
             battleEventChannel.AddListener<BattleUIShownEvent>(OnBattleUIShown);
             battleEventChannel.AddListener<CardDrawStartEvent>(OnCardDrawStart);
@@ -56,7 +63,9 @@ namespace Battle.UI
         {
             battleEventChannel.RemoveListener<BattleSessionStartEvent>(OnSessionStart);
             battleEventChannel.RemoveListener<NodeContextEnteredEvent>(OnContextEntered);
-            battleEventChannel.RemoveListener<CostChangedEvent>(OnCostChanged);
+            battleEventChannel.RemoveListener<PlayerTurnStartEvent>(OnPlayerTurnStart);
+            battleEventChannel.RemoveListener<CardDroppedOnTargetEvent>(OnCardDropped);
+            battleEventChannel.RemoveListener<CostGainRevealedEvent>(OnCostGainRevealed);
             battleEventChannel.RemoveListener<BattleUIHiddenEvent>(OnBattleUIHidden);
             battleEventChannel.RemoveListener<BattleUIShownEvent>(OnBattleUIShown);
             battleEventChannel.RemoveListener<CardDrawStartEvent>(OnCardDrawStart);
@@ -70,9 +79,37 @@ namespace Battle.UI
         }
 
         private void OnEnemyTurnStart(EnemyTurnStartEvent _) => SlideOut();
-        private void OnSessionStart(BattleSessionStartEvent _) { _battleEnded = false; _waveClearPending = false; }
+
+        private void OnSessionStart(BattleSessionStartEvent _)
+        {
+            _battleEnded = false;
+            _waveClearPending = false;
+            _displayCost = costModel.currentCost;
+            RefreshCostText();
+        }
+
         private void OnContextEntered(NodeContextEnteredEvent _) => SlideOut();
-        private void OnCostChanged(CostChangedEvent _) => costText.text = $"{costModel.currentCost}/{costModel.baseCost}";
+
+        private void OnPlayerTurnStart(PlayerTurnStartEvent _)
+        {
+            _displayCost = costModel.baseCost;
+            RefreshCostText();
+        }
+
+        private void OnCardDropped(CardDroppedOnTargetEvent evt)
+        {
+            _displayCost -= evt.CardInstance.data.cost;
+            RefreshCostText();
+        }
+
+        private void OnCostGainRevealed(CostGainRevealedEvent evt)
+        {
+            _displayCost += evt.Amount;
+            RefreshCostText();
+        }
+
+        private void RefreshCostText() => costText.text = $"{_displayCost}/{costModel.baseCost}";
+
         private void OnPileDetailOpened(PileDetailPanelOpenedEvent _) => SlideOut();
         private void OnPileDetailClosed(PileDetailPanelClosedEvent _) { if (!_battleEnded && !_waveClearPending) SlideIn(); }
         private void OnBattleUIHidden(BattleUIHiddenEvent _) => SlideOut();

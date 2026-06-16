@@ -109,7 +109,7 @@ namespace _02._Scripts.CombatSystem.Skills
         private static SkillPresentationTimeline ResolvePlayableTimeline(SkillUsageData data)
         {
             if (data?.PresentationData == null) return null;
-            return data.PresentationData.TryGetPlayableTimeline(data.Grade, out SkillPresentationTimeline timeline)
+            return data.PresentationData.TryGetPlayableTimeline(out SkillPresentationTimeline timeline)
                 ? timeline
                 : null;
         }
