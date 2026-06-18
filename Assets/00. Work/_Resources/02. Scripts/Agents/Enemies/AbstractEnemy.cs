@@ -1,10 +1,12 @@
 using System;
 using _00._Work._Resources._02._Scripts.Agents.FSM;
+using _00._Work._Resources._02._Scripts.Agents.StatSystem;
 using _00Work._Resources._02Scripts.Agents.Enemies;
 using Battle.Data;
 using Agents.FSM;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace _00._Work._Resources._02._Scripts.Agents.Enemies
 {
@@ -14,6 +16,7 @@ namespace _00._Work._Resources._02._Scripts.Agents.Enemies
         [SerializeField] private EnemyDataSO enemyData;
 
         public EnemyDataSO EnemyData => enemyData;
+        public CardDataSO NextAttackCard { get; private set; }
 
         private UniTaskCompletionSource _entryCompletion;
 
@@ -57,10 +60,27 @@ namespace _00._Work._Resources._02._Scripts.Agents.Enemies
             deathState.OnStateCompleted += OnDeathComplete;
         }
 
+        public void SelectNextAttackCard()
+        {
+            if (enemyData.attackCards == null || enemyData.attackCards.Count == 0)
+            {
+                NextAttackCard = null;
+                return;
+            }
+            NextAttackCard = enemyData.attackCards[Random.Range(0, enemyData.attackCards.Count)];
+        }
+
         protected override void InitializeComponents()
         {
             base.InitializeComponents();
             StateMachine = new StateMachine(this, enemyStates.states);
+
+            if (enemyData.hpStatSO != null)
+            {
+                var statModule = GetModule<StatModule>();
+                var hpStat = statModule?.GetStat(enemyData.hpStatSO.AssetIndex);
+                if (hpStat != null) hpStat.BaseValue = enemyData.maxHp;
+            }
         }
 
         protected override void HandleHitEvent()

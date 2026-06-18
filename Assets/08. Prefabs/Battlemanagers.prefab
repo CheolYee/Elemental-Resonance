@@ -55,6 +55,7 @@ MonoBehaviour:
   enemyRegistry: {fileID: 11400000, guid: a1a519cc11f7ead41b86eda84b4cf62c, type: 2}
   battleEventChannel: {fileID: 11400000, guid: 72ffd12aa653949498d9dbf2c356a2ef, type: 2}
   deckController: {fileID: 2819538499220311902}
+  playerRunState: {fileID: 11400000, guid: 9f5667ffd8dfe0c42b02bbab5cfd86bc, type: 2}
   waveTransitionDelay: 1
 --- !u!1 &1345092064989024863
 GameObject:
@@ -105,6 +106,52 @@ MonoBehaviour:
   targetLayerMask:
     serializedVersion: 2
     m_Bits: 192
+--- !u!1 &1815803129294540671
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6687732103079193656}
+  - component: {fileID: 2597027035811713693}
+  m_Layer: 0
+  m_Name: RewardCardPoolService
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6687732103079193656
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1815803129294540671}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6965182571171736944}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2597027035811713693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1815803129294540671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79fb96922d758f643adafb52a9db6c91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Services.RewardCardPoolService
+  _database: {fileID: 11400000, guid: 6174599cd5099a74fadecc28972fc5b5, type: 2}
+  _rewardConfig: {fileID: 11400000, guid: efefde71b9688964a98312e0d1a77f4a, type: 2}
 --- !u!1 &2573287165311898920
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,14 +247,21 @@ MonoBehaviour:
   pileAnchorView: {fileID: 1415104583799349461}
   flyingCardPoolItem: {fileID: 11400000, guid: 228539cdac700a6459aa849c88a68dcc, type: 2}
   poolRoot: {fileID: 5065506441980767596}
+  pileCamera: {fileID: 0}
   cardScale: 0.3
   cardUsedShrinkDuration: 0.2
   flyDuration: 1
   flyEase: 5
-  arcHeightPixels: 180
+  arcHeightRatio: 0.5
+  minArcHeightPixels: 80
   flyDepth: 5
+  arcHeightVarianceRatio: 0.3
+  lateralOffsetVariancePixels: 80
+  durationVarianceRatio: 0.1
+  rotationSpeedDegPerSec: 540
   maxRefillAnimCards: 20
   refillStagger: 0.05
+  trailLingerDuration: 0.2
 --- !u!1 &2663413174020440819
 GameObject:
   m_ObjectHideFlags: 0
@@ -253,6 +307,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.DeckController
   deckProvider: {fileID: 11400000, guid: 6e5bf98af7e322d42b56260190a945d0, type: 2}
+  playerRunState: {fileID: 11400000, guid: 9f5667ffd8dfe0c42b02bbab5cfd86bc, type: 2}
   battleEventChannel: {fileID: 11400000, guid: 72ffd12aa653949498d9dbf2c356a2ef, type: 2}
 --- !u!1 &3090498460729547935
 GameObject:
@@ -300,6 +355,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.BattleResultController
   battleEventChannel: {fileID: 11400000, guid: 72ffd12aa653949498d9dbf2c356a2ef, type: 2}
   enemyRegistry: {fileID: 11400000, guid: a1a519cc11f7ead41b86eda84b4cf62c, type: 2}
+  playerRunState: {fileID: 11400000, guid: 9f5667ffd8dfe0c42b02bbab5cfd86bc, type: 2}
 --- !u!1 &3677974751690546422
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,6 +495,8 @@ Transform:
   - {fileID: 2786000747368675714}
   - {fileID: 3031415396739464490}
   - {fileID: 4407082483234117223}
+  - {fileID: 4596000458540135403}
+  - {fileID: 6687732103079193656}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4844010390962326273
@@ -676,6 +734,7 @@ MonoBehaviour:
   battleEventChannel: {fileID: 11400000, guid: 72ffd12aa653949498d9dbf2c356a2ef, type: 2}
   costModel: {fileID: 11400000, guid: d445e2f3b37011c4f96e499d02351961, type: 2}
   deckController: {fileID: 2819538499220311902}
+  enemyRegistry: {fileID: 11400000, guid: a1a519cc11f7ead41b86eda84b4cf62c, type: 2}
 --- !u!1 &8197745714661871817
 GameObject:
   m_ObjectHideFlags: 0
@@ -791,6 +850,55 @@ MonoBehaviour:
   discardPileRect: {fileID: 0}
   gravePileRect: {fileID: 0}
   currentDeckRect: {fileID: 0}
+--- !u!1 &8335356850201145249
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4596000458540135403}
+  - component: {fileID: 7273758525351663951}
+  m_Layer: 0
+  m_Name: FusionExecutionController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4596000458540135403
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8335356850201145249}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6965182571171736944}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7273758525351663951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8335356850201145249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5194c255a6f78b41b7dffb34f3902ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.FusionExecutionController
+  battleEventChannel: {fileID: 11400000, guid: 72ffd12aa653949498d9dbf2c356a2ef, type: 2}
+  handLayoutController: {fileID: 0}
+  deckController: {fileID: 2819538499220311902}
+  cardFlyAnimator: {fileID: 5354479860462342765}
+  fusionPanel: {fileID: 0}
 --- !u!1 &8367069497931782460
 GameObject:
   m_ObjectHideFlags: 0

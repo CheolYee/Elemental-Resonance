@@ -1,0 +1,95 @@
+using System.Collections.Generic;
+using Battle.Data;
+using Battle.Enums;
+using TMProEffect;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Battle.UI
+{
+    public static class CardColorUtility
+    {
+        public static readonly Dictionary<ElementType, Color> ElementColors = new()
+        {
+            { ElementType.None,      Color.white },
+            { ElementType.Fire,      new Color(0.906f, 0.298f, 0.235f) },
+            { ElementType.Lightning, new Color(0.945f, 0.769f, 0.059f) },
+            { ElementType.Nature,    new Color(0.180f, 0.800f, 0.443f) },
+            { ElementType.Light,     new Color(0.910f, 0.773f, 0.278f) },
+            { ElementType.Ice,       new Color(0.365f, 0.851f, 0.949f) },
+            { ElementType.Dark,      new Color(0.290f, 0.137f, 0.353f) },
+            { ElementType.Arcane,    new Color(0.557f, 0.267f, 0.678f) },
+            { ElementType.Steam,     new Color(0.690f, 0.850f, 0.930f) }, // 안개빛 하늘색
+            { ElementType.Storm,     new Color(1.000f, 0.420f, 0.130f) }, // 번개+화염 오렌지
+            { ElementType.Twilight,  new Color(0.720f, 0.350f, 0.580f) }, // 황혼 장밋빛 보라
+            { ElementType.Poison,    new Color(0.470f, 0.870f, 0.200f) }, // 독성 옐로우그린
+            { ElementType.Holy,      new Color(1.000f, 0.920f, 0.500f) }, // 신성 황금빛
+        };
+
+        public static readonly Dictionary<CardGrade, Color> GradeColors = new()
+        {
+            { CardGrade.Normal,    new Color(0.835f, 0.847f, 0.863f) },
+            { CardGrade.Rare,      new Color(0.204f, 0.596f, 0.859f) },
+            { CardGrade.Epic,      new Color(0.608f, 0.349f, 0.714f) },
+            { CardGrade.Legendary, new Color(0.953f, 0.612f, 0.071f) },
+        };
+
+        public static Color GetElementColor(ElementType type) =>
+            ElementColors.TryGetValue(type, out var c) ? c : Color.white;
+
+        public static string GetTypeName(CardType type) => type switch
+        {
+            CardType.Attack  => "공격",
+            CardType.Support => "지원",
+            _                => string.Empty,
+        };
+
+        public static void Apply(Image frameImage, Image labelImage, CardDataSO data)
+        {
+            if (frameImage != null && ElementColors.TryGetValue(data.elementType, out var elemColor))
+                frameImage.color = elemColor;
+            if (labelImage != null && GradeColors.TryGetValue(data.grade, out var gradeColor))
+                labelImage.color = gradeColor;
+        }
+
+        public static void ApplyTextEffects(TMPEffect nameEffect, TMPEffect typeEffect, CardGrade grade)
+        {
+            if (!GradeColors.TryGetValue(grade, out var color)) return;
+
+            if (nameEffect != null)
+            {
+                nameEffect.outlineColor  = color;
+                nameEffect.underlayColor = color;
+                nameEffect.SetupEffect();
+            }
+            if (typeEffect != null)
+            {
+                typeEffect.outlineColor  = color;
+                typeEffect.underlayColor = color;
+                typeEffect.SetupEffect();
+            }
+        }
+
+        public static void Reset(Image frameImage, Image labelImage)
+        {
+            if (frameImage != null) frameImage.color = Color.white;
+            if (labelImage != null) labelImage.color = Color.white;
+        }
+
+        public static void ResetTextEffects(TMPEffect nameEffect, TMPEffect typeEffect)
+        {
+            if (nameEffect != null)
+            {
+                nameEffect.outlineColor  = Color.black;
+                nameEffect.underlayColor = Color.black;
+                nameEffect.SetupEffect();
+            }
+            if (typeEffect != null)
+            {
+                typeEffect.outlineColor  = Color.black;
+                typeEffect.underlayColor = Color.black;
+                typeEffect.SetupEffect();
+            }
+        }
+    }
+}

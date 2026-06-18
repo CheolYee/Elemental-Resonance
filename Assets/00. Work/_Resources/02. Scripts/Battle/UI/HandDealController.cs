@@ -81,6 +81,7 @@ namespace Battle.UI
 
         private void DiscardHand()
         {
+            handLayoutController.ForceReturnDraggedCard();
             var handCards = handLayoutController.HandCards;
             if (cardFlyAnimator != null && handCards.Count > 0)
             {

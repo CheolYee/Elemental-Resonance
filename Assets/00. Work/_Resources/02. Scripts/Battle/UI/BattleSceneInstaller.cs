@@ -1,5 +1,8 @@
 using _00._Work._Resources._02._Scripts.Agents.Players;
+using Battle.Fusion;
 using Battle.Presentation;
+using Battle.Services;
+using DeckBuilding;
 using Gamelib.EventSystem;
 using Gamelib.ObjectPool.Runtime;
 using Reflex.Core;
@@ -18,11 +21,16 @@ namespace Battle.UI
         [SerializeField] private CinemachineImpulseSource skillCameraImpulseSource;
         [SerializeField] private BattleUIController   battleUIController;
         [SerializeField] private DamageTextSpawner    damageTextSpawner;
+        [SerializeField] private CardDatabaseSO       cardDatabase;
+        [SerializeField] private FusionRecipeTableSO  fusionRecipeTable;
+        [SerializeField] private GradeWeightTableSO   gradeWeightTable;
+        [SerializeField] private RewardCardPoolService rewardCardPoolService;
 
         public void InstallBindings(ContainerBuilder builder)
         {
             builder.RegisterValue(player);
             builder.RegisterValue(damageTextSpawner);
+            builder.RegisterValue(rewardCardPoolService);
 
             builder.RegisterFactory(
                 _ => (IBattleUIController)battleUIController,
@@ -72,6 +80,20 @@ namespace Battle.UI
                     container.Resolve<IBattleUIController>()),
                 typeof(SkillPresentationKeyframeExecutor),
                 new[] { typeof(SkillPresentationKeyframeExecutor), typeof(ISkillPresentationKeyframeExecutor) },
+                Reflex.Enums.Lifetime.Singleton,
+                Reflex.Enums.Resolution.Lazy);
+
+            builder.RegisterFactory(
+                _ => new FusionRecipeService(fusionRecipeTable),
+                typeof(FusionRecipeService),
+                new[] { typeof(FusionRecipeService) },
+                Reflex.Enums.Lifetime.Singleton,
+                Reflex.Enums.Resolution.Lazy);
+
+            builder.RegisterFactory(
+                _ => new FusionResultPicker(cardDatabase, gradeWeightTable),
+                typeof(FusionResultPicker),
+                new[] { typeof(FusionResultPicker) },
                 Reflex.Enums.Lifetime.Singleton,
                 Reflex.Enums.Resolution.Lazy);
 

@@ -228,7 +228,21 @@ namespace Battle.Presentation.Editor
                 var go = Object.Instantiate(vfxData.vfxDefinition.prefab, spawnPos, spawnRot);
                 SceneManager.MoveGameObjectToScene(go, _scene);
                 SetLayerRecursively(go, PreviewLayer);
-                go.SetActive(false);
+                foreach (var r in go.GetComponentsInChildren<ParticleSystemRenderer>(true))
+                    r.enableGPUInstancing = false;
+                // GO를 항상 Active로 유지 — SetActive(false) 후 true 복원 시 메쉬 파티클
+                // 렌더러가 GPU mesh upload를 완료하지 못한 채 camera.Render()가 호출되어 렌더링 누락.
+                // 대신 모든 PS를 즉시 Stop하여 PlayOnAwake 효과를 차단한다.
+                // Stop 직후(Playing 아닐 때)에만 시드 변경 가능 — SampleVfx에서 설정 불가
+                foreach (var ps in go.GetComponentsInChildren<ParticleSystem>(true))
+                {
+                    ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    if (ps.useAutoRandomSeed)
+                    {
+                        ps.useAutoRandomSeed = false;
+                        ps.randomSeed        = 5827u;
+                    }
+                }
 
                 _vfxEntries.Add(new VfxEntry(vfxData, go, spawnPos, spawnRot, go.transform.localScale));
             }
@@ -300,18 +314,36 @@ namespace Battle.Presentation.Editor
                     simulateT = localT;
                 }
 
-                entry.Go.SetActive(isActive);
+                if (!isActive)
+                {
+                    // PS.Clear()로 파티클만 제거 — GO는 항상 Active 유지황색언론
+                    foreach (var ps in entry.Particles)
+                        if (ps != null) ps.Clear();
+                    continue;
+                }
 
-                if (!isActive) continue;
-
-                // ParticleSystem 스크러빙
+                // 각 PS를 개별 Simulate(withChildren:false) — withChildren:true는 depth 1까지만 전파됨
+                // 랜덤 시드는 RebuildVfx의 Stop 직후에 고정 완료
                 foreach (var ps in entry.Particles)
                 {
                     if (ps == null) continue;
                     var main = ps.main;
                     main.simulationSpeed         = entry.Data.simulationSpeed;
                     main.startLifetimeMultiplier = entry.Data.startLifetimeMultiplier;
-                    ps.Simulate(Mathf.Max(0f, simulateT), true, true);
+
+                    // rateOverDistance 전용 PS는 GO가 정지해 있으면 파티클이 생성되지 않음.
+                    // 이동 속도 5 u/s 가정으로 시간 기반 방출로 임시 변환하여 프리뷰에 표시.
+                    var emission     = ps.emission;
+                    float timeRate   = emission.rateOverTime.constant;
+                    float distRate   = emission.rateOverDistance.constant;
+                    bool  distOnly   = timeRate < 0.01f && distRate > 0.01f;
+                    if (distOnly)
+                        emission.rateOverTime = new ParticleSystem.MinMaxCurve(distRate * 5f);
+
+                    ps.Simulate(Mathf.Max(0f, simulateT), false, true);
+
+                    if (distOnly)
+                        emission.rateOverTime = new ParticleSystem.MinMaxCurve(timeRate);
                 }
 
                 // Transform 보간 (base + additive delta)

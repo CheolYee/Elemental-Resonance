@@ -11,7 +11,8 @@ namespace Battle.UI
     public class DeckController : MonoBehaviour
     {
         [SerializeField] private PlayerDeckProviderSO deckProvider;
-        [SerializeField] private EventChannelSO battleEventChannel;
+        [SerializeField] private PlayerRunStateSO     playerRunState;
+        [SerializeField] private EventChannelSO       battleEventChannel;
 
         private readonly List<CardInstance> _drawPile = new();
         private readonly List<CardInstance> _hand = new();
@@ -28,7 +29,16 @@ namespace Battle.UI
         public IReadOnlyList<CardInstance> HandCards     => _hand;
         public IReadOnlyList<CardInstance> DiscardCards  => _discardPile;
         public IReadOnlyList<CardInstance> GraveCards    => _gravePile;
-        public IReadOnlyList<CardDataSO>   CurrentDeckCards => deckProvider.GetDeck();
+        public IReadOnlyList<CardDataSO> CurrentDeckCards
+        {
+            get
+            {
+                var list = new List<CardDataSO>(deckProvider.GetDeck());
+                if (playerRunState != null)
+                    list.AddRange(playerRunState.CurrentPile);
+                return list;
+            }
+        }
 
         private void OnEnable()
         {
@@ -53,12 +63,23 @@ namespace Battle.UI
             _gravePile.Clear();
 
             var deck = deckProvider.GetDeck();
-            _currentDeckCount = deck.Count;
             foreach (var data in deck)
             {
                 var instance = new CardInstance(data) { currentPile = PileType.DrawPile };
                 _drawPile.Add(instance);
             }
+
+            // 런 중 획득 카드(CurrentPile) 추가
+            if (playerRunState != null)
+            {
+                foreach (var data in playerRunState.CurrentPile)
+                {
+                    var instance = new CardInstance(data) { currentPile = PileType.DrawPile };
+                    _drawPile.Add(instance);
+                }
+            }
+
+            _currentDeckCount = _drawPile.Count;
 
             Shuffle(_drawPile);
             NotifyPileChanged();
@@ -104,6 +125,57 @@ namespace Battle.UI
 
             NotifyPileChanged();
             return drawn;
+        }
+
+        // 보상으로 획득한 카드를 현재 배틀 DrawPile에 즉시 추가
+        public void AddRewardCard(CardDataSO data)
+        {
+            var instance = new CardInstance(data) { currentPile = PileType.DrawPile };
+            _drawPile.Add(instance);
+            _currentDeckCount++;
+            NotifyPileChanged();
+        }
+
+        // 상점 버리기 등 배틀 외에서 전체 덱(시작덱 + CurrentPile)에서 카드 1장 제거
+        public bool RemoveCardFromDeck(CardDataSO card)
+        {
+            if (playerRunState != null && playerRunState.RemoveCard(card))
+            {
+                RefreshCurrentDeckCount();
+                return true;
+            }
+            if (deckProvider != null && deckProvider.RemoveCard(card))
+            {
+                RefreshCurrentDeckCount();
+                return true;
+            }
+            return false;
+        }
+
+        // 배틀 외(상점 등)에서 SO 기반으로 덱 카운트를 재계산해 UI 갱신
+        public void RefreshCurrentDeckCount()
+        {
+            int baseCount        = deckProvider   != null ? deckProvider.GetDeck().Count            : 0;
+            int currentPileCount = playerRunState  != null ? playerRunState.CurrentPile.Count        : 0;
+            _currentDeckCount = baseCount + currentPileCount;
+            NotifyPileChanged();
+        }
+
+        // 합성 결과 카드를 손패에 직접 추가 — 영구 덱에 편입되지 않으므로 다음 스테이지 Initialize() 시 자연 소멸
+        public void AddFusionCard(CardInstance card)
+        {
+            card.currentPile = PileType.Hand;
+            _hand.Add(card);
+            NotifyPileChanged();
+        }
+
+        // 합성 재료 카드 소모 — disposePolicy 무관하게 항상 GravePile로 이동
+        public void ConsumeFusionMaterial(CardInstance card)
+        {
+            _hand.Remove(card);
+            card.currentPile = PileType.GravePile;
+            _gravePile.Add(card);
+            NotifyPileChanged();
         }
 
         // 카드 사용 시 호출 — disposePolicy 기준으로 DiscardPile 또는 GravePile로 이동

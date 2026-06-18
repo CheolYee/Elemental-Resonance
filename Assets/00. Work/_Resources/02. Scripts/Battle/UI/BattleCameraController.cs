@@ -59,6 +59,7 @@ namespace Battle.UI
             {
                 CardTargetType.SingleEnemy => 1 << LayerMask.NameToLayer("Enemy"),
                 CardTargetType.SingleAlly  => 1 << LayerMask.NameToLayer("Player"),
+                CardTargetType.AllEnemies  => 1 << LayerMask.NameToLayer("Enemy"),
                 _                          => 0
             };
 

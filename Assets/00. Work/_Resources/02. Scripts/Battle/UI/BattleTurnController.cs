@@ -46,6 +46,12 @@ namespace Battle.UI
             _player.ResetBlock();
             costModel.currentCost = costModel.baseCost;
             battleEventChannel.RaiseEvent(new CostChangedEvent(costModel.currentCost));
+
+            foreach (var enemy in enemyRegistry.Enemies)
+            {
+                if (enemy != null && !enemy.Health.IsDead)
+                    enemy.SelectNextAttackCard();
+            }
         }
 
         private void OnPlayerTurnEnd(PlayerTurnEndRequestEvent _)
@@ -70,7 +76,7 @@ namespace Battle.UI
                 var skillModule = enemy.GetModule<SkillModule>();
                 if (skillModule == null) continue;
 
-                var data = SkillUsageData.FromEnemyData(enemy.EnemyData);
+                var data = SkillUsageData.FromEnemyCard(enemy.NextAttackCard);
                 if (data == null) continue;
                 await skillModule.UseSkillAsync(data, _player.gameObject, destroyCancellationToken);
             }

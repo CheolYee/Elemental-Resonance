@@ -36,8 +36,8 @@ MonoBehaviour:
     shopContent: {fileID: 0}
   - nodeId: c62ecf99
     floorIndex: 2
-    xOffset: 0.1
-    nodeType: 1
+    xOffset: 0.097500004
+    nodeType: 3
     nextNodeIds:
     - 5fa741f1
     stageRef: {fileID: 11400000, guid: a96ed993c472c8a4f95761ea5dea0bdc, type: 2}
@@ -46,7 +46,7 @@ MonoBehaviour:
   - nodeId: e2e1b3fd
     floorIndex: 2
     xOffset: -0.1
-    nodeType: 1
+    nodeType: 4
     nextNodeIds:
     - 5fa741f1
     stageRef: {fileID: 11400000, guid: a96ed993c472c8a4f95761ea5dea0bdc, type: 2}
@@ -87,13 +87,13 @@ MonoBehaviour:
     nodeType: 1
     nextNodeIds:
     - 7e724454
-    stageRef: {fileID: 0}
+    stageRef: {fileID: 11400000, guid: a96ed993c472c8a4f95761ea5dea0bdc, type: 2}
     restContent: {fileID: 0}
     shopContent: {fileID: 0}
   - nodeId: 0cee47bb
     floorIndex: 3
     xOffset: 0.3
-    nodeType: 3
+    nodeType: 4
     nextNodeIds:
     - d9a6c806
     - e2c3f131
@@ -103,7 +103,7 @@ MonoBehaviour:
   - nodeId: 7e724454
     floorIndex: 3
     xOffset: -0.3
-    nodeType: 4
+    nodeType: 3
     nextNodeIds:
     - cd960a5b
     - 7e769eb5

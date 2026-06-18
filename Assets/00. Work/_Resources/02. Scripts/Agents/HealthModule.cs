@@ -77,5 +77,21 @@ namespace _00._Work._Resources._02._Scripts.Agents
             IsDead = false;
             OnHpChanged?.Invoke(CurrentHp, MaxHp);
         }
+
+        public void InitializeHp(int currentHp, int maxHp)
+        {
+            MaxHp = maxHp;
+            CurrentHp = Mathf.Clamp(currentHp, 0, maxHp);
+            Block = 0;
+            IsDead = CurrentHp <= 0;
+            OnHpChanged?.Invoke(CurrentHp, MaxHp);
+        }
+
+        public void Heal(int amount)
+        {
+            if (IsDead || amount <= 0) return;
+            CurrentHp = Mathf.Min(CurrentHp + amount, MaxHp);
+            OnHpChanged?.Invoke(CurrentHp, MaxHp);
+        }
     }
 }

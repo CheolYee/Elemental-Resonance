@@ -7,6 +7,7 @@ using Gamelib.EventSystem;
 using Gamelib.ObjectPool.Runtime;
 using LitMotion;
 using TMPro;
+using TMProEffect;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -17,9 +18,15 @@ namespace Battle.UI
     {
         [Header("Visual References")]
         [SerializeField] private Image artworkImage;
+        [SerializeField] private Image frameImage;
+        [SerializeField] private Image labelImage;
         [SerializeField] private TMP_Text nameText;
+        [SerializeField] private TMP_Text typeText;
         [SerializeField] private TMP_Text costText;
         [SerializeField] private TMP_Text descText;
+        [SerializeField] private TMPEffect nameTextEffect;
+        [SerializeField] private TMPEffect typeTextEffect;
+
 
         [Header("Hover")]
         [SerializeField] private EventChannelSO battleEventChannel;
@@ -37,6 +44,20 @@ namespace Battle.UI
         [SerializeField] private float costPopScale = 1.35f;
         [SerializeField] private float costPopDuration = 0.1f;
 
+        [Header("Fusion")]
+        [SerializeField] private Image fusionGlowImage;
+        [SerializeField] private Image fusionDimOverlay;
+        [SerializeField] private Color fusionDimColor = new Color(0f, 0f, 0f, 0.6f);
+        [SerializeField] private float fusionFadeDuration = 0.15f;
+        [SerializeField] private float fusionPulseMin = 0.5f;
+        [SerializeField] private float fusionPulseMax = 1.0f;
+        [SerializeField] private float fusionPulseDuration = 0.7f;
+
+        [Header("Fusion Hover")]
+        [SerializeField] private float fusionHoverScale       = 1.2f;
+        [SerializeField] private float fusionHoverDuration    = 0.15f;
+        [SerializeField] private int   fusionHoverSortingOrder = 3;
+
         public CardInstance CardInstance { get; private set; }
 
         private RectTransform _rectTransform;
@@ -48,6 +69,12 @@ namespace Battle.UI
         private MotionHandle _overlayHandle;
         private MotionHandle _costFlashHandle;
         private MotionHandle _costPopHandle;
+        private MotionHandle _fusionGlowHandle;
+        private MotionHandle _fusionDimHandle;
+        private MotionHandle _fusionHoverScaleHandle;
+        private MotionHandle _fusionHoverPosHandle;
+        private MotionHandle _fusionHoverRotHandle;
+        private bool _isFusionHovered;
 
         private float _currentRotZ;
         private Vector2 _layoutPos;
@@ -80,6 +107,10 @@ namespace Battle.UI
             costText.text = instance.data.cost.ToString();
             artworkImage.sprite = instance.data.artwork;
 
+            if (typeText != null) typeText.text = CardColorUtility.GetTypeName(instance.data.cardType);
+            CardColorUtility.Apply(frameImage, labelImage, instance.data);
+            CardColorUtility.ApplyTextEffects(nameTextEffect, typeTextEffect, instance.data.grade);
+
             RefreshUsability(costModel.currentCost);
         }
 
@@ -87,6 +118,7 @@ namespace Battle.UI
 
         private void RefreshUsability(int currentCost)
         {
+            if (CardInstance == null) return;
             _canAfford = CardInstance.data.CanAfford(currentCost);
             _conditionMet = CardInstance.data.IsConditionMet(currentCost);
             bool canUse = _canAfford && _conditionMet;
@@ -136,6 +168,115 @@ namespace Battle.UI
         // --- IBeginDragHandler / IDragHandler ---
 
         public void SetInteractable(bool interactable) => _isInteractable = interactable;
+
+        public void SetFusionState(bool eligible, Color glowColor)
+        {
+            if (fusionGlowImage != null)
+            {
+                if (_fusionGlowHandle.IsActive()) _fusionGlowHandle.Cancel();
+
+                if (eligible)
+                {
+                    // 원소 색상 세팅 후 맥박 Yoyo 루프
+                    fusionGlowImage.color = new Color(glowColor.r, glowColor.g, glowColor.b, fusionPulseMin);
+                    _fusionGlowHandle = LMotion.Create(fusionPulseMin, fusionPulseMax, fusionPulseDuration)
+                        .WithLoops(-1, LoopType.Yoyo)
+                        .WithEase(Ease.InOutSine)
+                        .Bind(a => { if (fusionGlowImage != null) fusionGlowImage.color = new Color(glowColor.r, glowColor.g, glowColor.b, a); });
+                }
+                else
+                {
+                    var c = fusionGlowImage.color;
+                    _fusionGlowHandle = LMotion.Create(c.a, 0f, fusionFadeDuration)
+                        .Bind(a => { if (fusionGlowImage != null) fusionGlowImage.color = new Color(c.r, c.g, c.b, a); });
+                }
+            }
+
+            if (fusionDimOverlay != null)
+            {
+                float targetAlpha = eligible ? 0f : fusionDimColor.a;
+                if (_fusionDimHandle.IsActive()) _fusionDimHandle.Cancel();
+                _fusionDimHandle = LMotion.Create(fusionDimOverlay.color.a, targetAlpha, fusionFadeDuration)
+                    .Bind(a => { if (fusionDimOverlay != null) fusionDimOverlay.color = new Color(fusionDimColor.r, fusionDimColor.g, fusionDimColor.b, a); });
+            }
+        }
+
+        public void SetFusionHoverState(bool active)
+        {
+            if (_isFusionHovered == active) return;
+            _isFusionHovered = active;
+
+            if (_fusionHoverScaleHandle.IsActive()) _fusionHoverScaleHandle.Cancel();
+            if (_fusionHoverPosHandle.IsActive())   _fusionHoverPosHandle.Cancel();
+            if (_fusionHoverRotHandle.IsActive())   _fusionHoverRotHandle.Cancel();
+
+            // 소팅 오더 — 드래그 카드(20) 뒤, 일반 카드들 앞
+            if (_canvas != null)
+            {
+                _canvas.overrideSorting = active;
+                if (active)
+                {
+                    int rootOrder = _canvas.rootCanvas != null ? _canvas.rootCanvas.sortingOrder : 0;
+                    _canvas.sortingOrder = rootOrder + fusionHoverSortingOrder;
+                }
+            }
+
+            float targetScale = active ? fusionHoverScale * _layoutScale : _layoutScale;
+            Vector2 targetPos = active
+                ? new Vector2(_layoutPos.x, CalculateSnapToBottomY())
+                : _layoutPos;
+            float targetRotZ = active ? 0f : _layoutRotZ;
+            var ease = active ? Ease.OutBack : Ease.OutCubic;
+
+            _fusionHoverScaleHandle = LMotion.Create(transform.localScale.x, targetScale, fusionHoverDuration)
+                .WithEase(ease)
+                .Bind(s => transform.localScale = new Vector3(s, s, 1f));
+
+            _fusionHoverPosHandle = LMotion.Create(_rectTransform.anchoredPosition, targetPos, fusionHoverDuration)
+                .WithEase(ease)
+                .Bind(p => _rectTransform.anchoredPosition = p);
+
+            _fusionHoverRotHandle = LMotion.Create(_currentRotZ, targetRotZ, fusionHoverDuration)
+                .WithEase(ease)
+                .Bind(z =>
+                {
+                    _currentRotZ = z;
+                    _rectTransform.localRotation = Quaternion.Euler(0f, 0f, z);
+                });
+        }
+
+        public async UniTask PlayFusionDepartureAsync(CancellationToken ct)
+        {
+            float startScale = transform.localScale.x;
+            await LMotion.Create(startScale, startScale * 1.25f, 0.1f)
+                .WithEase(Ease.OutQuad)
+                .Bind(s => transform.localScale = new Vector3(s, s, 1f))
+                .ToUniTask(cancellationToken: ct);
+
+            await LMotion.Create(transform.localScale.x, 0f, 0.15f)
+                .WithEase(Ease.InBack)
+                .Bind(s => transform.localScale = new Vector3(s, s, 1f))
+                .ToUniTask(cancellationToken: ct);
+        }
+
+        public void ClearFusionState()
+        {
+            SetFusionHoverState(false);
+            if (fusionGlowImage != null)
+            {
+                if (_fusionGlowHandle.IsActive()) _fusionGlowHandle.Cancel();
+                var c = fusionGlowImage.color;
+                _fusionGlowHandle = LMotion.Create(c.a, 0f, fusionFadeDuration)
+                    .Bind(a => { if (fusionGlowImage != null) fusionGlowImage.color = new Color(c.r, c.g, c.b, a); });
+            }
+
+            if (fusionDimOverlay != null)
+            {
+                if (_fusionDimHandle.IsActive()) _fusionDimHandle.Cancel();
+                _fusionDimHandle = LMotion.Create(fusionDimOverlay.color.a, 0f, fusionFadeDuration)
+                    .Bind(a => { if (fusionDimOverlay != null) fusionDimOverlay.color = new Color(0f, 0f, 0f, a); });
+            }
+        }
 
         public void CancelLayoutTween()
         {
@@ -312,6 +453,15 @@ private float CalculateSnapToBottomY()
             if (_overlayHandle.IsActive()) _overlayHandle.Cancel();
             if (_costFlashHandle.IsActive()) _costFlashHandle.Cancel();
             if (_costPopHandle.IsActive()) _costPopHandle.Cancel();
+            if (_fusionGlowHandle.IsActive()) _fusionGlowHandle.Cancel();
+            if (_fusionDimHandle.IsActive()) _fusionDimHandle.Cancel();
+            if (_fusionHoverScaleHandle.IsActive()) _fusionHoverScaleHandle.Cancel();
+            if (_fusionHoverPosHandle.IsActive())   _fusionHoverPosHandle.Cancel();
+            if (_fusionHoverRotHandle.IsActive())   _fusionHoverRotHandle.Cancel();
+            _isFusionHovered = false;
+
+            if (fusionGlowImage != null) fusionGlowImage.color = new Color(fusionGlowImage.color.r, fusionGlowImage.color.g, fusionGlowImage.color.b, 0f);
+            if (fusionDimOverlay != null) fusionDimOverlay.color = new Color(0f, 0f, 0f, 0f);
             costText.transform.localScale = Vector3.one;
 
             _isHovered = false;
@@ -337,6 +487,9 @@ private float CalculateSnapToBottomY()
 
             CardInstance = null;
             if (artworkImage != null) artworkImage.sprite = null;
+            CardColorUtility.Reset(frameImage, labelImage);
+            CardColorUtility.ResetTextEffects(nameTextEffect, typeTextEffect);
+            if (typeText != null) typeText.text = string.Empty;
             if (nameText != null) nameText.text = string.Empty;
             if (descText != null) descText.text = string.Empty;
             if (costText != null) costText.text = string.Empty;

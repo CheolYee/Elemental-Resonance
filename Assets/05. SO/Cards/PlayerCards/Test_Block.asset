@@ -19,6 +19,9 @@ MonoBehaviour:
   description: "\uC2DC\uC804\uC790\uC758 \uBC29\uC5B4\uB3C4\uB97C 5 \uC99D\uAC00\uC2DC\uD0B5\uB2C8\uB2E4."
   targetType: 2
   disposePolicy: 0
+  elementType: 0
+  grade: 1
+  cardType: 1
   effectSlots:
   - effectSlotId: 870e8232-9351-4128-9a9a-4c1092a16519
     effect:

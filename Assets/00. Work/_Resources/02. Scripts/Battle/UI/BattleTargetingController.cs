@@ -22,6 +22,7 @@ namespace Battle.UI
         private List<TargetingModule> _validTargets = new();
         private TargetingModule _hoveredTarget;
         private bool _isTargeting;
+        private CardTargetType _currentTargetType;
 
         private void OnEnable()
         {
@@ -48,8 +49,22 @@ namespace Battle.UI
             if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, targetLayerMask))
                 hit = _validTargets.FirstOrDefault(t => t.Collider == hitInfo.collider);
 
-            if (hit == _hoveredTarget) return;
+            if (_currentTargetType == CardTargetType.AllEnemies)
+            {
+                bool anyHit = hit != null;
+                bool wasHovered = _hoveredTarget != null;
+                if (anyHit == wasHovered) return;
 
+                _hoveredTarget = anyHit ? hit : null;
+                foreach (var t in _validTargets)
+                {
+                    if (anyHit) t.SetOutlineHovered();
+                    else t.SetOutlineValid();
+                }
+                return;
+            }
+
+            if (hit == _hoveredTarget) return;
             _hoveredTarget?.SetOutlineValid();
             _hoveredTarget = hit;
             _hoveredTarget?.SetOutlineHovered();
@@ -68,6 +83,7 @@ namespace Battle.UI
         {
             _isTargeting = true;
             _hoveredTarget = null;
+            _currentTargetType = evt.CardInstance.data.targetType;
 
             _validTargets = evt.CardInstance.data.targetType switch
             {
@@ -75,6 +91,8 @@ namespace Battle.UI
                     .Where(t => t.TargetGroup == TargetGroup.Enemy).ToList(),
                 CardTargetType.SingleAlly => _registeredTargets
                     .Where(t => t.TargetGroup == TargetGroup.Ally).ToList(),
+                CardTargetType.AllEnemies => _registeredTargets
+                    .Where(t => t.TargetGroup == TargetGroup.Enemy).ToList(),
                 _ => new List<TargetingModule>()
             };
 

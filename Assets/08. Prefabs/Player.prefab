@@ -551,7 +551,7 @@ MonoBehaviour:
   statOverrides:
   - <StatData>k__BackingField: {fileID: 11400000, guid: 817ec46370e71f448b0fd9dfaa094d2a, type: 2}
     isUseOverride: 1
-    overrideValue: 30
+    overrideValue: 100
 --- !u!1 &2514917304335683956
 GameObject:
   m_ObjectHideFlags: 0

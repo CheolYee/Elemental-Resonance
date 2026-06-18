@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: Holy_Legendary
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: holy_legendary_01
+  cardName: "\uC2E0\uC131 \uC2EC\uD310"
+  cost: 1
+  artwork: {fileID: 0}
+  description: "[Legendary] \uC2E0\uC131 \uC18D\uC131 \uAE30\uBCF8 \uACF5\uACA9 \uCE74\uB4DC
+    (\uB370\uBBF8\uC9C0 30)"
+  targetType: 1
+  disposePolicy: 0
+  elementType: 12
+  grade: 3
+  cardType: 0
+  effectSlots:
+  - effectSlotId: b3af0c67-c7a5-4ef8-96ce-f79c06ab8dda
+    effect:
+      rid: 3413309986535899360
+  skillData: {fileID: 0}
+  presentationData: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413309986535899360
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 30

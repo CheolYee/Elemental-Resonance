@@ -45,8 +45,15 @@ namespace Battle.Presentation
             }
 
             GameObject source = context.Caster?.gameObject;
-            GameObject target = ResolveEffectTarget(context, slot.effect)?.gameObject;
-            slot.effect.Apply(source, target, finalValue);
+
+            if (slot.effect is BlockEffect)
+            {
+                slot.effect.Apply(source, context.Caster?.gameObject, finalValue);
+                return;
+            }
+
+            foreach (var targetAgent in context.Targets)
+                slot.effect.Apply(source, targetAgent?.gameObject, finalValue);
         }
 
         private CardEffectSlot ResolveSlot(SkillPresentationPlaybackContext context, string effectSlotId)
@@ -61,20 +68,6 @@ namespace Battle.Presentation
             }
 
             return null;
-        }
-
-        private static _00._Work._Resources._02._Scripts.Agents.Agent ResolveEffectTarget(
-            SkillPresentationPlaybackContext context,
-            CardEffect effect)
-        {
-            if (context == null || effect == null) return null;
-
-            return effect switch
-            {
-                DamageEffect => context.Target,
-                BlockEffect  => context.Caster,
-                _            => context.Target
-            };
         }
     }
 }

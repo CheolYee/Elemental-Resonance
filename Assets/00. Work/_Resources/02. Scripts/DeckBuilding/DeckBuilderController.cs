@@ -10,8 +10,9 @@ namespace DeckBuilding
     public class DeckBuilderController : MonoBehaviour
     {
         [Header("Data")]
-        [SerializeField] private CardDatabaseSO _cardDatabase;
+        [SerializeField] private CardDatabaseSO  _cardDatabase;
         [SerializeField] private TempStartCardSO _deckProvider;
+        [SerializeField] private PlayerRunStateSO _playerRunState;
 
         [Header("카드 목록 (상단)")]
         [SerializeField] private Transform _cardGridRoot;
@@ -79,6 +80,7 @@ namespace DeckBuilding
 
         private void OnStartClicked()
         {
+            _playerRunState?.Reset();
             _deckProvider.SetDeck(_selectedCards);
             SceneManager.LoadScene(_mainSceneName);
         }

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91856a6b9502ebc4d8124f5b7b05ee5e, type: 3}
+  m_Name: EnemySkillPreViewLayout
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Presentation.SkillPreviewLayoutSO
+  casterPrefab: {fileID: 3512226975218359816, guid: 99c95d5836d1b10479ae5535d0d204dc, type: 3}
+  targetPrefabs:
+  - {fileID: 104440630590430532, guid: e75bb88d724d4734dbf99ea8ff3f10d4, type: 3}
+  casterPosition: {x: 0, y: 14.072, z: 41.25}
+  targetPositions:
+  - {x: 0, y: 13.46, z: 33.05}
+  environmentPrefab: {fileID: 7638571463770537307, guid: 996b648b816a0244ca65852e5c0b7d63, type: 3}
+  cameraPosition: {x: 1.5858643, y: 15.018379, z: 31.658499}
+  cameraRotationEuler: {x: 10, y: -15, z: 0}
+  cameraFov: 70

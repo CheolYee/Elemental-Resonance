@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using _00._Work._Resources._02._Scripts.Agents;
 using _02._Scripts.CombatSystem.Skills;
@@ -14,6 +15,7 @@ namespace Battle.Presentation
         public CardInstance CardInstance { get; }
         public Agent Caster { get; }
         public Agent Target { get; }
+        public IReadOnlyList<Agent> Targets { get; }
         public CancellationToken CancellationToken { get; }
         public SkillPresentationTimeline Timeline { get; }
 
@@ -25,7 +27,8 @@ namespace Battle.Presentation
             Agent caster,
             Agent target,
             CancellationToken cancellationToken,
-            SkillPresentationTimeline timeline = null)
+            SkillPresentationTimeline timeline = null,
+            IReadOnlyList<Agent> targets = null)
         {
             PresentationData = presentationData;
             Grade = grade;
@@ -33,6 +36,7 @@ namespace Battle.Presentation
             CardInstance = cardInstance;
             Caster = caster;
             Target = target;
+            Targets = targets ?? (target != null ? new List<Agent> { target } : new List<Agent>());
             CancellationToken = cancellationToken;
             Timeline = timeline;
         }
@@ -46,6 +50,7 @@ namespace Battle.Presentation
                 Caster,
                 Target,
                 CancellationToken,
-                timeline);
+                timeline,
+                Targets);
     }
 }

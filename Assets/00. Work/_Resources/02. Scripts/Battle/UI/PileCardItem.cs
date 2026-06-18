@@ -4,6 +4,7 @@ using Battle.Instances;
 using Gamelib.EventSystem;
 using LitMotion;
 using TMPro;
+using TMProEffect;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,9 +15,14 @@ namespace Battle.UI
     {
         [SerializeField] private EventChannelSO battleEventChannel;
         [SerializeField] private Image artworkImage;
+        [SerializeField] private Image frameImage;
+        [SerializeField] private Image labelImage;
         [SerializeField] private TMP_Text nameText;
+        [SerializeField] private TMP_Text typeText;
         [SerializeField] private TMP_Text costText;
         [SerializeField] private TMP_Text descText;
+        [SerializeField] private TMPEffect nameTextEffect;
+        [SerializeField] private TMPEffect typeTextEffect;
 
         [Header("Hover")]
         [SerializeField] private float hoverScale = 1.1f;
@@ -32,6 +38,9 @@ namespace Battle.UI
             if (nameText != null) nameText.text = data.cardName;
             if (costText != null) costText.text = data.cost.ToString();
             if (descText != null) descText.text = data.description;
+            if (typeText != null) typeText.text = CardColorUtility.GetTypeName(data.cardType);
+            CardColorUtility.Apply(frameImage, labelImage, data);
+            CardColorUtility.ApplyTextEffects(nameTextEffect, typeTextEffect, data.grade);
         }
 
         public void Setup(CardInstance instance) => Setup(instance.data);

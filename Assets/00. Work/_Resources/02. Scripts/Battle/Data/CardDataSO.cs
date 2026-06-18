@@ -20,6 +20,7 @@ namespace Battle.Data
         public CardDisposePolicy disposePolicy;
         public ElementType elementType;
         public CardGrade grade;
+        public CardType cardType;
         public List<CardEffectSlot> effectSlots;
         public SkillDataSO skillData;
         public SkillPresentationDataSO presentationData;

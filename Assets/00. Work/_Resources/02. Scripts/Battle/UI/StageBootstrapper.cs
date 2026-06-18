@@ -20,6 +20,7 @@ namespace Battle.UI
         [SerializeField] private RuntimeEnemyRegistrySO enemyRegistry;
         [SerializeField] private EventChannelSO battleEventChannel;
         [SerializeField] private DeckController deckController;
+        [SerializeField] private PlayerRunStateSO playerRunState;
         [SerializeField] private float waveTransitionDelay = 1.0f;
 
         [Inject] private Player _player;
@@ -59,6 +60,7 @@ namespace Battle.UI
 
             await UniTask.Yield();
 
+            InitializePlayerHp();
             deckController.Initialize();
 
             SpawnWave(_currentWaveIndex);
@@ -70,6 +72,21 @@ namespace Battle.UI
 
             await UniTask.WhenAll(tasks);
             battleEventChannel.RaiseEvent(new PlayerTurnStartEvent());
+        }
+
+        private void InitializePlayerHp()
+        {
+            if (playerRunState == null) return;
+
+            if (playerRunState.IsHpInitialized)
+            {
+                _player.Health.InitializeHp(playerRunState.CurrentHp, playerRunState.MaxHp);
+            }
+            else
+            {
+                _player.Health.Reinitialize();
+                playerRunState.SetHp(_player.Health.CurrentHp, _player.Health.MaxHp);
+            }
         }
 
         [ContextMenu("Debug: Begin Stage")]

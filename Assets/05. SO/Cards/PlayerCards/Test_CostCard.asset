@@ -19,6 +19,9 @@ MonoBehaviour:
   description: "\uCF54\uC2A4\uD2B8\uB97C 3 \uC99D\uAC00\uC2DC\uD0A8\uB2E4."
   targetType: 0
   disposePolicy: 0
+  elementType: 0
+  grade: 2
+  cardType: 1
   effectSlots:
   - effectSlotId: 1c6badd5-51bd-4f12-8d45-b16383da6a29
     effect:

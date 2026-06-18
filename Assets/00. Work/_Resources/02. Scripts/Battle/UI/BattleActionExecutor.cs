@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using _00._Work._Resources._02._Scripts.Agents;
 using _00._Work._Resources._02._Scripts.Agents.Players;
 using _02._Scripts.CombatSystem.Skills;
 using Battle.Data;
 using Battle.Effects;
+using Battle.Enums;
 using Battle.Events;
 using Battle.Instances;
 using Battle.Presentation;
@@ -18,6 +20,7 @@ namespace Battle.UI
         [SerializeField] private EventChannelSO battleEventChannel;
         [SerializeField] private BattleCostModelSO costModel;
         [SerializeField] private DeckController deckController;
+        [SerializeField] private RuntimeEnemyRegistrySO enemyRegistry;
 
         [Inject] private Player _player;
 
@@ -99,10 +102,18 @@ namespace Battle.UI
                 var card     = evt.CardInstance;
                 var targetGo = evt.Target?.gameObject;
 
+                List<Agent> allTargets = null;
+                if (card.data.targetType == CardTargetType.AllEnemies && enemyRegistry != null)
+                {
+                    allTargets = new List<Agent>();
+                    foreach (var enemy in enemyRegistry.Enemies)
+                        if (enemy != null) allTargets.Add(enemy);
+                }
+
                 RaiseQueueChanged(currentCard: card);
                 battleEventChannel.RaiseEvent(new SkillExecutionStartEvent());
                 var data = SkillUsageData.FromCard(card);
-                await _playerSkillModule.UseSkillAsync(data, targetGo, destroyCancellationToken);
+                await _playerSkillModule.UseSkillAsync(data, targetGo, destroyCancellationToken, allTargets);
                 deckController.UseCard(card);
                 battleEventChannel.RaiseEvent(new SkillExecutionEndEvent());
                 await UniTask.Delay(System.TimeSpan.FromSeconds(0.1f), DelayType.DeltaTime, PlayerLoopTiming.Update, destroyCancellationToken);

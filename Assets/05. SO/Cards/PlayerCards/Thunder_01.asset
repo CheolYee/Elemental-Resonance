@@ -20,6 +20,9 @@ MonoBehaviour:
     5\uC758 \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4."
   targetType: 1
   disposePolicy: 0
+  elementType: 5
+  grade: 0
+  cardType: 0
   effectSlots:
   - effectSlotId: 1d70abb4-61a6-4819-b644-7e5fcb81573b
     effect:

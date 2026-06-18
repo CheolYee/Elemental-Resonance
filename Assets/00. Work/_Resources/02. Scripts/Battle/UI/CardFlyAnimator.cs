@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Battle.Enums;
 using Battle.Events;
 using Cysharp.Threading.Tasks;
@@ -80,6 +81,16 @@ namespace Battle.UI
             for (int i = 0; i < count; i++)
                 FlyWithDelayAsync(from, PileDisplayTarget.Draw, i * refillStagger).Forget();
         }
+
+        // 합성 재료 카드 비행 — FusionExecutionController에서 직접 호출
+        public UniTask FlyToDiscardAsync(Vector2 fromScreen)
+            => FlyCardAsync(fromScreen, PileDisplayTarget.Discard);
+
+        public UniTask FlyToGraveAsync(Vector2 fromScreen)
+            => FlyCardAsync(fromScreen, PileDisplayTarget.Grave);
+
+        public void FlyToCurrentDeck(Vector2 fromScreen)
+            => FlyCardAsync(fromScreen, PileDisplayTarget.CurrentDeck).Forget();
 
         // C-10: HandLayoutController가 직접 호출 — 턴 종료 손패 전체 이동
         public void FlyAllToDiscard(List<Vector2> screenPositions)

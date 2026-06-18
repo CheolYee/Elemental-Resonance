@@ -34,6 +34,8 @@ ShaderVariantCollection:
         passType: 0
       - keywords: COLOR_FILTER EDGE_PLAIN
         passType: 0
+      - keywords: COLOR_FILTER OUTLINE_ON UNDERLAY_ON
+        passType: 0
       - keywords: COLOR_FILTER UNDERLAY_ON
         passType: 0
 --- !u!114 &11400000

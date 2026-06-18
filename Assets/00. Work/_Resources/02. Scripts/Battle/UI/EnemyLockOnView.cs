@@ -28,11 +28,21 @@ namespace Battle.UI
 
         public void Show(AbstractEnemy enemy, Camera camera)
         {
+            Show(enemy.GetComponentsInChildren<Renderer>(), camera, enemy.name);
+        }
+
+        public void Show(Renderer[] renderers, Camera camera)
+        {
+            Show(renderers, camera, "Object");
+        }
+
+        private void Show(Renderer[] renderers, Camera camera, string sourceName)
+        {
             _camera = camera;
-            _renderers = enemy.GetComponentsInChildren<Renderer>();
-            if (_renderers.Length == 0)
+            _renderers = renderers;
+            if (_renderers == null || _renderers.Length == 0)
             {
-                Debug.LogWarning($"[EnemyLockOnView] {enemy.name}에 Renderer가 없어 락온 표시를 건너뜁니다.", enemy);
+                Debug.LogWarning($"[EnemyLockOnView] {sourceName}에 Renderer가 없어 락온 표시를 건너뜁니다.");
                 return;
             }
 

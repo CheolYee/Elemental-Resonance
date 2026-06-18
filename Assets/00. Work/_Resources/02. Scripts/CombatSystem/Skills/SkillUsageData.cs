@@ -41,16 +41,16 @@ namespace _02._Scripts.CombatSystem.Skills
                 card.data.presentationData);
         }
 
-        public static SkillUsageData FromEnemyData(EnemyDataSO data)
+        public static SkillUsageData FromEnemyCard(CardDataSO card)
         {
-            if (data.attackCard == null) return null;
-            data.attackCard.EnsureEffectSlotIds();
+            if (card == null) return null;
+            card.EnsureEffectSlotIds();
             return new(
-                data.attackCard.skillData,
+                card.skillData,
                 1,
-                data.attackCard.effectSlots?.ConvertAll(s => s.effect),
-                new Battle.Instances.CardInstance(data.attackCard, Battle.Enums.CardGrade.Normal),
-                data.attackCard.presentationData);
+                card.effectSlots?.ConvertAll(s => s.effect),
+                new Battle.Instances.CardInstance(card, Battle.Enums.CardGrade.Normal),
+                card.presentationData);
         }
     }
 }

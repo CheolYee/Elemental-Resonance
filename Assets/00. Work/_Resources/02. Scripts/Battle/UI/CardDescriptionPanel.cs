@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
 using LitMotion;
 using TMPro;
+using TMProEffect;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,10 +17,15 @@ namespace Battle.UI
         [SerializeField] private EventChannelSO battleEventChannel;
         [SerializeField] private CanvasGroup canvasGroup;
         [SerializeField] private Image artworkImage;
+        [SerializeField] private Image frameImage;
+        [SerializeField] private Image labelImage;
         [SerializeField] private TMP_Text nameText;
+        [SerializeField] private TMP_Text typeText;
         [SerializeField] private TMP_Text costText;
         [SerializeField] private TMP_Text descriptionText;
         [SerializeField] private ScrollRect descriptionScrollRect;
+        [SerializeField] private TMPEffect nameTextEffect;
+        [SerializeField] private TMPEffect typeTextEffect;
 
         [Header("Settings")]
         [SerializeField] private float hoverDelay = 0.3f;
@@ -98,6 +104,9 @@ namespace Battle.UI
             costText.text = data.cost.ToString();
             descriptionText.text = data.description;
             artworkImage.sprite = data.artwork;
+            if (typeText != null) typeText.text = CardColorUtility.GetTypeName(data.cardType);
+            CardColorUtility.Apply(frameImage, labelImage, data);
+            CardColorUtility.ApplyTextEffects(nameTextEffect, typeTextEffect, data.grade);
         }
 
         private void FadeTo(float targetAlpha)

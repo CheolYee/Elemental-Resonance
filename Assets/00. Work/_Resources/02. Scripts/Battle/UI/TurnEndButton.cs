@@ -2,12 +2,14 @@ using Battle.Events;
 using Gamelib.EventSystem;
 using LitMotion;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Battle.UI
 {
     public class TurnEndButton : MonoBehaviour
     {
         [SerializeField] private EventChannelSO battleEventChannel;
+        [SerializeField] private Button button;
 
         [Header("Slide")]
         [SerializeField] private RectTransform slideTarget;
@@ -20,6 +22,8 @@ namespace Battle.UI
         private bool _battleEnded;
         private bool _waveClearPending;
         private bool _skillQueueRunning;
+        private bool _turnEndPending;
+        private bool _inNodeContext;
 
         private void Awake()
         {
@@ -28,6 +32,7 @@ namespace Battle.UI
                 _slideInPos = slideTarget.anchoredPosition;
                 slideTarget.anchoredPosition = _slideInPos + slideOutOffset;
             }
+            SetButtonInteractable(false);
         }
 
         private void OnEnable()
@@ -41,6 +46,7 @@ namespace Battle.UI
             battleEventChannel.AddListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.AddListener<BattleDefeatEvent>(OnBattleEnded);
             battleEventChannel.AddListener<CardDrawEndEvent>(OnCardDrawEnd);
+            battleEventChannel.AddListener<PlayerTurnStartEvent>(OnPlayerTurnStart);
             battleEventChannel.AddListener<PileDetailPanelOpenedEvent>(OnPileDetailOpened);
             battleEventChannel.AddListener<PileDetailPanelClosedEvent>(OnPileDetailClosed);
             battleEventChannel.AddListener<SkillQueueStartedEvent>(OnSkillQueueStarted);
@@ -59,6 +65,7 @@ namespace Battle.UI
             battleEventChannel.RemoveListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.RemoveListener<BattleDefeatEvent>(OnBattleEnded);
             battleEventChannel.RemoveListener<CardDrawEndEvent>(OnCardDrawEnd);
+            battleEventChannel.RemoveListener<PlayerTurnStartEvent>(OnPlayerTurnStart);
             battleEventChannel.RemoveListener<PileDetailPanelOpenedEvent>(OnPileDetailOpened);
             battleEventChannel.RemoveListener<PileDetailPanelClosedEvent>(OnPileDetailClosed);
             battleEventChannel.RemoveListener<SkillQueueStartedEvent>(OnSkillQueueStarted);
@@ -68,23 +75,37 @@ namespace Battle.UI
 
         public void OnClick()
         {
-            if (_battleEnded || _skillQueueRunning) return;
+            if (_battleEnded || _skillQueueRunning || _turnEndPending) return;
+            _turnEndPending = true;
+            SetButtonInteractable(false);
             battleEventChannel.RaiseEvent(new PlayerTurnEndRequestEvent());
+        }
+
+        private void SetButtonInteractable(bool interactable)
+        {
+            if (button != null) button.interactable = interactable;
         }
 
         private void OnSkillQueueStarted(SkillQueueStartedEvent _) { _skillQueueRunning = true; SlideOut(); }
         private void OnSkillQueueCompleted(SkillQueueCompletedEvent _) { _skillQueueRunning = false; if (!_battleEnded && !_waveClearPending) SlideIn(); }
         private void OnEnemyTurnStart(EnemyTurnStartEvent _) => SlideOut();
 
-        private void OnSessionStart(BattleSessionStartEvent _) { _battleEnded = false; _waveClearPending = false; _skillQueueRunning = false; }
-        private void OnContextEntered(NodeContextEnteredEvent _) => SlideOut();
+        private void OnPlayerTurnStart(PlayerTurnStartEvent _)
+        {
+            _turnEndPending = false;
+            if (!_battleEnded && !_waveClearPending && !_skillQueueRunning)
+                SetButtonInteractable(true);
+        }
+
+        private void OnSessionStart(BattleSessionStartEvent _) { _battleEnded = false; _waveClearPending = false; _skillQueueRunning = false; _turnEndPending = false; _inNodeContext = false; }
+        private void OnContextEntered(NodeContextEnteredEvent _) { _inNodeContext = true; SlideOut(); }
         private void OnPileDetailOpened(PileDetailPanelOpenedEvent _) => SlideOut();
-        private void OnPileDetailClosed(PileDetailPanelClosedEvent _) { if (!_battleEnded && !_waveClearPending && !_skillQueueRunning) SlideIn(); }
+        private void OnPileDetailClosed(PileDetailPanelClosedEvent _) { if (!_battleEnded && !_waveClearPending && !_skillQueueRunning && !_inNodeContext) SlideIn(); }
         private void OnBattleUIHidden(BattleUIHiddenEvent _) => SlideOut();
-        private void OnBattleUIShown(BattleUIShownEvent _) { if (!_battleEnded && !_waveClearPending && !_skillQueueRunning) SlideIn(); }
-        private void OnCardDrawStart(CardDrawStartEvent _) => SlideOut();
+        private void OnBattleUIShown(BattleUIShownEvent _) { if (!_battleEnded && !_waveClearPending && !_skillQueueRunning && !_inNodeContext) SlideIn(); }
+        private void OnCardDrawStart(CardDrawStartEvent _) { SlideOut(); SetButtonInteractable(false); }
         private void OnWaveClear(WaveClearEvent _) { _waveClearPending = true; SlideOut(); }
-        private void OnCardDrawEnd(CardDrawEndEvent _) { _waveClearPending = false; if (!_battleEnded && !_skillQueueRunning) SlideIn(); }
+        private void OnCardDrawEnd(CardDrawEndEvent _) { _waveClearPending = false; if (!_battleEnded && !_skillQueueRunning && !_inNodeContext) SlideIn(); }
         private void OnBattleEnded(BattleVictoryEvent _) { _battleEnded = true; SlideOut(); }
         private void OnBattleEnded(BattleDefeatEvent _) { _battleEnded = true; SlideOut(); }
 
@@ -103,6 +124,7 @@ namespace Battle.UI
             if (_slideHandle.IsActive()) _slideHandle.Cancel();
             _slideHandle = LMotion.Create(slideTarget.anchoredPosition, _slideInPos, slideDuration)
                 .WithEase(slideEase)
+                .WithOnComplete(() => { if (!_turnEndPending) SetButtonInteractable(true); })
                 .Bind(p => slideTarget.anchoredPosition = p);
         }
     }

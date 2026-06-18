@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6664dbab54ab12f4ca92a37ec0c6f7d1, type: 3}
+  m_Name: "\uBC88\uAC1C_\uC6D0\uC810_\uC5F0\uC18D\uD3ED\uD30C_\uC2A4\uD30C\uD06C"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Presentation.VfxDefinitionSO
+  key: 10
+  prefab: {fileID: 2650913638476504773, guid: 7e567edb74e5fc3479f96cacb5ef9d59, type: 3}
+  defaultLifeTime: 12.1

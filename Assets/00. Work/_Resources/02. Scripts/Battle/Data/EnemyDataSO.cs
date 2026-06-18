@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Agents.StatSystem;
 using UnityEngine;
 
 namespace Battle.Data
@@ -9,6 +11,7 @@ namespace Battle.Data
         public string enemyName;
         public GameObject enemyPrefab;
         public int maxHp;
-        public CardDataSO attackCard;
+        public StatSO hpStatSO;
+        public List<CardDataSO> attackCards = new();
     }
 }

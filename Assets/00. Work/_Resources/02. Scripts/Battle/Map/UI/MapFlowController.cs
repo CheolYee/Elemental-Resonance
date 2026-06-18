@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Battle.Data;
 using Battle.Events;
 using Battle.Map.Data;
 using Battle.Map.Enums;
@@ -26,6 +27,7 @@ namespace Battle.Map.UI
         [SerializeField] private CanvasGroup _fadeCanvasGroup;
         [SerializeField] private EnvironmentController _skyboxController;
         [SerializeField] private CinemachineBrain _cinemachineBrain;
+        [SerializeField] private PlayerRunStateSO _playerRunState;
 
         [SerializeField] private float _mapOpenDelay = 0.5f;
         [SerializeField] private bool _openForSelectionOnStart = false;
@@ -61,7 +63,7 @@ namespace Battle.Map.UI
         {
             _battleEventChannel.AddListener<BattleVictoryEvent>(OnBattleVictory);
             _battleEventChannel.AddListener<BattleDefeatEvent>(OnBattleDefeat);
-            _battleEventChannel.AddListener<BattleResultShownEvent>(OnBattleResultShown);
+            _battleEventChannel.AddListener<RewardPanelClosedEvent>(OnRewardPanelClosed);
             _battleEventChannel.AddListener<BattleSessionStartEvent>(OnSessionStart);
             if (_mapScreenPresenter != null)
                 _mapScreenPresenter.OnNodeClicked += OnNodeViewClicked;
@@ -75,7 +77,7 @@ namespace Battle.Map.UI
         {
             _battleEventChannel.RemoveListener<BattleVictoryEvent>(OnBattleVictory);
             _battleEventChannel.RemoveListener<BattleDefeatEvent>(OnBattleDefeat);
-            _battleEventChannel.RemoveListener<BattleResultShownEvent>(OnBattleResultShown);
+            _battleEventChannel.RemoveListener<RewardPanelClosedEvent>(OnRewardPanelClosed);
             _battleEventChannel.RemoveListener<BattleSessionStartEvent>(OnSessionStart);
             if (_mapScreenPresenter != null)
                 _mapScreenPresenter.OnNodeClicked -= OnNodeViewClicked;
@@ -87,6 +89,7 @@ namespace Battle.Map.UI
 
         public void InitializeRun()
         {
+            _playerRunState?.Reset();
             _runMapState = new RunMapState { graphId = _mapGraph.name };
 
             var startNode = _mapGraph.GetStartNode();
@@ -162,18 +165,21 @@ namespace Battle.Map.UI
             {
                 if ((node.nodeType == MapNodeType.Battle || node.nodeType == MapNodeType.Elite)
                     && node.stageRef != null && _stageBootstrapper != null)
+                {
+                    _playerRunState?.SetFloorIndex(node.floorIndex);
                     _stageBootstrapper.BeginStage(node.stageRef).Forget();
+                }
                 else if (node.nodeType == MapNodeType.Rest)
                 {
                     _battleEventChannel.RaiseEvent(new NodeContextEnteredEvent());
                     _skyboxController?.SetNight();
-                    _restPanel?.Open(node.restContent);
+                    _restPanel?.EnterNode(node.restContent);
                     await WaitForCameraBlend(ct);
                 }
                 else if (node.nodeType == MapNodeType.Shop)
                 {
                     _battleEventChannel.RaiseEvent(new NodeContextEnteredEvent());
-                    _shopPanel?.Open(node.shopContent);
+                    _shopPanel?.EnterNode(node.shopContent);
                     await WaitForCameraBlend(ct);
                 }
             }
@@ -208,12 +214,12 @@ namespace Battle.Map.UI
             if (node?.nodeType == MapNodeType.Rest)
             {
                 _skyboxController?.SetDay();
-                _restPanel?.Close();
+                if (_restPanel != null) await _restPanel.ExitAsync();
                 await WaitForCameraBlend(ct);
             }
             else if (node?.nodeType == MapNodeType.Shop)
             {
-                _shopPanel?.Close();
+                if (_shopPanel != null) await _shopPanel.ExitAsync();
                 await WaitForCameraBlend(ct);
             }
 
@@ -238,7 +244,7 @@ namespace Battle.Map.UI
             }
         }
 
-        private void OnBattleResultShown(BattleResultShownEvent _)
+        private void OnRewardPanelClosed(RewardPanelClosedEvent _)
         {
             if (!_pendingVictoryMapOpen) return;
             _pendingVictoryMapOpen = false;

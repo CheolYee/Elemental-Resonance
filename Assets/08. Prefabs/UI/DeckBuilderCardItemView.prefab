@@ -253,11 +253,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 3738891360073613777}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 17}
-  m_SizeDelta: {x: 180, y: 130}
-  m_Pivot: {x: 0.5, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 170, y: 170}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5427536252770650911
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -286,7 +286,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e005e442dc43ace4d8ffb3c29742a2ff, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 28749342eee914c41b9a11e960666c6e, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -432,10 +432,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeckBuilding.DeckBuilderCardItemView
   _artworkImage: {fileID: 3186101411011943967}
+  _frameImage: {fileID: 2934161330734218257}
+  _labelImage: {fileID: 4394501806847577723}
   _nameText: {fileID: 3594936881141921071}
+  _typeText: {fileID: 4218860938480011910}
   _costText: {fileID: 9174278438752031599}
   _descText: {fileID: 6199180975546493620}
   _button: {fileID: 8638000215169988387}
+  _nameTextEffect: {fileID: 5684600907287114794}
+  _typeTextEffect: {fileID: 1459898293675807521}
 --- !u!114 &8638000215169988387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -690,7 +695,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 30, y: 30}
+  m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.3, y: 0.7}
 --- !u!222 &8891162550977218662
 CanvasRenderer:

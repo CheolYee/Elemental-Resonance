@@ -1,6 +1,8 @@
+using _00._Work._Resources._02._Scripts.Agents.Players;
 using Battle.Data;
 using Battle.Events;
 using Gamelib.EventSystem;
+using Reflex.Attributes;
 using UnityEngine;
 
 namespace Battle.UI
@@ -9,6 +11,9 @@ namespace Battle.UI
     {
         [SerializeField] private EventChannelSO battleEventChannel;
         [SerializeField] private RuntimeEnemyRegistrySO enemyRegistry;
+        [SerializeField] private PlayerRunStateSO playerRunState;
+
+        [Inject] private Player _player;
 
         private int _livingEnemyCount;
         private bool _isExecuting;
@@ -69,7 +74,13 @@ namespace Battle.UI
         }
 
         private void OnBattleEnded(BattleDefeatEvent _) => _battleEnded = true;
-        private void OnBattleEnded(BattleVictoryEvent _) => _battleEnded = true;
+
+        private void OnBattleEnded(BattleVictoryEvent _)
+        {
+            _battleEnded = true;
+            if (playerRunState != null && _player != null)
+                playerRunState.SetHp(_player.Health.CurrentHp, _player.Health.MaxHp);
+        }
 
         private void OnEnemyDeathStarted()
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using _00._Work._Resources._02._Scripts.Agents;
 using _00._Work._Resources._02._Scripts.Modules;
@@ -25,7 +26,7 @@ namespace _02._Scripts.CombatSystem.Skills
 
         public void Initialize(ModuleOwner owner) => Owner = owner;
 
-        public async UniTask UseSkillAsync(SkillUsageData data, GameObject target, CancellationToken ct = default)
+        public async UniTask UseSkillAsync(SkillUsageData data, GameObject target, CancellationToken ct = default, IReadOnlyList<Agent> allTargets = null)
         {
             if (Owner is not Agent agent || data == null) return;
 
@@ -64,15 +65,19 @@ namespace _02._Scripts.CombatSystem.Skills
             UniTask presentationTask = UniTask.CompletedTask;
             if (shouldPlayPresentation)
             {
-                Agent targetAgent = target != null ? target.GetComponentInParent<Agent>() : null;
+                Agent primaryTarget = target != null ? target.GetComponentInParent<Agent>() : null;
+                IReadOnlyList<Agent> targets = allTargets ?? (primaryTarget != null
+                    ? (IReadOnlyList<Agent>)new List<Agent> { primaryTarget }
+                    : new List<Agent>());
                 var playbackContext = new SkillPresentationPlaybackContext(
                     data.PresentationData,
                     data.Grade,
                     data,
                     data.CardInstance,
                     agent,
-                    targetAgent,
-                    ct);
+                    primaryTarget,
+                    ct,
+                    targets: targets);
                 presentationTask = _skillPresentationPlayer.PlayAsync(playbackContext);
             }
 

@@ -23,6 +23,7 @@ namespace Battle.UI
         private MotionHandle _slideHandle;
         private bool _battleEnded;
         private bool _waveClearPending;
+        private bool _inNodeContext;
         private int _displayCost;
 
         private void Awake()
@@ -84,11 +85,12 @@ namespace Battle.UI
         {
             _battleEnded = false;
             _waveClearPending = false;
+            _inNodeContext = false;
             _displayCost = costModel.currentCost;
             RefreshCostText();
         }
 
-        private void OnContextEntered(NodeContextEnteredEvent _) => SlideOut();
+        private void OnContextEntered(NodeContextEnteredEvent _) { _inNodeContext = true; SlideOut(); }
 
         private void OnPlayerTurnStart(PlayerTurnStartEvent _)
         {
@@ -111,12 +113,12 @@ namespace Battle.UI
         private void RefreshCostText() => costText.text = $"{_displayCost}/{costModel.baseCost}";
 
         private void OnPileDetailOpened(PileDetailPanelOpenedEvent _) => SlideOut();
-        private void OnPileDetailClosed(PileDetailPanelClosedEvent _) { if (!_battleEnded && !_waveClearPending) SlideIn(); }
+        private void OnPileDetailClosed(PileDetailPanelClosedEvent _) { if (!_battleEnded && !_waveClearPending && !_inNodeContext) SlideIn(); }
         private void OnBattleUIHidden(BattleUIHiddenEvent _) => SlideOut();
-        private void OnBattleUIShown(BattleUIShownEvent _) { if (!_battleEnded && !_waveClearPending) SlideIn(); }
+        private void OnBattleUIShown(BattleUIShownEvent _) { if (!_battleEnded && !_waveClearPending && !_inNodeContext) SlideIn(); }
         private void OnCardDrawStart(CardDrawStartEvent _) => SlideOut();
         private void OnWaveClear(WaveClearEvent _) { _waveClearPending = true; SlideOut(); }
-        private void OnCardDrawEnd(CardDrawEndEvent _) { _waveClearPending = false; if (!_battleEnded) SlideIn(); }
+        private void OnCardDrawEnd(CardDrawEndEvent _) { _waveClearPending = false; if (!_battleEnded && !_inNodeContext) SlideIn(); }
         private void OnBattleEnded(BattleVictoryEvent _) { _battleEnded = true; SlideOut(); }
         private void OnBattleEnded(BattleDefeatEvent _) { _battleEnded = true; SlideOut(); }
 

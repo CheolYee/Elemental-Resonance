@@ -13,27 +13,9 @@ MonoBehaviour:
   m_Name: TestBlock
   m_EditorClassIdentifier: Assembly-CSharp::Battle.Presentation.SkillPresentationDataSO
   hideBattleUIDuringSkill: 0
-  normalTimeline:
+  timeline:
     animationTrack:
       keyframes:
-      - property: 0
-        timeSeconds: 0
-        animParam: {fileID: 11400000, guid: 928eac31588ae7248aaf63fed07fdd98, type: 2}
-        effectSlotId: 
-        valueMultiplier: 1
-        position: {x: 0, y: 0, z: 0}
-        rotationEuler: {x: 0, y: 0, z: 0}
-        scale: {x: 1, y: 1, z: 1}
-        isHold: 0
-        easing: 0
-        vfxActiveAction: 0
-        cameraPosition: {x: 0, y: 0, z: 0}
-        cameraRotationEuler: {x: 0, y: 0, z: 0}
-        fieldOfView: 60
-        amplitude: 1
-        shakeDuration: 0.2
-        uiAction: 0
-        sfxSound: 0
       - property: 0
         timeSeconds: 0.3
         animParam: {fileID: 11400000, guid: b699f47dcfdac02478abc0345e2a8ac0, type: 2}
@@ -75,7 +57,7 @@ MonoBehaviour:
     vfxObjects:
     - vfxDefinition: {fileID: 11400000, guid: 6e5cf3b1c0f811642bcb2afb823f6ae1, type: 2}
       spawnTime: 0
-      lifeTime: 1.5
+      lifeTime: 12
       simulationSpeed: 1
       startLifetimeMultiplier: 1
       spawnTarget: 0
@@ -212,116 +194,14 @@ MonoBehaviour:
         fieldOfView: 60
         amplitude: 1
         shakeDuration: 0.2
-        uiAction: 2
+        uiAction: 1
         sfxSound: 0
     sfxTrack:
       keyframes: []
-    addedObjects: 04000000010000000200000008000000
+    addedObjects: 0400000001000000020000000800000006000000
     endMarkerKeyframe:
       property: 12
       timeSeconds: 1.5
-      animParam: {fileID: 0}
-      effectSlotId: 
-      valueMultiplier: 1
-      position: {x: 0, y: 0, z: 0}
-      rotationEuler: {x: 0, y: 0, z: 0}
-      scale: {x: 1, y: 1, z: 1}
-      isHold: 0
-      easing: 0
-      vfxActiveAction: 0
-      cameraPosition: {x: 0, y: 0, z: 0}
-      cameraRotationEuler: {x: 0, y: 0, z: 0}
-      fieldOfView: 60
-      amplitude: 1
-      shakeDuration: 0.2
-      uiAction: 0
-      sfxSound: 0
-  rareTimeline:
-    animationTrack:
-      keyframes: []
-    effectTrack:
-      keyframes: []
-    vfxObjects: []
-    cameraTrack:
-      keyframes: []
-    casterTrack:
-      keyframes: []
-    uiTrack:
-      keyframes: []
-    sfxTrack:
-      keyframes: []
-    addedObjects: 
-    endMarkerKeyframe:
-      property: 0
-      timeSeconds: 0
-      animParam: {fileID: 0}
-      effectSlotId: 
-      valueMultiplier: 1
-      position: {x: 0, y: 0, z: 0}
-      rotationEuler: {x: 0, y: 0, z: 0}
-      scale: {x: 1, y: 1, z: 1}
-      isHold: 0
-      easing: 0
-      vfxActiveAction: 0
-      cameraPosition: {x: 0, y: 0, z: 0}
-      cameraRotationEuler: {x: 0, y: 0, z: 0}
-      fieldOfView: 60
-      amplitude: 1
-      shakeDuration: 0.2
-      uiAction: 0
-      sfxSound: 0
-  epicTimeline:
-    animationTrack:
-      keyframes: []
-    effectTrack:
-      keyframes: []
-    vfxObjects: []
-    cameraTrack:
-      keyframes: []
-    casterTrack:
-      keyframes: []
-    uiTrack:
-      keyframes: []
-    sfxTrack:
-      keyframes: []
-    addedObjects: 
-    endMarkerKeyframe:
-      property: 0
-      timeSeconds: 0
-      animParam: {fileID: 0}
-      effectSlotId: 
-      valueMultiplier: 1
-      position: {x: 0, y: 0, z: 0}
-      rotationEuler: {x: 0, y: 0, z: 0}
-      scale: {x: 1, y: 1, z: 1}
-      isHold: 0
-      easing: 0
-      vfxActiveAction: 0
-      cameraPosition: {x: 0, y: 0, z: 0}
-      cameraRotationEuler: {x: 0, y: 0, z: 0}
-      fieldOfView: 60
-      amplitude: 1
-      shakeDuration: 0.2
-      uiAction: 0
-      sfxSound: 0
-  legendaryTimeline:
-    animationTrack:
-      keyframes: []
-    effectTrack:
-      keyframes: []
-    vfxObjects: []
-    cameraTrack:
-      keyframes: []
-    casterTrack:
-      keyframes: []
-    uiTrack:
-      keyframes: []
-    sfxTrack:
-      keyframes: []
-    addedObjects: 
-    endMarkerKeyframe:
-      property: 0
-      timeSeconds: 0
       animParam: {fileID: 0}
       effectSlotId: 
       valueMultiplier: 1

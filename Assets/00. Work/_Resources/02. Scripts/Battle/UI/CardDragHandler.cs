@@ -16,6 +16,7 @@ namespace Battle.UI
         private List<RectTransform> _blockedDropAreas;
 
         private BattleTargetingController _targetingController;
+        private HandLayoutController _handLayoutController;
         private CardView _cardView;
         private RectTransform _rectTransform;
         private Canvas _canvas;
@@ -27,6 +28,7 @@ namespace Battle.UI
 
         public void SetHandAreaRect(RectTransform rect) => handAreaRect = rect;
         public void SetBlockedAreas(List<RectTransform> areas) => _blockedDropAreas = areas;
+        public void SetHandLayoutController(HandLayoutController hlc) => _handLayoutController = hlc;
 
         private void Awake()
         {
@@ -77,6 +79,7 @@ namespace Battle.UI
             if (!_isTargeting && !isInsideHand)
             {
                 _isTargeting = true;
+                _handLayoutController?.SetFusionHoverTarget(null);
                 battleEventChannel.RaiseEvent(new CardTargetingStartEvent(_cardView.CardInstance));
             }
             else if (_isTargeting && isInsideHand)
@@ -84,6 +87,10 @@ namespace Battle.UI
                 _isTargeting = false;
                 battleEventChannel.RaiseEvent(new CardTargetingEndEvent());
             }
+
+            // 손패 안에서 드래그 중일 때만 호버 타겟 감지
+            if (!_isTargeting)
+                _handLayoutController?.SetFusionHoverTarget(FindCardViewAtPosition(eventData));
         }
 
         private bool IsOverBlockedArea(PointerEventData eventData)
@@ -116,10 +123,38 @@ namespace Battle.UI
                 battleEventChannel.RaiseEvent(new CardTargetingEndEvent());
                 battleEventChannel.RaiseEvent(new CardDroppedOnTargetEvent(_cardView.CardInstance, target, _rectTransform.position));
             }
+            else if (!_isTargeting)
+            {
+                var fusionTarget = FindCardViewAtPosition(eventData);
+                if (fusionTarget != null)
+                {
+                    _isDragging = false;
+                    _canvas.overrideSorting = false;
+                    _handLayoutController?.SetFusionHoverTarget(null);
+                    battleEventChannel.RaiseEvent(new CardFusionRequestedEvent(_cardView.CardInstance, fusionTarget.CardInstance));
+                }
+                else
+                {
+                    ReturnToHand();
+                }
+            }
             else
             {
                 ReturnToHand();
             }
+        }
+
+        private CardView FindCardViewAtPosition(PointerEventData eventData)
+        {
+            var results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(eventData, results);
+            foreach (var result in results)
+            {
+                var view = result.gameObject.GetComponentInParent<CardView>();
+                if (view != null && view != _cardView)
+                    return view;
+            }
+            return null;
         }
 
         public void ResetDragState()
@@ -132,6 +167,7 @@ namespace Battle.UI
         private void ReturnToHand()
         {
             _isDragging = false;
+            _handLayoutController?.SetFusionHoverTarget(null);
 
             if (_isTargeting)
             {

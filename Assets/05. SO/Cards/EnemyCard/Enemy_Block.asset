@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: Enemy_Block
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: Test_Block
+  cardName: "\uB2E4\uD06C \uC274\uB4DC"
+  cost: 0
+  artwork: {fileID: 21300000, guid: 213b73b70cd0a924cae1729aae148eaa, type: 3}
+  description: "\uC2DC\uC804\uC790\uC758 \uBC29\uC5B4\uB3C4\uAC00 3 \uC0C1\uC2B9\uD569\uB2C8\uB2E4."
+  targetType: 2
+  disposePolicy: 0
+  elementType: 6
+  grade: 0
+  cardType: 1
+  effectSlots:
+  - effectSlotId: 870e8232-9351-4128-9a9a-4c1092a16519
+    effect:
+      rid: 3413310008721146065
+  skillData: {fileID: 11400000, guid: 33d4fbcc24938064d8a9811e5aef1228, type: 2}
+  presentationData: {fileID: 11400000, guid: dea0f0a63cd70c447baf047bf008ac1c, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310008721146065
+      type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        block: 3
