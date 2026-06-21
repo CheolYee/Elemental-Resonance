@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Light_01_\uBE5B\uC758 \uD654\uC0B4"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Light_01_\uBE5B\uC758 \uD654\uC0B4"
+  cardName: "\uBE5B\uC758 \uD654\uC0B4"
+  cost: 1
+  artwork: {fileID: 21300000, guid: 97ee1079229e68a4aa9f98e07a0923d2, type: 3}
+  description: "\uC2E0\uC131\uD55C \uBE5B\uC744 \uB5A8\uC5B4\uB728\uB824 \uC801\uC5D0\uAC8C
+    2\uC758 \uD53C\uD574\uB97C 3\uD68C \uC785\uD78C\uB2E4."
+  targetType: 1
+  disposePolicy: 0
+  elementType: 4
+  grade: 0
+  cardType: 0
+  effectSlots:
+  - effectSlotId: 9e48939a-6fe1-4cd6-a057-634f58e02df9
+    effect:
+      rid: 3413310031493857583
+  presentationData: {fileID: 11400000, guid: ceb5692ad0707c147bcc47edf9fca888, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857583
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 2

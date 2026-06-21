@@ -59,6 +59,26 @@ namespace Battle.Presentation
             }
         }
 
+        public void PauseParticles()
+        {
+            foreach (var e in entries)
+            {
+                if (e.vfx == null || !e.vfx.activeSelf) continue;
+                foreach (var ps in e.vfx.GetComponentsInChildren<ParticleSystem>(false))
+                    if (ps.isPlaying) ps.Pause(true);
+            }
+        }
+
+        public void ResumeParticles()
+        {
+            foreach (var e in entries)
+            {
+                if (e.vfx == null || !e.vfx.activeSelf) continue;
+                foreach (var ps in e.vfx.GetComponentsInChildren<ParticleSystem>(false))
+                    if (ps.isPaused) ps.Play(true);
+            }
+        }
+
         private static void StopParticleSystems(GameObject vfx)
         {
             foreach (var ps in vfx.GetComponentsInChildren<ParticleSystem>(includeInactive: false))

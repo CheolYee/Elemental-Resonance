@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 806ed508855749cea51a4194c0f3c39e, type: 3}
   m_Name: NORMAL_ATTACK_3
   m_EditorClassIdentifier: Assembly-CSharp::_00._Work._Resources._02._Scripts.Systems.AnimationSystems.AnimParamSO
-  <ParamName>k__BackingField: NORMAL_ATTACK_2
-  <ParamHash>k__BackingField: -562296500
+  <ParamName>k__BackingField: NORMAL_ATTACK_3
+  <ParamHash>k__BackingField: -1451542054

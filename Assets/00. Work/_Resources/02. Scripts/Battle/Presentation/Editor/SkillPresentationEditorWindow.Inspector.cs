@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using _00._Work._Resources._02._Scripts.Systems.AnimationSystems;
 using Battle.Effects;
+using Battle.Enums;
 using LitMotion;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -45,7 +46,10 @@ namespace Battle.Presentation.Editor
         {
             bool selected = _selectedObjectKind == kind &&
                             (kind != SkillObjectKind.Vfx || _selectedVfxIndex == vfxIndex);
-            string label = kind == SkillObjectKind.Vfx ? $"VFX [{vfxIndex}]" : kind.ToString();
+            string vfxName = kind == SkillObjectKind.Vfx
+                ? (GetEditableTimeline()?.vfxObjects?[vfxIndex]?.vfxDefinition?.name ?? "NONE")
+                : null;
+            string label = kind == SkillObjectKind.Vfx ? vfxName : kind.ToString();
 
             var row = new VisualElement
             {
@@ -149,8 +153,44 @@ namespace Battle.Presentation.Editor
         private void ShowRemoveObjectMenu(SkillObjectKind kind, int vfxIndex)
         {
             var menu = new GenericMenu();
+            if (kind == SkillObjectKind.Vfx)
+                menu.AddItem(new GUIContent("복제"), false, () => DuplicateVfxObject(vfxIndex));
             menu.AddItem(new GUIContent("Remove"), false, () => RemoveObject(kind, vfxIndex));
             menu.ShowAsContext();
+        }
+
+        private void DuplicateVfxObject(int srcIndex)
+        {
+            var tl = GetEditableTimeline();
+            if (tl == null || _target == null) return;
+            if (srcIndex < 0 || tl.vfxObjects == null || srcIndex >= tl.vfxObjects.Count) return;
+
+            Undo.RecordObject(_target, "Duplicate VFX Object");
+
+            var src = tl.vfxObjects[srcIndex];
+            var clone = new SkillVfxObjectData
+            {
+                vfxDefinition           = src.vfxDefinition,
+                spawnTime               = src.spawnTime,
+                lifeTime                = src.lifeTime,
+                simulationSpeed         = src.simulationSpeed,
+                startLifetimeMultiplier = src.startLifetimeMultiplier,
+                spawnTarget             = src.spawnTarget,
+                spawnPositionOffset     = src.spawnPositionOffset,
+                spawnRotationEuler      = src.spawnRotationEuler,
+                keyframes               = new List<SkillKeyframeData>()
+            };
+            foreach (var k in src.keyframes)
+            {
+                var kClone = CloneKeyframe(k);
+                if (kClone != null) clone.keyframes.Add(kClone);
+            }
+
+            tl.vfxObjects.Add(clone);
+            int newIndex = tl.vfxObjects.Count - 1;
+
+            EditorUtility.SetDirty(_target);
+            SelectObject(SkillObjectKind.Vfx, newIndex);
         }
 
         private void RemoveObject(SkillObjectKind kind, int vfxIndex)
@@ -379,9 +419,26 @@ namespace Battle.Presentation.Editor
             spawnTargetField.Init(vfxObj.spawnTarget);
             spawnTargetField.value = vfxObj.spawnTarget;
             StyleInspectorField(spawnTargetField);
+
+            bool isRandomEnemy = _referenceCard != null && _referenceCard.targetType == CardTargetType.RandomEnemy;
+            bool showHitIndex = isRandomEnemy &&
+                                 (vfxObj.spawnTarget == SkillVfxSpawnTarget.Target ||
+                                  vfxObj.spawnTarget == SkillVfxSpawnTarget.BetweenCasterAndTarget);
+            var hitIndexContainer = BuildHitIndexField(vfxObj);
+            hitIndexContainer.style.display = showHitIndex ? DisplayStyle.Flex : DisplayStyle.None;
+
             spawnTargetField.RegisterValueChangedCallback(evt =>
-                ApplyVfxObjectChange(() => vfxObj.spawnTarget = (SkillVfxSpawnTarget)evt.newValue));
+            {
+                var newTarget = (SkillVfxSpawnTarget)evt.newValue;
+                ApplyVfxObjectChange(() => vfxObj.spawnTarget = newTarget);
+                hitIndexContainer.style.display =
+                    (isRandomEnemy &&
+                     (newTarget == SkillVfxSpawnTarget.Target || newTarget == SkillVfxSpawnTarget.BetweenCasterAndTarget))
+                        ? DisplayStyle.Flex
+                        : DisplayStyle.None;
+            });
             section.Add(spawnTargetField);
+            section.Add(hitIndexContainer);
 
             // spawnPositionOffset
             var posField = new Vector3Field("Position Offset") { value = vfxObj.spawnPositionOffset };
@@ -408,6 +465,56 @@ namespace Battle.Presentation.Editor
             section.Add(lifetimeField);
 
             container.Add(section);
+        }
+
+        private VisualElement BuildHitIndexField(SkillVfxObjectData vfxObj)
+        {
+            var container = new VisualElement();
+            int damageCount = CountDamageEffectsInCurrentTimeline();
+            int choiceCount = Mathf.Max(1, damageCount);   // 0개여도 최소 "Hit 0" 표시
+
+            var choices = new List<string>();
+            for (int i = 0; i < choiceCount; i++)
+                choices.Add($"Hit {i}");
+
+            int clampedIdx = Mathf.Clamp(vfxObj.hitIndex, 0, choiceCount - 1);
+            var dropdown = new DropdownField("Hit Index", choices, clampedIdx);
+            StyleInspectorField(dropdown);
+            dropdown.RegisterValueChangedCallback(evt =>
+            {
+                int idx = choices.IndexOf(evt.newValue);
+                ApplyVfxObjectChange(() => vfxObj.hitIndex = idx < 0 ? 0 : idx);
+            });
+            container.Add(dropdown);
+            return container;
+        }
+
+        private int CountDamageEffectsInCurrentTimeline()
+        {
+            if (_referenceCard == null) return 0;
+            var timeline = GetEditableTimeline();
+            var keyframes = timeline?.effectTrack?.keyframes;
+            if (keyframes == null) return 0;
+
+            var slots = _referenceCard.effectSlots;
+            if (slots == null) return 0;
+
+            int count = 0;
+            foreach (var kf in keyframes)
+            {
+                if (kf == null || kf.property != SkillKeyframeProperty.EffectSlot) continue;
+                if (string.IsNullOrEmpty(kf.effectSlotId)) continue;
+                for (int i = 0; i < slots.Count; i++)
+                {
+                    var s = slots[i];
+                    if (s != null && s.effectSlotId == kf.effectSlotId && s.effect is DamageEffect)
+                    {
+                        count++;
+                        break;
+                    }
+                }
+            }
+            return count;
         }
 
         private void ApplyVfxObjectChange(Action change)

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Light_04_\uBE5B\uC758 \uC694\uC0C8"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Light_04_\uBE5B\uC758 \uC694\uC0C8"
+  cardName: "\uBE5B\uC758 \uC694\uC0C8"
+  cost: 3
+  artwork: {fileID: 21300000, guid: 9c44c84f5d6900c45929bbdaef4e8a70, type: 3}
+  description: "\uB118\uC744 \uC218 \uC5C6\uB294 \uBE5B\uC758 \uC694\uC0C8\uB97C
+    \uC138\uC6CC 35\uC758 \uBC29\uC5B4\uB3C4\uB97C \uC5BB\uB294\uB2E4."
+  targetType: 2
+  disposePolicy: 0
+  elementType: 4
+  grade: 3
+  cardType: 1
+  effectSlots:
+  - effectSlotId: 1d099a12-0c65-4692-b5af-6e34286a5ab4
+    effect:
+      rid: 3413310031493857482
+  presentationData: {fileID: 11400000, guid: 89666b90cc99ba94e9541c1f2ed097cd, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857482
+      type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        block: 35

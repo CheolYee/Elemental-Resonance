@@ -1,7 +1,7 @@
 # 범위 공격(AoE) 스킬 시스템 설계
 
 작성일: 2026-06-18
-상태: grill-me 완료 — 구현 진행 중
+상태: Phase 1~3 완료
 
 ---
 
@@ -79,11 +79,20 @@ public async UniTask UseSkillAsync(
 
 ## 페이즈별 구현 계획
 
-### Phase 1 — CardTargetType + Targeting UI + BattleActionExecutor
-- 검증: 타겟팅 시 적 전체 하이라이트, 드롭 시 카드 소비
+### ✅ Phase 1 — CardTargetType + Targeting UI + BattleActionExecutor (완료)
+- AllEnemies 타겟팅 시 모든 적 하이라이트 + 오버레이 앞 렌더링 (`BattleCameraController` AllEnemies 케이스 추가)
+- 호버 시 전체 적 아웃라인 굵어짐 (`BattleTargetingController` AllEnemies 분기 처리)
+- 드롭 시 카드 소비 정상 동작
+- 주요 버그: `BattleActionExecutor.enemyRegistry` Inspector 미연결 → 수동 할당으로 해결
 
-### Phase 2 — SkillPresentationPlaybackContext + Effect 적용
-- 검증: AllEnemies 카드 드롭 → 전체 적에게 데미지 적용
+### ✅ Phase 2 — Presentation Context + Effect 적용 (완료)
+- `SkillEffectExecutionService.Execute()`: BlockEffect는 Caster에만, 나머지는 `context.Targets` 전체 루프
+- AllEnemies 카드 드롭 → 전체 적에게 데미지 적용 확인
 
-### Phase 3 — VFX None 타입 + 다중 타겟 VFX
-- 검증: Target 타입 VFX → 각 적 위치에 스폰; None 타입 → 고정 위치 스폰
+### ✅ Phase 3 — VFX None 타입 + 다중 타겟 VFX (완료)
+- `SkillVfxSpawnTarget.None` 추가 (`SkillTimelineKeyframes.cs`)
+- `SkillVfxExecutionService`: `Target` → context.Targets 루프 다중 스폰; `None` → `_layout.noneVfxSpawnPosition` 단일 스폰
+- `SkillPreviewLayoutSO.noneVfxSpawnPosition` 필드 추가
+- `BattleSceneInstaller`: `SkillVfxExecutionService` 팩토리에 `skillPreviewLayout` 주입
+- 에디터 프리뷰(`SkillPreviewScene.ResolveSpawnPosition`): `None` 케이스 → `layout.noneVfxSpawnPosition` 반환 (casterPos fallback 버그 수정)
+- Inspector 연결 필요: `BattleSceneInstaller`의 `Skill Preview Layout` 슬롯에 `SkillPreviewLayoutSO` 에셋 할당

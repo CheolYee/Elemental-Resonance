@@ -1,5 +1,6 @@
 using System.Threading;
 using Battle.Data;
+using Battle.Effects;
 using Battle.Events;
 using Battle.Instances;
 using Cysharp.Threading.Tasks;
@@ -11,6 +12,7 @@ using TMProEffect;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DelayType = Cysharp.Threading.Tasks.DelayType;
 
 namespace Battle.UI
 {
@@ -81,6 +83,7 @@ namespace Battle.UI
         private float _layoutRotZ;
         private float _layoutScale = 1f;
         private bool _isHovered;
+        private CancellationTokenSource _exitDebounce;
         private CardDragHandler _dragHandler;
         private bool _canAfford = true;
         private bool _conditionMet = true;
@@ -303,8 +306,26 @@ namespace Battle.UI
                 return;
             }
 
+            // 손패 수 체크: 드래그 카드 본인 제외한 손패 수 < DiscardEffect 요구량이면 차단
+            int discardRequired = GetRequiredDiscardCount();
+            if (discardRequired > 0 && _dragHandler != null && _dragHandler.HandCardCount - 1 < discardRequired)
+            {
+                PlayShakeAsync(destroyCancellationToken).Forget();
+                return;
+            }
+
             ForceExitHover(tweenBack: false);
             _dragHandler.HandleBeginDrag(eventData);
+        }
+
+        private int GetRequiredDiscardCount()
+        {
+            var slots = CardInstance?.data?.effectSlots;
+            if (slots == null) return 0;
+            int total = 0;
+            foreach (var slot in slots)
+                if (slot?.effect is DiscardEffect de) total += de.discardCount;
+            return total;
         }
 
         public void OnDrag(PointerEventData eventData) => _dragHandler.HandleDrag(eventData);
@@ -313,10 +334,12 @@ namespace Battle.UI
 
         // --- IPointerEnterHandler ---
 
-public void OnPointerEnter(PointerEventData eventData)
+        public void OnPointerEnter(PointerEventData eventData)
         {
             if (!_isInteractable) return;
             if (_dragHandler != null && _dragHandler.IsDragging) return;
+            _exitDebounce?.Cancel();
+            if (_isHovered) return;
             _isHovered = true;
 
             if (_canvas != null)
@@ -334,8 +357,20 @@ public void OnPointerEnter(PointerEventData eventData)
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            bool isDragging = _dragHandler != null && _dragHandler.IsDragging;
-            ForceExitHover(tweenBack: !isDragging);
+            if (_dragHandler != null && _dragHandler.IsDragging)
+            {
+                ForceExitHover(tweenBack: false);
+                return;
+            }
+            _exitDebounce?.Cancel();
+            _exitDebounce = new CancellationTokenSource();
+            DebounceExitAsync(_exitDebounce.Token).Forget();
+        }
+
+        private async UniTaskVoid DebounceExitAsync(CancellationToken ct)
+        {
+            await UniTask.Delay(System.TimeSpan.FromMilliseconds(50), DelayType.UnscaledDeltaTime, cancellationToken: ct);
+            ForceExitHover(tweenBack: true);
         }
 
         public void SetLayoutScale(float scale, float duration, Ease ease)
@@ -347,17 +382,17 @@ public void OnPointerEnter(PointerEventData eventData)
 
         public void ForceExitHover(bool tweenBack = true)
         {
+            _exitDebounce?.Cancel();
             if (!_isHovered) return;
             _isHovered = false;
 
-            if (_canvas != null)
-                _canvas.overrideSorting = false;
+            if (_canvas != null) _canvas.overrideSorting = false;
 
             if (tweenBack)
                 ApplyLayoutTween(_layoutPos, _layoutRotZ, hoverDuration, hoverEase);
 
             TweenScaleTo(new Vector3(_layoutScale, _layoutScale, 1f), hoverDuration, hoverEase);
-            battleEventChannel.RaiseEvent(new CardHoverExitEvent());
+            battleEventChannel.RaiseEvent(new CardHoverExitEvent(CardInstance));
         }
 
         // --- 내부 트윈 ---
@@ -370,7 +405,7 @@ public void OnPointerEnter(PointerEventData eventData)
         }
 
         // 카드 밑면이 화면 바닥에 맞닿는 Y 좌표를 CardContainer 로컬 기준으로 계산
-private float CalculateSnapToBottomY()
+        private float CalculateSnapToBottomY()
         {
             var cardContainer = (RectTransform)transform.parent;
             Canvas rootCanvas = _canvas != null ? _canvas.rootCanvas : null;
@@ -391,10 +426,12 @@ private float CalculateSnapToBottomY()
 
             _posHandle = LMotion.Create(_rectTransform.anchoredPosition, targetPos, duration)
                 .WithEase(ease)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(pos => _rectTransform.anchoredPosition = pos);
 
             _rotHandle = LMotion.Create(_currentRotZ, targetRotZ, duration)
                 .WithEase(ease)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(z =>
                 {
                     _currentRotZ = z;
@@ -408,6 +445,7 @@ private float CalculateSnapToBottomY()
 
             _scaleHandle = LMotion.Create(transform.localScale, targetScale, duration)
                 .WithEase(ease)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => transform.localScale = s);
         }
 

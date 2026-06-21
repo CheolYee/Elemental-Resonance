@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Dark_04_\uC2EC\uC5F0"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Dark_04_\uC2EC\uC5F0"
+  cardName: "\uC2EC\uC5F0"
+  cost: 2
+  artwork: {fileID: 21300000, guid: e3e20130b010e074ab109307094a6562, type: 3}
+  description: "\uC190\uD328 2\uC7A5\uC744 \uD76C\uC0DD\uD574 \uC2EC\uC5F0\uC758
+    \uD798\uC744 \uD574\uBC29\uD55C\uB2E4. \uBAA8\uB4E0 \uC801\uC5D0\uAC8C 4\uC758
+    \uD53C\uD574\uB97C 3\uBC88 \uC785\uD78C \uD6C4, 30\uC758 \uD53C\uD574\uB97C \uC785\uD78C\uB2E4.
+    \uC0AC\uC6A9 \uD6C4 \uC18C\uBA78\uD55C\uB2E4."
+  targetType: 3
+  disposePolicy: 1
+  elementType: 6
+  grade: 3
+  cardType: 0
+  effectSlots:
+  - effectSlotId: d35d59be-e22d-41c8-8ede-aa6571474652
+    effect:
+      rid: 3413310031493857489
+  - effectSlotId: 95784809-8f24-44be-8c07-92a78110ed1e
+    effect:
+      rid: 3413310031493857490
+  - effectSlotId: 2ca157ea-ddef-4d24-b891-7bb12cc9e60d
+    effect:
+      rid: 3413310068478705839
+  presentationData: {fileID: 11400000, guid: 4fbf5b838712cfb44b96d17fd48758d8, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857489
+      type: {class: DiscardEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        discardCount: 2
+    - rid: 3413310031493857490
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 30
+    - rid: 3413310068478705839
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 4

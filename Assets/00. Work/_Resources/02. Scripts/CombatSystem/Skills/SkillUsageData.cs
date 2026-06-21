@@ -9,7 +9,6 @@ namespace _02._Scripts.CombatSystem.Skills
 {
     public class SkillUsageData
     {
-        public SkillDataSO SkillData { get; }
         public int RepeatCount { get; }
         public List<CardEffect> Effects { get; }
         public CardInstance CardInstance { get; }
@@ -17,13 +16,11 @@ namespace _02._Scripts.CombatSystem.Skills
         public CardGrade Grade => CardInstance?.grade ?? CardGrade.Normal;
 
         public SkillUsageData(
-            SkillDataSO skillData,
             int repeatCount,
             List<CardEffect> effects,
             CardInstance cardInstance = null,
             SkillPresentationDataSO presentationData = null)
         {
-            SkillData = skillData;
             RepeatCount = repeatCount;
             Effects = effects ?? new List<CardEffect>();
             CardInstance = cardInstance;
@@ -34,7 +31,6 @@ namespace _02._Scripts.CombatSystem.Skills
         {
             card?.data?.EnsureEffectSlotIds();
             return new(
-                card.data.skillData,
                 1,
                 card.data.effectSlots?.ConvertAll(s => s.effect),
                 card,
@@ -46,7 +42,6 @@ namespace _02._Scripts.CombatSystem.Skills
             if (card == null) return null;
             card.EnsureEffectSlotIds();
             return new(
-                card.skillData,
                 1,
                 card.effectSlots?.ConvertAll(s => s.effect),
                 new Battle.Instances.CardInstance(card, Battle.Enums.CardGrade.Normal),

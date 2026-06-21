@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Arcane_04_\uBE44\uC804 \uB300\uD3ED\uBC1C"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Arcane_04_\uBE44\uC804 \uB300\uD3ED\uBC1C"
+  cardName: "\uBE44\uC804 \uB300\uD3ED\uBC1C"
+  cost: 0
+  artwork: {fileID: 21300000, guid: 4eb021cdefea7f84ab3b287abb8f6b7f, type: 3}
+  description: "\uBAA8\uB4E0 \uB9C8\uB825\uC744 \uC9D1\uC911\uD574 \uAC15\uB825\uD55C
+    \uB300\uBE44\uC804\uD0C4 3\uC7A5\uC744 \uC190\uD328\uC5D0 \uCD94\uAC00\uD558\uACE0
+    \uCF54\uC2A4\uD2B8\uB97C 1 \uD68C\uBCF5\uD55C\uB2E4."
+  targetType: 0
+  disposePolicy: 0
+  elementType: 7
+  grade: 3
+  cardType: 1
+  effectSlots:
+  - effectSlotId: 2842a332-699f-4bfd-a611-2f99e249133f
+    effect:
+      rid: 3413310031493857495
+  - effectSlotId: 55cce595-0adb-42db-bdc2-c7d90a2bde0c
+    effect:
+      rid: 3413310031493857496
+  presentationData: {fileID: 11400000, guid: a8aff42e5cceb164793181f6102a91d9, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857495
+      type: {class: CreateCardEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        cardDataSO: {fileID: 11400000, guid: a21f5922b94a43a44b06098e911d3df0, type: 2}
+        createCount: 3
+    - rid: 3413310031493857496
+      type: {class: CostGainEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        costGain: 1
+        condition: 0
+        conditionValue: 0

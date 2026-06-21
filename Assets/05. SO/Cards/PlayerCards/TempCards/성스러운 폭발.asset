@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "\uC131\uC2A4\uB7EC\uC6B4 \uD3ED\uBC1C"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "\uC131\uC2A4\uB7EC\uC6B4 \uD3ED\uBC1C"
+  cardName: "\uC131\uC2A4\uB7EC\uC6B4 \uD3ED\uBC1C"
+  cost: 1
+  artwork: {fileID: 21300000, guid: 50f2e3e2b845ca94a9cb5ca626c870bb, type: 3}
+  description: "\uC2E0\uC131\uD55C \uBE5B\uC774 \uD3ED\uBC1C\uD574 \uBAA8\uB4E0 \uC801\uC5D0\uAC8C
+    18\uC758 \uD53C\uD574\uB97C \uC785\uD78C\uB2E4. \uC0AC\uC6A9 \uD6C4 \uC18C\uBA78\uD55C\uB2E4."
+  targetType: 3
+  disposePolicy: 1
+  elementType: 12
+  grade: 0
+  cardType: 0
+  effectSlots:
+  - effectSlotId: bb6e0193-af3a-4e41-9c43-ffdd36d8fccc
+    effect:
+      rid: 3413310031493857444
+  presentationData: {fileID: 11400000, guid: 4e5958ac1ac59304ca3318ec9617ce2e, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857444
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 18

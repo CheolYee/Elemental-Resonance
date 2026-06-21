@@ -276,7 +276,7 @@ namespace Battle.Map.UI
 
             int removeCost = GetCurrentRemoveCost();
             int totalCards = _deckController != null ? _deckController.CurrentDeckCards.Count : _playerRunState.CurrentPile.Count;
-            bool canRemove = totalCards > 0 && _playerRunState.CanAfford(removeCost);
+            bool canRemove = _removeCount == 0 && totalCards > 0 && _playerRunState.CanAfford(removeCost);
             if (_removeCardButton != null)   _removeCardButton.interactable = canRemove;
             if (_removeCardCostText != null) _removeCardCostText.text = removeCost.ToString();
         }

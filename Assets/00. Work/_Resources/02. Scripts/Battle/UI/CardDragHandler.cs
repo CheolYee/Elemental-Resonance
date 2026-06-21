@@ -25,6 +25,7 @@ namespace Battle.UI
         private bool _isTargeting;
 
         public bool IsDragging => _isDragging;
+        public int HandCardCount => _handLayoutController?.HandCards.Count ?? 0;
 
         public void SetHandAreaRect(RectTransform rect) => handAreaRect = rect;
         public void SetBlockedAreas(List<RectTransform> areas) => _blockedDropAreas = areas;
@@ -110,7 +111,7 @@ namespace Battle.UI
             if (!_isDragging) return;
 
             var targetType = _cardView.CardInstance?.data?.targetType ?? CardTargetType.None;
-            bool isNoneCard = targetType == CardTargetType.None;
+            bool isNoneCard = targetType == CardTargetType.None || targetType == CardTargetType.RandomEnemy;
             bool isValidDrop = _isTargeting &&
                 (isNoneCard ? !IsOverBlockedArea(eventData) : _targetingController.HasValidHoverTarget);
 

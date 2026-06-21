@@ -93,6 +93,7 @@ namespace Battle.UI
                     .Where(t => t.TargetGroup == TargetGroup.Ally).ToList(),
                 CardTargetType.AllEnemies => _registeredTargets
                     .Where(t => t.TargetGroup == TargetGroup.Enemy).ToList(),
+                CardTargetType.RandomEnemy => new List<TargetingModule>(),
                 _ => new List<TargetingModule>()
             };
 

@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Twilight_01_\uD669\uD63C\uC758 \uC190\uAE38"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Twilight_01_\uD669\uD63C\uC758 \uC190\uAE38"
+  cardName: "\uD669\uD63C\uC758 \uC190\uAE38"
+  cost: 1
+  artwork: {fileID: 21300000, guid: 69f9784f67f2fe54b8259879c020dc39, type: 3}
+  description: "\uC5B4\uB460\uACFC \uBE5B\uC774 \uAD50\uCC28\uD558\uB294 \uD669\uD63C\uC758
+    \uD798\uC73C\uB85C \uB2E8\uC77C \uC801\uC5D0\uAC8C 8\uC758 \uD53C\uD574\uB97C
+    \uC785\uD788\uACE0 8\uC758 \uBC29\uC5B4\uB3C4\uB97C \uC5BB\uB294\uB2E4."
+  targetType: 1
+  disposePolicy: 0
+  elementType: 10
+  grade: 0
+  cardType: 0
+  effectSlots:
+  - effectSlotId: 63026d13-37f0-406d-876e-2e0e446ee250
+    effect:
+      rid: 3413310031493857516
+  - effectSlotId: ecc99714-1d88-4fea-bfd5-f3676c398e1e
+    effect:
+      rid: 3413310031493857517
+  presentationData: {fileID: 11400000, guid: 93a765d2199daea4eabd7dfd4c5a3f87, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857516
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 8
+    - rid: 3413310031493857517
+      type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        block: 8

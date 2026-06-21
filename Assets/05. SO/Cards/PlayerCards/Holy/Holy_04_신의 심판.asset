@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Holy_04_\uC2E0\uC758 \uC2EC\uD310"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Holy_04_\uC2E0\uC758 \uC2EC\uD310"
+  cardName: "\uC2E0\uC758 \uC2EC\uD310"
+  cost: 3
+  artwork: {fileID: 21300000, guid: 3f322151c003acf49b262e5b75521413, type: 3}
+  description: "\uC2E0\uC758 \uAC00\uD638 \uC544\uB798 30\uC758 \uBC29\uC5B4\uB3C4\uC744
+    \uC5BB\uACE0 \uAC15\uB825\uD55C \uC2E0\uC758 \uC2EC\uD310 1\uC7A5\uC744 \uC190\uD328\uC5D0
+    \uCD94\uAC00\uD55C\uB2E4."
+  targetType: 0
+  disposePolicy: 0
+  elementType: 12
+  grade: 3
+  cardType: 1
+  effectSlots:
+  - effectSlotId: 54139ce8-0fc2-40a2-8825-c46bc6cba16a
+    effect:
+      rid: 3413310031493857543
+  - effectSlotId: c75a187d-e67d-4f3f-bd04-fcc5a566182c
+    effect:
+      rid: 3413310031493857544
+  presentationData: {fileID: 11400000, guid: ca371df51e8f355479484281a10b189d, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857543
+      type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        block: 30
+    - rid: 3413310031493857544
+      type: {class: CreateCardEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        cardDataSO: {fileID: 11400000, guid: b6cb4d950205ef147a24eadc21fb94b6, type: 2}
+        createCount: 1

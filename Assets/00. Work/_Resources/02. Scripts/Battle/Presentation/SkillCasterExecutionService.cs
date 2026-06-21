@@ -26,8 +26,8 @@ namespace Battle.Presentation
                 var posKeys  = FilterAndSort(casterTrack.keyframes, SkillKeyframeProperty.CasterPosition);
                 var rotKeys  = FilterAndSort(casterTrack.keyframes, SkillKeyframeProperty.CasterRotation);
 
-                if (posKeys.Count > 0) tasks.Add(PlayPositionAsync(t, posKeys, basePosition, token));
-                if (rotKeys.Count > 0) tasks.Add(PlayRotationAsync(t, rotKeys, baseEuler, token));
+                if (posKeys.Count > 0) tasks.Add(PlayPositionAsync(t, posKeys, basePosition, context, token));
+                if (rotKeys.Count > 0) tasks.Add(PlayRotationAsync(t, rotKeys, baseEuler, context, token));
 
                 if (tasks.Count > 0)
                     await UniTask.WhenAll(tasks);
@@ -38,7 +38,10 @@ namespace Battle.Presentation
 
                 float remaining = Mathf.Max(0f, effectiveDuration - elapsed);
                 if (remaining > 0.001f)
+                {
+                    await context.WaitForResumeAsync(token);
                     await UniTask.Delay(TimeSpan.FromSeconds(remaining), DelayType.DeltaTime, PlayerLoopTiming.Update, token);
+                }
             }
             finally
             {
@@ -50,7 +53,7 @@ namespace Battle.Presentation
             }
         }
 
-        private async UniTask PlayPositionAsync(Transform t, List<SkillKeyframeData> keys, Vector3 basePosition, CancellationToken token)
+        private async UniTask PlayPositionAsync(Transform t, List<SkillKeyframeData> keys, Vector3 basePosition, SkillPresentationPlaybackContext context, CancellationToken token)
         {
             float   elapsed   = 0f;
             Vector3 prevDelta = Vector3.zero;
@@ -83,12 +86,13 @@ namespace Battle.Presentation
                     }
                     elapsed   = key.timeSeconds;
                     prevDelta = key.position;
+                    await context.WaitForResumeAsync(token);
                 }
             }
             catch (OperationCanceledException) { }
         }
 
-        private async UniTask PlayRotationAsync(Transform t, List<SkillKeyframeData> keys, Vector3 baseEuler, CancellationToken token)
+        private async UniTask PlayRotationAsync(Transform t, List<SkillKeyframeData> keys, Vector3 baseEuler, SkillPresentationPlaybackContext context, CancellationToken token)
         {
             float   elapsed   = 0f;
             Vector3 prevDelta = Vector3.zero;
@@ -121,6 +125,7 @@ namespace Battle.Presentation
                     }
                     elapsed   = key.timeSeconds;
                     prevDelta = key.rotationEuler;
+                    await context.WaitForResumeAsync(token);
                 }
             }
             catch (OperationCanceledException) { }

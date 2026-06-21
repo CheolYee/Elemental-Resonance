@@ -65,6 +65,7 @@ namespace Battle.Presentation
         public float               simulationSpeed      = 1f;
         public float               startLifetimeMultiplier = 1f;
         public SkillVfxSpawnTarget spawnTarget          = SkillVfxSpawnTarget.Caster;
+        public int                 hitIndex             = 0;   // Target/Between 타입일 때 preResolvedHitTargets 인덱스
         public Vector3             spawnPositionOffset;
         public Vector3             spawnRotationEuler;
         public List<SkillKeyframeData> keyframes        = new();    // VfxPosition / VfxRotation / VfxScale
@@ -214,7 +215,16 @@ namespace Battle.Presentation
         방어막_빛,
         방어막_자연,
         방어막_번개,
-        빛_검떨구기
+        빛_검떨구기,
+        기본_타격,
+        오라_아케인,
+        오라_어둠,
+        오라_화염,
+        오라_얼음,
+        오라_빛,
+        오라_자연,
+        오라_번개,
+        버프_아케인
     }
 
     public enum SkillVfxSpawnTarget
@@ -222,6 +232,7 @@ namespace Battle.Presentation
         Caster,
         Target,
         BetweenCasterAndTarget,
+        None,
     }
 
     public enum SkillUiAction

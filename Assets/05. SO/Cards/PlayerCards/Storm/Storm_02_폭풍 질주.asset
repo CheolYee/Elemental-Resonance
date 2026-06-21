@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Storm_02_\uD3ED\uD48D \uC9C8\uC8FC"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Storm_02_\uD3ED\uD48D \uC9C8\uC8FC"
+  cardName: "\uD3ED\uD48D \uC9C8\uC8FC"
+  cost: 2
+  artwork: {fileID: 21300000, guid: 5ec913fd25fff5a4c9882edaead98a5a, type: 3}
+  description: "\uBE60\uB978 \uD3ED\uD48D\uC73C\uB85C \uB79C\uB364\uD55C \uC801\uC744
+    2\uD68C \uACF5\uACA9\uD574 \uAC01 6\uC758 \uD53C\uD574\uB97C \uC785\uD788\uACE0
+    \uCE74\uB4DC 1\uC7A5\uC744 \uBF51\uB294\uB2E4."
+  targetType: 4
+  disposePolicy: 0
+  elementType: 9
+  grade: 1
+  cardType: 0
+  effectSlots:
+  - effectSlotId: 3de1e0e9-0377-46a1-bdbd-ed2948ebe2d1
+    effect:
+      rid: 3413310031493857508
+  - effectSlotId: 075b11f1-66ff-4d4c-93a7-e2ec030a352e
+    effect:
+      rid: 3413310031493857509
+  - effectSlotId: d650c381-b83f-47ed-a7b4-e8af40da117e
+    effect:
+      rid: 3413310031493857510
+  presentationData: {fileID: 11400000, guid: 151ec0b2c59b53546850574deac49e99, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857508
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 6
+    - rid: 3413310031493857509
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 6
+    - rid: 3413310031493857510
+      type: {class: RandomDrawEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        sourcePile: 1
+        drawCount: 1

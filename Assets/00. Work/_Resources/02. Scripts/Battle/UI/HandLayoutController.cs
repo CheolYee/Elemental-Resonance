@@ -92,6 +92,8 @@ namespace Battle.UI
             battleEventChannel.AddListener<PileDetailPanelClosedEvent>(OnPileDetailPanelClosed);
             battleEventChannel.AddListener<EnemyTurnStartEvent>(OnEnemyTurnStart);
             battleEventChannel.AddListener<CardFusionRequestedEvent>(OnFusionRequested);
+            battleEventChannel.AddListener<BattleUIHiddenEvent>(OnBattleUIHidden);
+            battleEventChannel.AddListener<BattleUIShownEvent>(OnBattleUIShown);
         }
 
         private void OnDisable()
@@ -109,7 +111,12 @@ namespace Battle.UI
             battleEventChannel.RemoveListener<PileDetailPanelClosedEvent>(OnPileDetailPanelClosed);
             battleEventChannel.RemoveListener<EnemyTurnStartEvent>(OnEnemyTurnStart);
             battleEventChannel.RemoveListener<CardFusionRequestedEvent>(OnFusionRequested);
+            battleEventChannel.RemoveListener<BattleUIHiddenEvent>(OnBattleUIHidden);
+            battleEventChannel.RemoveListener<BattleUIShownEvent>(OnBattleUIShown);
         }
+
+        private void OnBattleUIHidden(BattleUIHiddenEvent _) => SlideOut();
+        private void OnBattleUIShown(BattleUIShownEvent _) { if (!_battleEnded) SlideIn(); }
 
         private void OnSessionStart(BattleSessionStartEvent _) { _battleEnded = false; }
         private void OnCardDrawStart(CardDrawStartEvent _) { SetAllCardsInteractable(false); SlideIn(); }
@@ -320,6 +327,28 @@ namespace Battle.UI
             _cardPool.Push(view);
         }
 
+        // 손패에서 CardView를 분리해 반환. 호출자가 위치/부모를 직접 제어함.
+        // skipRefresh=true 사용 시 레이아웃 갱신 생략 (배치 분리 후 마지막에 직접 호출 필요).
+        public CardView DetachCard(CardInstance instance, Transform newParent = null, bool skipRefresh = false)
+        {
+            var view = _handCards.Find(v => v.CardInstance == instance);
+            if (view == null) return null;
+            _handCards.Remove(view);
+            view.CancelLayoutTween(); // reparent 전 진행 중인 트윈 취소
+            view.ForceExitHover(tweenBack: false);
+            view.transform.SetParent(newParent != null ? newParent : poolRoot, true);
+            if (!skipRefresh) RefreshLayout();
+            return view;
+        }
+
+        // DetachCard로 분리된 CardView를 손패 끝에 재삽입.
+        public void ReattachCard(CardView view)
+        {
+            view.transform.SetParent(cardContainer, true);
+            _handCards.Add(view);
+            RefreshLayout();
+        }
+
 
 
         private void RefreshLayoutWithReturn(int returnIndex)
@@ -402,10 +431,12 @@ namespace Battle.UI
                 }
             }
 
+            float effectiveHeightOffset = heightOffset * (effectiveSpacing / cardSpacing);
+
             for (int i = 0; i < count; i++)
             {
                 float t = i - (count - 1) / 2f;
-                var targetPos = new Vector2(t * effectiveSpacing, -t * t * heightOffset);
+                var targetPos = new Vector2(t * effectiveSpacing, -t * t * effectiveHeightOffset);
                 float targetRotZ = -t * rotationPerCard;
                 _handCards[i].TweenToLayout(targetPos, targetRotZ, tweenDuration, tweenEase);
                 _handCards[i].SetLayoutScale(effectiveScale, tweenDuration, tweenEase);

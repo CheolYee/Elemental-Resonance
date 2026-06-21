@@ -255,7 +255,21 @@ namespace Battle.Presentation.Editor
             float minStart = float.MaxValue;
             foreach (var (_, st) in _keyframeDragSnapshots)
                 if (st < minStart) minStart = st;
-            float clamped = ResolveDraggedDeltaSeconds(deltaSeconds, _keyframeDragAnchorStartTime, minStart);
+            float minDelta = -Mathf.Max(0f, minStart);
+
+            float clamped;
+            float anchorTarget = _keyframeDragAnchorStartTime + deltaSeconds;
+            var   kfSnap       = _snapEnabled ? TryKeyframeSnap(anchorTarget) : null;
+            if (kfSnap.HasValue)
+            {
+                clamped = Mathf.Max(kfSnap.Value - _keyframeDragAnchorStartTime, minDelta);
+                ShowSnapLine(kfSnap.Value);
+            }
+            else
+            {
+                clamped = ResolveDraggedDeltaSeconds(deltaSeconds, _keyframeDragAnchorStartTime, minStart);
+                HideSnapLine();
+            }
 
             foreach (var (k, startTime) in _keyframeDragSnapshots)
             {
@@ -264,6 +278,11 @@ namespace Battle.Presentation.Editor
                     markerEl.style.left = TimeToPixel(k.timeSeconds) - MarkerSize * 0.5f;
             }
 
+            // 플레이헤드를 anchor 키프레임 시각에 동기화 → DrawPreview()가 Repaint 시 Sample() 호출
+            _currentTime = Mathf.Max(0f, _keyframeDragAnchorStartTime + clamped);
+            UpdateTimeLabel();
+            UpdatePlayheadPosition();
+
             UpdateDraggedEasingLines();
             Repaint();
             e.StopPropagation();
@@ -271,6 +290,7 @@ namespace Battle.Presentation.Editor
 
         private void CancelKeyframeDrag()
         {
+            HideSnapLine();
             _isKeyframeDragPending = false;
             _isKeyframeDragging    = false;
             _keyframeDragAnchorStartTime = 0f;
@@ -283,6 +303,7 @@ namespace Battle.Presentation.Editor
 
         private void FinalizeKeyframeDrag()
         {
+            HideSnapLine();
             var tl = GetEditableTimeline();
             if (tl == null || _target == null) return;
             SortByTime(tl.animationTrack.keyframes);
@@ -306,6 +327,7 @@ namespace Battle.Presentation.Editor
         {
             if (TimelinePanel == null) return;
             PlayheadElements.Clear();
+            SnapLineElements.Clear();
             KeyframeMarkers.Clear();
             _easingLineContainers.Clear();
             TimelinePanel.Clear();
@@ -313,14 +335,16 @@ namespace Battle.Presentation.Editor
             // 컨트롤 바 유지 (Clear 후 재추가)
             if (_timelineControlBar != null)
                 TimelinePanel.Add(_timelineControlBar);
-            if (_addPropertyBtn != null)
-                _addPropertyBtn.SetEnabled(_selectedObjectKind != SkillObjectKind.None
-                    && _selectedObjectKind != SkillObjectKind.EndMarker && _target != null);
+            bool addPropEnabled = !_allTracksMode
+                && _selectedObjectKind != SkillObjectKind.None
+                && _selectedObjectKind != SkillObjectKind.EndMarker
+                && _target != null;
+            if (_addPropertyBtn != null) _addPropertyBtn.SetEnabled(addPropEnabled);
 
             if (_referenceCard == null) { TimelinePanel.Add(MakeTimelinePlaceholderLabel("CardDataSO를 선택하세요.")); return; }
             if (_target == null)        { TimelinePanel.Add(MakeTimelinePlaceholderLabel("선택한 CardDataSO에 presentationData가 없습니다.")); return; }
 
-            if (_selectedObjectKind == SkillObjectKind.None)
+            if (!_allTracksMode && _selectedObjectKind == SkillObjectKind.None)
             {
                 UpdateObjectNameLabel();
                 TimelinePanel.Add(MakeTimelinePlaceholderLabel("오브젝트를 선택하세요."));
@@ -335,17 +359,206 @@ namespace Battle.Presentation.Editor
 
             UpdateObjectNameLabel();
 
-            var scroll  = new ScrollView(ScrollViewMode.VerticalAndHorizontal) { style = { flexGrow = 1 } };
+            var savedScroll = TimelineScrollView?.scrollOffset ?? Vector2.zero;
+
+            // 고정 룰러 (스크롤 영역 바깥)
+            var (rulerWrapper, rulerLane) = BuildFixedRuler(duration, laneWidth);
+            TimelinePanel.Add(rulerWrapper);
+
+            var scroll = new ScrollView(ScrollViewMode.VerticalAndHorizontal) { style = { flexGrow = 1 } };
+            TimelineScrollView = scroll;
+
+            // 가로 스크롤 시 룰러 레인 동기화
+            var capturedRulerLane = rulerLane;
+            scroll.horizontalScroller.valueChanged += scrollX =>
+                capturedRulerLane.style.left = -scrollX;
+
             var content = new VisualElement { style = { flexDirection = FlexDirection.Column } };
             scroll.Add(content);
 
-            content.Add(BuildRulerRow(duration, laneWidth));
-
-            bool anyRow = BuildObjectRows(content, tl, laneWidth, duration);
-            if (!anyRow)
-                content.Add(MakeTimelinePlaceholderLabel("타임라인에 프로퍼티를 추가해주세요."));
+            if (_allTracksMode)
+            {
+                bool anyAll = BuildAllObjectRows(content, tl, laneWidth, duration);
+                if (!anyAll)
+                    content.Add(MakeTimelinePlaceholderLabel("오브젝트를 추가해주세요."));
+            }
+            else
+            {
+                bool anyRow = BuildObjectRows(content, tl, laneWidth, duration);
+                if (!anyRow)
+                    content.Add(MakeTimelinePlaceholderLabel("타임라인에 프로퍼티를 추가해주세요."));
+            }
 
             TimelinePanel.Add(scroll);
+
+            if (savedScroll != Vector2.zero)
+                scroll.schedule.Execute(() =>
+                {
+                    scroll.scrollOffset          = savedScroll;
+                    capturedRulerLane.style.left = -savedScroll.x;
+                });
+        }
+
+        // ── All Tracks 모드 ───────────────────────────────────────────────────────
+
+        private static readonly SkillObjectKind[] AllObjectKindOrder =
+        {
+            SkillObjectKind.Animation,
+            SkillObjectKind.Effect,
+            SkillObjectKind.Camera,
+            SkillObjectKind.Caster,
+            SkillObjectKind.Ui,
+            SkillObjectKind.Sfx,
+            SkillObjectKind.EndMarker
+        };
+
+        private bool BuildAllObjectRows(VisualElement content, SkillPresentationTimeline tl, float laneWidth, float duration)
+        {
+            bool any = false;
+
+            // 고정 순서 오브젝트
+            foreach (var kind in AllObjectKindOrder)
+            {
+                if (!tl.addedObjects.Contains(kind)) continue;
+
+                bool collapsed = _collapsedObjects.Contains(kind);
+                content.Add(BuildObjectHeaderRow(kind, -1, collapsed, laneWidth));
+                any = true;
+
+                if (!collapsed)
+                {
+                    var savedKind = _selectedObjectKind;
+                    var savedVfx  = _selectedVfxIndex;
+                    _selectedObjectKind = kind;
+                    _selectedVfxIndex   = -1;
+                    BuildObjectRows(content, tl, laneWidth, duration);
+                    _selectedObjectKind = savedKind;
+                    _selectedVfxIndex   = savedVfx;
+                }
+            }
+
+            // VFX 오브젝트 (인덱스 순)
+            if (tl.vfxObjects != null)
+            {
+                for (int i = 0; i < tl.vfxObjects.Count; i++)
+                {
+                    if (tl.vfxObjects[i] == null) continue;
+                    bool   collapsed = _collapsedVfxIndices.Contains(i);
+                    string vfxLabel  = $"VFX [{i}]";
+                    content.Add(BuildObjectHeaderRow(SkillObjectKind.Vfx, i, collapsed, laneWidth, vfxLabel));
+                    any = true;
+
+                    if (!collapsed)
+                    {
+                        var savedKind = _selectedObjectKind;
+                        var savedVfx  = _selectedVfxIndex;
+                        _selectedObjectKind = SkillObjectKind.Vfx;
+                        _selectedVfxIndex   = i;
+                        BuildObjectRows(content, tl, laneWidth, duration);
+                        _selectedObjectKind = savedKind;
+                        _selectedVfxIndex   = savedVfx;
+                    }
+                }
+            }
+
+            return any;
+        }
+
+        private VisualElement BuildObjectHeaderRow(SkillObjectKind kind, int vfxIndex, bool collapsed, float laneWidth, string overrideName = null)
+        {
+            string name = overrideName ?? kind.ToString();
+            bool isSelected = (kind == SkillObjectKind.Vfx)
+                ? (_selectedObjectKind == SkillObjectKind.Vfx && _selectedVfxIndex == vfxIndex)
+                : (_selectedObjectKind == kind);
+
+            var bg = isSelected
+                ? new Color(0.20f, 0.32f, 0.52f)
+                : new Color(0.14f, 0.14f, 0.17f);
+
+            var row = new VisualElement
+            {
+                style =
+                {
+                    flexDirection   = FlexDirection.Row,
+                    height          = RowHeight,
+                    flexShrink      = 0,
+                    backgroundColor = new StyleColor(bg),
+                    borderTopWidth  = 1,
+                    borderTopColor  = new StyleColor(new Color(0.10f, 0.10f, 0.12f))
+                }
+            };
+
+            // 레이블 영역 (RowLabelWidth)
+            var label = new Label($"{(collapsed ? "▶" : "▼")}  {name}")
+            {
+                style =
+                {
+                    width          = RowLabelWidth,
+                    paddingLeft    = 4,
+                    unityTextAlign = TextAnchor.MiddleLeft,
+                    fontSize       = 10,
+                    color          = new StyleColor(new Color(0.90f, 0.90f, 0.95f)),
+                    unityFontStyleAndWeight = FontStyle.Bold
+                }
+            };
+
+            // 헤더 레인 (나머지 너비)
+            var lane = new VisualElement
+            {
+                style =
+                {
+                    width           = laneWidth,
+                    height          = RowHeight,
+                    backgroundColor = new StyleColor(new Color(bg.r * 0.8f, bg.g * 0.8f, bg.b * 0.8f))
+                }
+            };
+
+            row.Add(label);
+            row.Add(lane);
+
+            row.RegisterCallback<PointerDownEvent>(e =>
+            {
+                if (e.button != 0) return;
+                if (kind == SkillObjectKind.Vfx)
+                {
+                    if (_collapsedVfxIndices.Contains(vfxIndex)) _collapsedVfxIndices.Remove(vfxIndex);
+                    else                                          _collapsedVfxIndices.Add(vfxIndex);
+                }
+                else
+                {
+                    if (_collapsedObjects.Contains(kind)) _collapsedObjects.Remove(kind);
+                    else                                  _collapsedObjects.Add(kind);
+                }
+                RefreshTimeline();
+                e.StopPropagation();
+            });
+
+            return row;
+        }
+
+        private void SelectObjectFromRowTag(string rowTag)
+        {
+            if (rowTag == null) return;
+
+            if (rowTag.StartsWith("vfx_"))
+            {
+                ParseVfxRowTag(rowTag, out int vfxIdx, out _);
+                _selectedObjectKind = SkillObjectKind.Vfx;
+                _selectedVfxIndex   = vfxIdx;
+            }
+            else if (rowTag.StartsWith("camera_")) _selectedObjectKind = SkillObjectKind.Camera;
+            else if (rowTag.StartsWith("caster_")) _selectedObjectKind = SkillObjectKind.Caster;
+            else _selectedObjectKind = rowTag switch
+            {
+                "animation" => SkillObjectKind.Animation,
+                "effect"    => SkillObjectKind.Effect,
+                "ui"        => SkillObjectKind.Ui,
+                "sfx"       => SkillObjectKind.Sfx,
+                "endmarker" => SkillObjectKind.EndMarker,
+                _           => _selectedObjectKind
+            };
+
+            UpdateObjectNameLabel();
         }
 
         // ── Add Property 바 (ScrollView 내부 상단 고정) ──────────────────────────
@@ -496,7 +709,7 @@ namespace Battle.Presentation.Editor
                 case SkillKeyframeProperty.CamPosition:
                 case SkillKeyframeProperty.CamRotation:
                 case SkillKeyframeProperty.CamZoom:
-                    newKey.fieldOfView = 60f;
+                    newKey.fieldOfView = 70f;
                     break;
                 case SkillKeyframeProperty.VfxScale:
                     newKey.scale = Vector3.one;
@@ -723,6 +936,70 @@ namespace Battle.Presentation.Editor
 
         // ── Ruler ────────────────────────────────────────────────────────────────
 
+        // 고정 룰러: ScrollView 바깥에 배치되어 가로 스크롤 시 레인만 이동
+        private (VisualElement wrapper, VisualElement lane) BuildFixedRuler(float duration, float laneWidth)
+        {
+            var wrapper = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    height        = RulerHeight,
+                    flexShrink    = 0,
+                    overflow      = Overflow.Hidden
+                }
+            };
+            wrapper.Add(new Label("Time")
+            {
+                style =
+                {
+                    width             = RowLabelWidth,
+                    paddingLeft       = 6,
+                    unityTextAlign    = TextAnchor.MiddleLeft,
+                    fontSize          = 10,
+                    color             = new StyleColor(new Color(0.68f, 0.68f, 0.72f)),
+                    flexShrink        = 0,
+                    backgroundColor   = new StyleColor(new Color(0.12f, 0.12f, 0.14f))
+                }
+            });
+
+            // 뷰포트 (overflow=Hidden, flexGrow=1)
+            var viewport = new VisualElement
+            {
+                style = { flexGrow = 1, overflow = Overflow.Hidden }
+            };
+            wrapper.Add(viewport);
+
+            // 실제 레인 (absolute — 가로 스크롤 시 left 값으로 이동)
+            var lane = CreateLane(laneWidth, RulerHeight, new Color(0.10f, 0.10f, 0.115f));
+            lane.style.position = Position.Absolute;
+            lane.style.left     = 0;
+            lane.style.top      = 0;
+            viewport.Add(lane);
+
+            float tickInterval = ResolveTickInterval();
+            for (float t = 0f; t <= duration + 0.001f; t += tickInterval)
+                AddTimeTick(lane, t);
+            AddPlayhead(lane, duration, RulerHeight);
+
+            lane.RegisterCallback<PointerDownEvent>(e =>
+            {
+                if (e.button != 0) return;
+                TimelinePanel?.Focus();
+                _currentTime          = Mathf.Max(0f, PixelToTime(e.localPosition.x));
+                _dragStartScreenX     = e.position.x;
+                _dragStartTime        = _currentTime;
+                IsPlayheadDragging    = true;
+                PlayheadDragPointerId = e.pointerId;
+                TimelinePanel.CapturePointer(e.pointerId);
+                UpdateTimeLabel();
+                UpdatePlayheadPosition();
+                e.StopPropagation();
+            });
+
+            return (wrapper, lane);
+        }
+
         private VisualElement BuildRulerRow(float duration, float laneWidth)
         {
             var row = new VisualElement
@@ -910,12 +1187,14 @@ namespace Battle.Presentation.Editor
                     ClearKeyframeSelection();
                     _selectedKeyframe = key; _selectedRowTag = rowTag; _selectedKeyIndex = index;
                     SelectedKeyframes.Add(key);
+                    if (_allTracksMode) SelectObjectFromRowTag(rowTag);
                     MovePlayheadToTime(key.timeSeconds, refreshTimeline: true);
                     RefreshInspector();
                 }
                 else
                 {
                     _selectedKeyframe = key; _selectedRowTag = rowTag; _selectedKeyIndex = index;
+                    if (_allTracksMode) SelectObjectFromRowTag(rowTag);
                     RefreshInspector();
                     MovePlayheadToTime(key.timeSeconds);
                 }
@@ -1132,13 +1411,56 @@ namespace Battle.Presentation.Editor
             if (tl == null) return;
             Undo.RecordObject(_target, "Paste Keyframes");
 
+            // 클립보드 내 VFX 최소 인덱스 → 현재 선택 VFX 기준 오프셋
+            int minVfxIdx = int.MaxValue;
+            foreach (var (rowTag, _, _) in _clipboard)
+            {
+                if (!rowTag.StartsWith("vfx_")) continue;
+                ParseVfxRowTag(rowTag, out int idx, out _);
+                if (idx >= 0 && idx < minVfxIdx) minVfxIdx = idx;
+            }
+            bool selectedIsVfx = _selectedObjectKind == SkillObjectKind.Vfx && _selectedVfxIndex >= 0;
+            int  vfxOffset     = (minVfxIdx != int.MaxValue && selectedIsVfx) ? _selectedVfxIndex - minVfxIdx : 0;
+            bool vfxBlockWarnShown = false;
+
             var newKeys = new List<SkillKeyframeData>();
             foreach (var (rowTag, timeOffset, template) in _clipboard)
             {
+                string targetTag;
+
+                if (rowTag.StartsWith("vfx_"))
+                {
+                    if (!selectedIsVfx)
+                    {
+                        if (!vfxBlockWarnShown)
+                        {
+                            Debug.LogWarning("[SkillPresentation] VFX 키프레임은 VFX 오브젝트가 선택된 상태에서만 붙여넣을 수 있습니다.");
+                            vfxBlockWarnShown = true;
+                        }
+                        continue;
+                    }
+
+                    ParseVfxRowTag(rowTag, out int srcIdx, out var prop);
+                    if (srcIdx < 0) continue;
+
+                    int dstIdx = srcIdx + vfxOffset;
+                    if (tl.vfxObjects == null || dstIdx < 0 || dstIdx >= tl.vfxObjects.Count)
+                    {
+                        Debug.LogWarning($"[SkillPresentation] vfx_{dstIdx} 가 존재하지 않아 붙여넣기를 건너뜁니다.");
+                        continue;
+                    }
+
+                    targetTag = $"vfx_{dstIdx}_{prop}";
+                }
+                else
+                {
+                    targetTag = rowTag;
+                }
+
                 var newKey = CloneKeyframe(template);
                 if (newKey == null) continue;
                 newKey.timeSeconds = Mathf.Max(0f, _currentTime + timeOffset);
-                AddKeyframeToTimeline(tl, rowTag, newKey);
+                AddKeyframeToTimeline(tl, targetTag, newKey);
                 newKeys.Add(newKey);
             }
 
@@ -1249,6 +1571,24 @@ namespace Battle.Presentation.Editor
             };
             lane.Add(el);
             PlayheadElements.Add(el);
+
+            // 스냅 라인 (드래그 중 키프레임 스냅 시각화)
+            var snapEl = new VisualElement
+            {
+                pickingMode = PickingMode.Ignore,
+                style       =
+                {
+                    position        = Position.Absolute,
+                    left            = 0,
+                    top             = 0,
+                    width           = 2,
+                    height          = height,
+                    backgroundColor = new StyleColor(new Color(1f, 0.95f, 0.25f, 0.90f)),
+                    display         = DisplayStyle.None
+                }
+            };
+            lane.Add(snapEl);
+            SnapLineElements.Add(snapEl);
         }
 
         private void AddTimeTick(VisualElement lane, float time)
@@ -1480,6 +1820,135 @@ namespace Battle.Presentation.Editor
             if (refreshTimeline) RefreshTimeline();
             else                 UpdatePlayheadPosition();
             Repaint();
+        }
+
+        // ── 키프레임 스냅 ────────────────────────────────────────────────────────
+
+        private const float KeyframeSnapThresholdPx = 10f;
+
+        private float? TryKeyframeSnap(float anchorTargetTime)
+        {
+            var tl = GetEditableTimeline();
+            if (tl == null) return null;
+
+            var candidates = GetAllKeyframeTimes(tl);
+            float anchorPx = TimeToPixel(anchorTargetTime);
+
+            float bestDist = KeyframeSnapThresholdPx;
+            float bestTime = 0f;
+            bool  found    = false;
+
+            foreach (float t in candidates)
+            {
+                float dist = Mathf.Abs(TimeToPixel(t) - anchorPx);
+                if (dist <= bestDist)
+                {
+                    bestDist = dist;
+                    bestTime = t;
+                    found    = true;
+                }
+            }
+
+            return found ? bestTime : (float?)null;
+        }
+
+        private List<float> GetAllKeyframeTimes(SkillPresentationTimeline tl)
+        {
+            var result  = new List<float>();
+            var dragged = new HashSet<SkillKeyframeData>(SelectedKeyframes);
+            if (_selectedKeyframe != null) dragged.Add(_selectedKeyframe);
+
+            void AddKeys(List<SkillKeyframeData> keys)
+            {
+                if (keys == null) return;
+                foreach (var k in keys)
+                    if (k != null && !dragged.Contains(k))
+                        result.Add(k.timeSeconds);
+            }
+
+            AddKeys(tl.animationTrack?.keyframes);
+            AddKeys(tl.effectTrack?.keyframes);
+            AddKeys(tl.cameraTrack?.keyframes);
+            AddKeys(tl.casterTrack?.keyframes);
+            AddKeys(tl.uiTrack?.keyframes);
+            AddKeys(tl.sfxTrack?.keyframes);
+
+            if (tl.endMarkerKeyframe != null && !dragged.Contains(tl.endMarkerKeyframe))
+                result.Add(tl.endMarkerKeyframe.timeSeconds);
+
+            if (tl.vfxObjects != null)
+                foreach (var vfx in tl.vfxObjects)
+                    AddKeys(vfx?.keyframes);
+
+            // 중복 제거
+            result.Sort();
+            for (int i = result.Count - 1; i > 0; i--)
+                if (Mathf.Approximately(result[i], result[i - 1]))
+                    result.RemoveAt(i);
+
+            return result;
+        }
+
+        private List<float> GetRowKeyframeTimes(string rowTag, SkillPresentationTimeline tl)
+        {
+            var result = new List<float>();
+            var dragged = new HashSet<SkillKeyframeData>(SelectedKeyframes);
+            if (_selectedKeyframe != null) dragged.Add(_selectedKeyframe);
+
+            List<SkillKeyframeData> keys  = null;
+            SkillKeyframeProperty?  filterProp = null;
+
+            if (rowTag.StartsWith("vfx_"))
+            {
+                ParseVfxRowTag(rowTag, out int vfxIdx, out var vfxProp);
+                if (vfxIdx >= 0 && tl.vfxObjects != null && vfxIdx < tl.vfxObjects.Count)
+                { keys = tl.vfxObjects[vfxIdx].keyframes; filterProp = vfxProp; }
+            }
+            else if (rowTag.StartsWith("camera_") &&
+                System.Enum.TryParse<SkillKeyframeProperty>(rowTag.Substring("camera_".Length), out var camProp))
+            { keys = tl.cameraTrack?.keyframes; filterProp = camProp; }
+            else if (rowTag.StartsWith("caster_") &&
+                System.Enum.TryParse<SkillKeyframeProperty>(rowTag.Substring("caster_".Length), out var castProp))
+            { keys = tl.casterTrack?.keyframes; filterProp = castProp; }
+            else
+            {
+                switch (rowTag)
+                {
+                    case "animation": keys = tl.animationTrack?.keyframes; break;
+                    case "effect":    keys = tl.effectTrack?.keyframes;    break;
+                    case "ui":        keys = tl.uiTrack?.keyframes;        break;
+                    case "sfx":       keys = tl.sfxTrack?.keyframes;       break;
+                    case "endmarker":
+                        if (tl.endMarkerKeyframe != null && !dragged.Contains(tl.endMarkerKeyframe))
+                            result.Add(tl.endMarkerKeyframe.timeSeconds);
+                        return result;
+                }
+            }
+
+            if (keys == null) return result;
+            foreach (var k in keys)
+            {
+                if (k == null || dragged.Contains(k)) continue;
+                if (filterProp.HasValue && k.property != filterProp.Value) continue;
+                result.Add(k.timeSeconds);
+            }
+            return result;
+        }
+
+        private void ShowSnapLine(float snapTime)
+        {
+            float x = TimeToPixel(snapTime);
+            foreach (var el in SnapLineElements)
+            {
+                el.style.left    = x;
+                el.style.display = DisplayStyle.Flex;
+            }
+        }
+
+        private void HideSnapLine()
+        {
+            foreach (var el in SnapLineElements)
+                el.style.display = DisplayStyle.None;
         }
 
         internal float ResolveDraggedDeltaSeconds(float rawDeltaSeconds, float anchorStartTime, float minStartTime)

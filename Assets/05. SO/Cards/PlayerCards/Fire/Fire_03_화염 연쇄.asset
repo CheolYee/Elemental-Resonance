@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Fire_03_\uD654\uC5FC \uC5F0\uC1C4"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Fire_03_\uD654\uC5FC \uC5F0\uC1C4"
+  cardName: "\uD654\uC5FC \uC5F0\uC1C4"
+  cost: 2
+  artwork: {fileID: 21300000, guid: 4d0159518b66be540a93dc930efe3b90, type: 3}
+  description: "\uC791\uC740 \uBD88\uB369\uC774\uB4E4\uC774 \uC77C\uC81C\uD788 \uC3DF\uC774\uC9C4\uB2E4.
+    \uC801 \uD558\uB098\uC5D0\uAC8C 4\uC758 \uD53C\uD574\uB97C 5\uD68C \uC785\uD78C\uB2E4.
+    \uC0AC\uC6A9 \uD6C4 \uC18C\uBA78\uD55C\uB2E4."
+  targetType: 1
+  disposePolicy: 1
+  elementType: 1
+  grade: 2
+  cardType: 0
+  effectSlots:
+  - effectSlotId: cb08ecfc-6dbb-4f49-a768-002b09e3c4dd
+    effect:
+      rid: 3413310031493857452
+  presentationData: {fileID: 11400000, guid: a6da1d9d7fd815a4b9bae2cf7670d44a, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857452
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 4

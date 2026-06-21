@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Poison_02_\uB3C5\uC131 \uC21C\uD658"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Poison_02_\uB3C5\uC131 \uC21C\uD658"
+  cardName: "\uB3C5\uC131 \uC21C\uD658"
+  cost: 1
+  artwork: {fileID: 21300000, guid: baca1aba6ad3bd9499418dab58788e45, type: 3}
+  description: "\uB3C5\uC774 \uD37C\uC9C0\uBA70 \uAC10\uAC01\uC774 \uB0A0\uCE74\uB85C\uC6CC\uC9C4\uB2E4.
+    \uCE74\uB4DC 3\uC7A5\uC744 \uBF51\uACE0 1\uC7A5\uC744 \uBC84\uB9B0 \uD6C4 \uC801\uC5D0\uAC8C
+    8\uC758 \uD53C\uD574\uB97C \uC785\uD78C\uB2E4."
+  targetType: 1
+  disposePolicy: 0
+  elementType: 11
+  grade: 1
+  cardType: 0
+  effectSlots:
+  - effectSlotId: 4ef95877-6649-4855-8bee-de1dd9b263a5
+    effect:
+      rid: 3413310031493857528
+  - effectSlotId: 232ecfd3-b8c2-444a-a191-205f5454793d
+    effect:
+      rid: 3413310031493857529
+  - effectSlotId: 17b05655-2cd3-419d-afa1-4e2715a0b472
+    effect:
+      rid: 3413310031493857530
+  presentationData: {fileID: 11400000, guid: 0ee748d86d1acfd45bc3b16970ed33b2, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857528
+      type: {class: RandomDrawEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        sourcePile: 1
+        drawCount: 3
+    - rid: 3413310031493857529
+      type: {class: DiscardEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        discardCount: 1
+    - rid: 3413310031493857530
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 8

@@ -194,7 +194,7 @@ MonoBehaviour:
         fieldOfView: 60
         amplitude: 1
         shakeDuration: 0.2
-        uiAction: 1
+        uiAction: 2
         sfxSound: 0
     sfxTrack:
       keyframes: []

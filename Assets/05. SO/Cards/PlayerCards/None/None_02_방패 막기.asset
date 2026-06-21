@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "None_02_\uBC29\uD328 \uB9C9\uAE30"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "None_02_\uBC29\uD328 \uB9C9\uAE30"
+  cardName: "\uBC29\uD328 \uB9C9\uAE30"
+  cost: 1
+  artwork: {fileID: 21300000, guid: e7da42fea623f1e42b2d80e187c85e1e, type: 3}
+  description: "\uBC29\uD328\uB97C \uC138\uC6CC\uC11C 7\uC758 \uBC29\uC5B4\uB3C4\uB97C
+    \uC5BB\uB294\uB2E4."
+  targetType: 2
+  disposePolicy: 0
+  elementType: 0
+  grade: 0
+  cardType: 1
+  effectSlots:
+  - effectSlotId: 51716186-2a20-4f96-ba83-1cd0f3e59bf5
+    effect:
+      rid: 3413310031493857447
+  presentationData: {fileID: 11400000, guid: 5c1ed603d1bc5e142aadbc064024caee, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857447
+      type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        block: 7

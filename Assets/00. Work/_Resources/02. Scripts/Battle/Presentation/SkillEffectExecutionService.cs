@@ -1,5 +1,7 @@
 using Battle.Effects;
+using Battle.Enums;
 using Battle.Events;
+using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
 using UnityEngine;
 
@@ -46,14 +48,52 @@ namespace Battle.Presentation
 
             GameObject source = context.Caster?.gameObject;
 
-            if (slot.effect is BlockEffect)
+            if (slot.effect.EffectTarget == EffectTargetType.Self)
             {
-                slot.effect.Apply(source, context.Caster?.gameObject, finalValue);
+                slot.effect.Apply(source, source, finalValue);
+                return;
+            }
+
+            if (context.RandomTargetResolver != null)
+            {
+                var randomTarget = context.ConsumeDamageHitTarget();
+                if (randomTarget != null)
+                    slot.effect.Apply(source, randomTarget.gameObject, finalValue);
                 return;
             }
 
             foreach (var targetAgent in context.Targets)
                 slot.effect.Apply(source, targetAgent?.gameObject, finalValue);
+        }
+
+        public async UniTask<bool> ExecuteAsync(SkillPresentationPlaybackContext context, SkillKeyframeData keyframe)
+        {
+            if (context?.UsageData?.CardInstance?.data == null || keyframe == null) return true;
+
+            string cardName = context.UsageData.CardInstance.data.cardName;
+            context.UsageData.CardInstance.data.EnsureEffectSlotIds();
+
+            if (string.IsNullOrEmpty(keyframe.effectSlotId))
+            {
+                Debug.LogWarning($"[SkillPresentation] 카드 '{cardName}' EffectKeyframe({keyframe.timeSeconds:0.###}s)에 effectSlotId가 비어 있습니다.");
+                return true;
+            }
+
+            CardEffectSlot slot = ResolveSlot(context, keyframe.effectSlotId);
+            if (slot?.effect == null)
+            {
+                Debug.LogWarning($"[SkillPresentation] 카드 '{cardName}'에서 effectSlotId '{keyframe.effectSlotId}'를 찾지 못했습니다.");
+                return true;
+            }
+
+            if (slot.effect is IAsyncCardEffect asyncEffect)
+            {
+                int finalValue = CardEffectValueCalculator.Calculate(slot.effect.BaseValue, keyframe.valueMultiplier);
+                return await asyncEffect.ApplyAsync(context, finalValue, context.CancellationToken, _battleEventChannel);
+            }
+
+            Execute(context, keyframe);
+            return true;
         }
 
         private CardEffectSlot ResolveSlot(SkillPresentationPlaybackContext context, string effectSlotId)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using _00._Work._Resources._02._Scripts.Agents;
+using _00._Work._Resources._02._Scripts.Agents.Enemies;
 using _00._Work._Resources._02._Scripts.Agents.Players;
 using _02._Scripts.CombatSystem.Skills;
 using Battle.Data;
@@ -103,18 +104,43 @@ namespace Battle.UI
                 var targetGo = evt.Target?.gameObject;
 
                 List<Agent> allTargets = null;
+                System.Func<Agent> randomTargetResolver = null;
+
                 if (card.data.targetType == CardTargetType.AllEnemies && enemyRegistry != null)
                 {
                     allTargets = new List<Agent>();
                     foreach (var enemy in enemyRegistry.Enemies)
                         if (enemy != null) allTargets.Add(enemy);
                 }
+                else if (card.data.targetType == CardTargetType.RandomEnemy && enemyRegistry != null)
+                {
+                    var reg = enemyRegistry;
+                    randomTargetResolver = () =>
+                    {
+                        var alive = new List<AbstractEnemy>();
+                        foreach (var e in reg.Enemies)
+                            if (e != null && !e.Health.IsDead) alive.Add(e);
+                        return alive.Count > 0 ? alive[UnityEngine.Random.Range(0, alive.Count)] : null;
+                    };
+                    targetGo = randomTargetResolver()?.gameObject;
+                }
 
                 RaiseQueueChanged(currentCard: card);
                 battleEventChannel.RaiseEvent(new SkillExecutionStartEvent());
                 var data = SkillUsageData.FromCard(card);
-                await _playerSkillModule.UseSkillAsync(data, targetGo, destroyCancellationToken, allTargets);
-                deckController.UseCard(card);
+                var fizzleToken = new SkillFizzleToken();
+                await _playerSkillModule.UseSkillAsync(data, targetGo, destroyCancellationToken, allTargets, randomTargetResolver, fizzleToken);
+
+                if (fizzleToken.IsFizzled)
+                {
+                    costModel.currentCost += card.data.cost;
+                    battleEventChannel.RaiseEvent(new CostChangedEvent(costModel.currentCost));
+                    deckController.ForceDiscard(card);
+                }
+                else
+                {
+                    deckController.UseCard(card);
+                }
                 battleEventChannel.RaiseEvent(new SkillExecutionEndEvent());
                 await UniTask.Delay(System.TimeSpan.FromSeconds(0.1f), DelayType.DeltaTime, PlayerLoopTiming.Update, destroyCancellationToken);
             }

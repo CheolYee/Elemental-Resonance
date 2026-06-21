@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Storm_03_\uB1CC\uC6B0"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Storm_03_\uB1CC\uC6B0"
+  cardName: "\uB1CC\uC6B0"
+  cost: 2
+  artwork: {fileID: 21300000, guid: 860038024ec81194e866ada4f8ff17e4, type: 3}
+  description: "\uBC88\uAC1C\uB97C \uB3D9\uBC18\uD55C \uD3ED\uD48D\uC73C\uB85C \uBAA8\uB4E0
+    \uC801\uC5D0\uAC8C 8\uC758 \uD53C\uD574\uB97C \uC785\uD788\uACE0 \uCE74\uB4DC
+    2\uC7A5\uC744 \uBF51\uB294\uB2E4."
+  targetType: 3
+  disposePolicy: 0
+  elementType: 9
+  grade: 2
+  cardType: 0
+  effectSlots:
+  - effectSlotId: 85edfd6d-8f28-498f-8192-d482e522d7e9
+    effect:
+      rid: 3413310031493857511
+  - effectSlotId: cdf97cc3-b4da-43e4-a06d-8ef0bbd68d89
+    effect:
+      rid: 3413310031493857512
+  presentationData: {fileID: 11400000, guid: 5ec5257b0f1de7d4985e6cf97515f86c, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857511
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 8
+    - rid: 3413310031493857512
+      type: {class: RandomDrawEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        sourcePile: 1
+        drawCount: 2

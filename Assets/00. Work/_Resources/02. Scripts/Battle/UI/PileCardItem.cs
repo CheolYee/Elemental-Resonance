@@ -55,7 +55,7 @@ namespace Battle.UI
         public void OnPointerExit(PointerEventData eventData)
         {
             TweenScale(1f);
-            battleEventChannel.RaiseEvent(new CardHoverExitEvent());
+            battleEventChannel.RaiseEvent(new CardHoverExitEvent(_tempInstance));
         }
 
         private void TweenScale(float target)

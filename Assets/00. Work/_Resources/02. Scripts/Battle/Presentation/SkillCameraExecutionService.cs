@@ -52,10 +52,10 @@ namespace Battle.Presentation
                 var zoomKeys  = FilterAndSort(cameraTrack.keyframes, SkillKeyframeProperty.CamZoom);
                 var shakeKeys = FilterAndSort(cameraTrack.keyframes, SkillKeyframeProperty.CamShake);
 
-                if (posKeys.Count   > 0) tasks.Add(PlayPositionAsync(posKeys, basePosition, token));
-                if (rotKeys.Count   > 0) tasks.Add(PlayRotationAsync(rotKeys, baseRotation, token));
-                if (zoomKeys.Count  > 0) tasks.Add(PlayZoomAsync(zoomKeys, baseFov, token));
-                if (shakeKeys.Count > 0) tasks.Add(PlayShakeAsync(shakeKeys, token));
+                if (posKeys.Count   > 0) tasks.Add(PlayPositionAsync(posKeys, basePosition, context, token));
+                if (rotKeys.Count   > 0) tasks.Add(PlayRotationAsync(rotKeys, baseRotation, context, token));
+                if (zoomKeys.Count  > 0) tasks.Add(PlayZoomAsync(zoomKeys, baseFov, context, token));
+                if (shakeKeys.Count > 0) tasks.Add(PlayShakeAsync(shakeKeys, context, token));
 
                 if (tasks.Count > 0)
                     await UniTask.WhenAll(tasks);
@@ -67,7 +67,10 @@ namespace Battle.Presentation
 
                 float remaining = Mathf.Max(0f, effectiveDuration - elapsed);
                 if (remaining > 0.001f)
+                {
+                    await context.WaitForResumeAsync(token);
                     await UniTask.Delay(TimeSpan.FromSeconds(remaining), DelayType.DeltaTime, PlayerLoopTiming.Update, token);
+                }
             }
             finally
             {
@@ -83,7 +86,7 @@ namespace Battle.Presentation
 
         // ── Position ───────────────────────────────────────────────────────────
 
-        private async UniTask PlayPositionAsync(List<SkillKeyframeData> keys, Vector3 basePosition, CancellationToken token)
+        private async UniTask PlayPositionAsync(List<SkillKeyframeData> keys, Vector3 basePosition, SkillPresentationPlaybackContext context, CancellationToken token)
         {
             if (_skillCamera == null) return;
             float   elapsed   = 0f;
@@ -118,6 +121,7 @@ namespace Battle.Presentation
                     }
                     elapsed   = key.timeSeconds;
                     prevDelta = key.cameraPosition;
+                    await context.WaitForResumeAsync(token);
                 }
             }
             catch (OperationCanceledException) { }
@@ -125,7 +129,7 @@ namespace Battle.Presentation
 
         // ── Rotation ───────────────────────────────────────────────────────────
 
-        private async UniTask PlayRotationAsync(List<SkillKeyframeData> keys, Quaternion baseRotation, CancellationToken token)
+        private async UniTask PlayRotationAsync(List<SkillKeyframeData> keys, Quaternion baseRotation, SkillPresentationPlaybackContext context, CancellationToken token)
         {
             if (_skillCamera == null) return;
             float   elapsed      = 0f;
@@ -161,6 +165,7 @@ namespace Battle.Presentation
                     }
                     elapsed   = key.timeSeconds;
                     prevDelta = key.cameraRotationEuler;
+                    await context.WaitForResumeAsync(token);
                 }
             }
             catch (OperationCanceledException) { }
@@ -168,7 +173,7 @@ namespace Battle.Presentation
 
         // ── Zoom ───────────────────────────────────────────────────────────────
 
-        private async UniTask PlayZoomAsync(List<SkillKeyframeData> keys, float baseFov, CancellationToken token)
+        private async UniTask PlayZoomAsync(List<SkillKeyframeData> keys, float baseFov, SkillPresentationPlaybackContext context, CancellationToken token)
         {
             if (_skillCamera == null) return;
             float elapsed = 0f;
@@ -201,6 +206,7 @@ namespace Battle.Presentation
                     }
                     elapsed = key.timeSeconds;
                     prev    = key.fieldOfView;
+                    await context.WaitForResumeAsync(token);
                 }
             }
             catch (OperationCanceledException) { }
@@ -215,7 +221,7 @@ namespace Battle.Presentation
 
         // ── Shake ──────────────────────────────────────────────────────────────
 
-        private async UniTask PlayShakeAsync(List<SkillKeyframeData> keys, CancellationToken token)
+        private async UniTask PlayShakeAsync(List<SkillKeyframeData> keys, SkillPresentationPlaybackContext context, CancellationToken token)
         {
             float elapsed = 0f;
             try
@@ -226,6 +232,7 @@ namespace Battle.Presentation
                     if (wait > 0.001f)
                         await UniTask.Delay(TimeSpan.FromSeconds(wait), DelayType.DeltaTime, PlayerLoopTiming.Update, token);
                     elapsed = key.timeSeconds;
+                    await context.WaitForResumeAsync(token);
                     _impulseSource?.GenerateImpulse(key.amplitude);
                 }
             }

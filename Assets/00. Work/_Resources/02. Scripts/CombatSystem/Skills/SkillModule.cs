@@ -19,18 +19,16 @@ namespace _02._Scripts.CombatSystem.Skills
         [Inject] private ISkillPresentationPlayer _skillPresentationPlayer;
 
         public ModuleOwner Owner { get; private set; }
-        public SkillDataSO CurrentSkill { get; private set; }
         public AnimParamSO CurrentEntryAnimParam { get; private set; }
 
         public event Action OnCurrentSkillEnd;
 
         public void Initialize(ModuleOwner owner) => Owner = owner;
 
-        public async UniTask UseSkillAsync(SkillUsageData data, GameObject target, CancellationToken ct = default, IReadOnlyList<Agent> allTargets = null)
+        public async UniTask UseSkillAsync(SkillUsageData data, GameObject target, CancellationToken ct = default, IReadOnlyList<Agent> allTargets = null, Func<Agent> randomTargetResolver = null, SkillFizzleToken fizzleToken = null)
         {
             if (Owner is not Agent agent || data == null) return;
 
-            CurrentSkill = data.SkillData;
             bool isCardUsage = data.CardInstance != null;
 
             SkillPresentationTimeline resolvedTimeline = ResolvePlayableTimeline(data);
@@ -77,7 +75,9 @@ namespace _02._Scripts.CombatSystem.Skills
                     agent,
                     primaryTarget,
                     ct,
-                    targets: targets);
+                    targets: targets,
+                    randomTargetResolver: randomTargetResolver,
+                    fizzleToken: fizzleToken);
                 presentationTask = _skillPresentationPlayer.PlayAsync(playbackContext);
             }
 

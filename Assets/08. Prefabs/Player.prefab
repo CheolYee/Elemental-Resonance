@@ -166,6 +166,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.PlayerHealthBarView
   hpText: {fileID: 0}
+  _battleEventChannel: {fileID: 0}
+  _healColor: {r: 0.2, g: 1, b: 0.4, a: 1}
+  _colorDuration: 0.5
+  _popScale: 1.3
+  _popDuration: 0.2
 --- !u!1 &907499968106655276
 GameObject:
   m_ObjectHideFlags: 0
@@ -551,7 +556,7 @@ MonoBehaviour:
   statOverrides:
   - <StatData>k__BackingField: {fileID: 11400000, guid: 817ec46370e71f448b0fd9dfaa094d2a, type: 2}
     isUseOverride: 1
-    overrideValue: 100
+    overrideValue: 80
 --- !u!1 &2514917304335683956
 GameObject:
   m_ObjectHideFlags: 0

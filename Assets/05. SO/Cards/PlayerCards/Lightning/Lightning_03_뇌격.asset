@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Lightning_03_\uB1CC\uACA9"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Lightning_03_\uB1CC\uACA9"
+  cardName: "\uB1CC\uACA9"
+  cost: 2
+  artwork: {fileID: 21300000, guid: 81b52801969e15447a6e88487bad2444, type: 3}
+  description: "\uAC15\uB825\uD55C \uBC88\uAC1C\uB85C \uBAA8\uB4E0 \uC801\uC5D0\uAC8C
+    8\uC758 \uD53C\uD574\uB97C \uC785\uD78C \uD6C4, \uC794\uB958 \uC804\uB958\uB85C
+    \uB2E4\uC2DC 4\uC758 \uD53C\uD574\uB97C \uC785\uD78C\uB2E4."
+  targetType: 3
+  disposePolicy: 0
+  elementType: 2
+  grade: 2
+  cardType: 0
+  effectSlots:
+  - effectSlotId: fcf9ed2e-22be-4b05-8e7c-ae6f6326008b
+    effect:
+      rid: 3413310031493857467
+  - effectSlotId: 6cc9ac7f-1d13-4a95-b4ee-1d0cad10b7fc
+    effect:
+      rid: 3413310031493857468
+  presentationData: {fileID: 11400000, guid: 98d30fa795098bf47b55eab48209c7c9, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857467
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 8
+    - rid: 3413310031493857468
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 4

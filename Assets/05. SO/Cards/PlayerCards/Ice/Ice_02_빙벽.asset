@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Ice_02_\uBE59\uBCBD"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Ice_02_\uBE59\uBCBD"
+  cardName: "\uBE59\uBCBD"
+  cost: 2
+  artwork: {fileID: 21300000, guid: 598ad33a9dd3f30419659ba2c408a270, type: 3}
+  description: "\uB450\uAEBC\uC6B4 \uC5BC\uC74C \uC7A5\uBCBD\uC744 \uC138\uC6CC 18\uC758
+    \uBC29\uC5B4\uB3C4\uC744 \uC5BB\uACE0, \uC5BC\uC74C \uD30C\uD3B8 2\uC7A5\uC744
+    \uC190\uD328\uC5D0 \uCD94\uAC00\uD55C\uB2E4."
+  targetType: 2
+  disposePolicy: 0
+  elementType: 5
+  grade: 1
+  cardType: 1
+  effectSlots:
+  - effectSlotId: 6daac3b6-b720-4db8-8d56-3a1f10bf3bc5
+    effect:
+      rid: 3413310031493857457
+  - effectSlotId: 174c1cf6-60e3-4228-aa35-b47d3170bad3
+    effect:
+      rid: 3413310031493857458
+  presentationData: {fileID: 11400000, guid: 9f2d9e6344465d04e8eb2f9f8fcb0c36, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857457
+      type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        block: 18
+    - rid: 3413310031493857458
+      type: {class: CreateCardEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        cardDataSO: {fileID: 11400000, guid: 17c983e19b7901343961942933fdab6e, type: 2}
+        createCount: 2

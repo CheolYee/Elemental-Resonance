@@ -25,6 +25,7 @@ namespace Battle.UI
         [SerializeField] private FusionRecipeTableSO  fusionRecipeTable;
         [SerializeField] private GradeWeightTableSO   gradeWeightTable;
         [SerializeField] private RewardCardPoolService rewardCardPoolService;
+        [SerializeField] private SkillPreviewLayoutSO  skillPreviewLayout;
 
         public void InstallBindings(ContainerBuilder builder)
         {
@@ -47,7 +48,7 @@ namespace Battle.UI
                 Reflex.Enums.Resolution.Lazy);
 
             builder.RegisterFactory(
-                _ => new SkillVfxExecutionService(vfxPoolManager, vfxContainerItem),
+                _ => new SkillVfxExecutionService(vfxPoolManager, vfxContainerItem, skillPreviewLayout),
                 typeof(SkillVfxExecutionService),
                 new[] { typeof(SkillVfxExecutionService) },
                 Reflex.Enums.Lifetime.Singleton,

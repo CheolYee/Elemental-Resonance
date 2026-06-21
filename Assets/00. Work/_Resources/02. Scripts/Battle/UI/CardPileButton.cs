@@ -111,11 +111,13 @@ namespace Battle.UI
 
             await LMotion.Create(1f, arrivalPopScale, arrivalPopDuration * 0.4f)
                 .WithEase(Ease.OutBack)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => transform.localScale = new Vector3(s, s, 1f))
                 .ToUniTask(cancellationToken: ct);
 
             await LMotion.Create(arrivalPopScale, 1f, arrivalPopDuration * 0.6f)
                 .WithEase(Ease.InOutSine)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => transform.localScale = new Vector3(s, s, 1f))
                 .ToUniTask(cancellationToken: ct);
         }

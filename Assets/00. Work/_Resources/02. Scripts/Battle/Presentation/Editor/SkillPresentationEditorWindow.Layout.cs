@@ -135,6 +135,26 @@ namespace Battle.Presentation.Editor
             };
             bar.Add(_timeLabel);
 
+            var allTracksBtn = new Button(() =>
+            {
+                _allTracksMode = !_allTracksMode;
+                EditorPrefs.SetBool(PrefAllTracks, _allTracksMode);
+                RefreshTimeline();
+            })
+            {
+                text  = "All Tracks",
+                style =
+                {
+                    height        = 18,
+                    fontSize      = 10,
+                    marginRight   = 8,
+                    paddingLeft   = 6,
+                    paddingRight  = 6,
+                    backgroundColor = new StyleColor(new Color(0.18f, 0.18f, 0.22f))
+                }
+            };
+            bar.Add(allTracksBtn);
+
             bar.Add(new VisualElement { style = { flexGrow = 1 } });
 
             var snapRow = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, marginRight = 6 } };

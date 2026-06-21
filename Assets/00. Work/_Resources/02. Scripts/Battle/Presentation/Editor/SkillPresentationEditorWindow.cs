@@ -45,6 +45,13 @@ namespace Battle.Presentation.Editor
         private SkillObjectKind _selectedObjectKind = SkillObjectKind.None;
         private int             _selectedVfxIndex   = -1;
 
+        // ── All Tracks 모드 ──────────────────────────────────────────────────────
+
+        private const string PrefAllTracks = "SPE_AllTracksMode";
+        private bool         _allTracksMode;
+        private readonly HashSet<SkillObjectKind> _collapsedObjects    = new();
+        private readonly HashSet<int>             _collapsedVfxIndices = new();
+
         // ── 다중 선택 ────────────────────────────────────────────────────────────
 
         internal readonly HashSet<SkillKeyframeData>                     SelectedKeyframes = new();
@@ -102,7 +109,9 @@ namespace Battle.Presentation.Editor
         // ── Timeline 뷰 ──────────────────────────────────────────────────────────
 
         internal float               PixelsPerSecond  = DefaultPixelsPerSecond;
-        internal List<VisualElement> PlayheadElements = new();
+        internal List<VisualElement> PlayheadElements  = new();
+        internal List<VisualElement> SnapLineElements  = new();
+        internal ScrollView          TimelineScrollView;
 
         // ── 클립보드 ─────────────────────────────────────────────────────────────
 
@@ -160,6 +169,8 @@ namespace Battle.Presentation.Editor
             var folder = EditorPrefs.GetString(PrefKeyFolder, "");
             if (!string.IsNullOrEmpty(folder))
                 _previewPrefabFolder = folder;
+
+            _allTracksMode = EditorPrefs.GetBool(PrefAllTracks, false);
         }
 
         private void CreateGUI()

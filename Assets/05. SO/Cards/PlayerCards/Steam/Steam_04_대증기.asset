@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Steam_04_\uB300\uC99D\uAE30"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Steam_04_\uB300\uC99D\uAE30"
+  cardName: "\uB300\uC99D\uAE30"
+  cost: 3
+  artwork: {fileID: 21300000, guid: 76cd6a4098d4ec84ea5cb495cdc9eca5, type: 3}
+  description: "\uCD5C\uAC15\uC758 \uC99D\uAE30 \uD3ED\uBC1C\uB85C \uBAA8\uB4E0 \uC801\uC5D0\uAC8C
+    25\uC758 \uD53C\uD574\uB97C \uC785\uD788\uACE0,\n25\uC758 \uBC29\uC5B4\uB3C4\uC744
+    \uC5BB\uC73C\uBA70,\n\uC5BC\uC74C \uD30C\uD3B8 2\uC7A5\uC744 \uC190\uD328\uC5D0
+    \uCD94\uAC00\uD55C\uB2E4."
+  targetType: 3
+  disposePolicy: 0
+  elementType: 8
+  grade: 3
+  cardType: 0
+  effectSlots:
+  - effectSlotId: 670c0b84-8f70-4f00-9559-076009cc0656
+    effect:
+      rid: 3413310031493857503
+  - effectSlotId: 2d483b6d-28f3-41d5-ad9c-878fb3275140
+    effect:
+      rid: 3413310031493857504
+  - effectSlotId: de14c68b-b12c-4392-8c6f-9b2feb33b5cc
+    effect:
+      rid: 3413310031493857505
+  presentationData: {fileID: 11400000, guid: b818d6b1f7d472f4ab2aa9df49115536, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857503
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 25
+    - rid: 3413310031493857504
+      type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        block: 25
+    - rid: 3413310031493857505
+      type: {class: CreateCardEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        cardDataSO: {fileID: 11400000, guid: 17c983e19b7901343961942933fdab6e, type: 2}
+        createCount: 2

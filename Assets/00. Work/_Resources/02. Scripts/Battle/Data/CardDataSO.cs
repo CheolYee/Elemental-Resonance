@@ -22,7 +22,6 @@ namespace Battle.Data
         public CardGrade grade;
         public CardType cardType;
         public List<CardEffectSlot> effectSlots;
-        public SkillDataSO skillData;
         public SkillPresentationDataSO presentationData;
 
         private void OnValidate()
@@ -35,13 +34,16 @@ namespace Battle.Data
             if (effectSlots == null) return false;
 
             bool changed = false;
+            var seen = new HashSet<string>();
 
             foreach (var slot in effectSlots)
             {
                 if (slot == null) continue;
-                if (string.IsNullOrEmpty(slot.effectSlotId))
+                // 빈 ID이거나 이미 등록된 중복 ID면 재생성 (첫 번째 것은 유지, 이후 중복만 교체)
+                if (string.IsNullOrEmpty(slot.effectSlotId) || !seen.Add(slot.effectSlotId))
                 {
                     slot.effectSlotId = Guid.NewGuid().ToString();
+                    seen.Add(slot.effectSlotId);
                     changed = true;
                 }
             }

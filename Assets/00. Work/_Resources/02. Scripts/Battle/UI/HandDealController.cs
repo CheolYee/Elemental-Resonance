@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Battle.Events;
+using Battle.Instances;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
 using UnityEngine;
@@ -26,6 +27,7 @@ namespace Battle.UI
             battleEventChannel.AddListener<WaveClearEvent>(OnWaveClear);
             battleEventChannel.AddListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.AddListener<BattleDefeatEvent>(OnBattleEnded);
+            battleEventChannel.AddListener<SkillDrawCardsRequestEvent>(OnSkillDrawCardsRequest);
         }
 
         private void OnDisable()
@@ -36,6 +38,7 @@ namespace Battle.UI
             battleEventChannel.RemoveListener<WaveClearEvent>(OnWaveClear);
             battleEventChannel.RemoveListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.RemoveListener<BattleDefeatEvent>(OnBattleEnded);
+            battleEventChannel.RemoveListener<SkillDrawCardsRequestEvent>(OnSkillDrawCardsRequest);
         }
 
         private void OnSessionStart(BattleSessionStartEvent _) => _battleEnded = false;
@@ -99,6 +102,37 @@ namespace Battle.UI
         {
             deckController.DiscardAllHand();
             handLayoutController.ReturnAllToPool();
+        }
+
+        private void OnSkillDrawCardsRequest(SkillDrawCardsRequestEvent evt)
+        {
+            if (_battleEnded) { evt.Tcs.TrySetResult(); return; }
+            DealSkillCardsAsync(evt, evt.Tcs).Forget();
+        }
+
+        private async UniTaskVoid DealSkillCardsAsync(SkillDrawCardsRequestEvent evt, UniTaskCompletionSource tcs)
+        {
+            // PreDrawnCards가 있으면 DeckController가 이미 Hand로 이동 완료 → AddCard 애니메이션만 수행
+            IReadOnlyList<CardInstance> cards = evt.PreDrawnCards != null
+                ? evt.PreDrawnCards
+                : deckController.DrawCards(evt.DrawCount);
+
+            foreach (var cardInstance in cards)
+            {
+                var view = handLayoutController.AddCard(cardInstance);
+                view.SetInteractable(false);
+                await UniTask.Delay(TimeSpan.FromSeconds(dealStaggerDelay), cancellationToken: destroyCancellationToken);
+            }
+            await UniTask.Delay(TimeSpan.FromSeconds(handLayoutController.TweenDuration), cancellationToken: destroyCancellationToken);
+
+            if (!_battleEnded)
+            {
+                var handCards = handLayoutController.HandCards;
+                for (int i = 0; i < handCards.Count; i++)
+                    handCards[i].SetInteractable(true);
+            }
+
+            tcs.TrySetResult();
         }
     }
 }

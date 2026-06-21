@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Arcane_01_\uB9C8\uB825 \uCDA9\uC804"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Arcane_01_\uB9C8\uB825 \uCDA9\uC804"
+  cardName: "\uB9C8\uB825 \uCDA9\uC804"
+  cost: 0
+  artwork: {fileID: 21300000, guid: 541ef8b8c59d4f94291c1e564f3efade, type: 3}
+  description: "\uC8FC\uBCC0\uC758 \uB9C8\uB825\uC744 \uB04C\uC5B4\uBAA8\uC544 \uCF54\uC2A4\uD2B8\uB97C
+    1 \uD68C\uBCF5\uD55C\uB2E4."
+  targetType: 0
+  disposePolicy: 0
+  elementType: 7
+  grade: 0
+  cardType: 1
+  effectSlots:
+  - effectSlotId: 18492c6a-13c1-43af-a1a5-6e49ccb73405
+    effect:
+      rid: 3413310031493857491
+  presentationData: {fileID: 11400000, guid: f55eac0d978620442b0f418d03b4b499, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857491
+      type: {class: CostGainEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        costGain: 1
+        condition: 0
+        conditionValue: 0

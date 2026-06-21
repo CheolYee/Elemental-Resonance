@@ -9,22 +9,40 @@ namespace Battle.UI
 {
     public static class CardColorUtility
     {
-        public static readonly Dictionary<ElementType, Color> ElementColors = new()
+        public static readonly Dictionary<ElementType, Color> ElementColors;
+
+        private static readonly Dictionary<ElementType, (ElementType a, ElementType b)> FusionParents = new()
         {
-            { ElementType.None,      Color.white },
-            { ElementType.Fire,      new Color(0.906f, 0.298f, 0.235f) },
-            { ElementType.Lightning, new Color(0.945f, 0.769f, 0.059f) },
-            { ElementType.Nature,    new Color(0.180f, 0.800f, 0.443f) },
-            { ElementType.Light,     new Color(0.910f, 0.773f, 0.278f) },
-            { ElementType.Ice,       new Color(0.365f, 0.851f, 0.949f) },
-            { ElementType.Dark,      new Color(0.290f, 0.137f, 0.353f) },
-            { ElementType.Arcane,    new Color(0.557f, 0.267f, 0.678f) },
-            { ElementType.Steam,     new Color(0.690f, 0.850f, 0.930f) }, // 안개빛 하늘색
-            { ElementType.Storm,     new Color(1.000f, 0.420f, 0.130f) }, // 번개+화염 오렌지
-            { ElementType.Twilight,  new Color(0.720f, 0.350f, 0.580f) }, // 황혼 장밋빛 보라
-            { ElementType.Poison,    new Color(0.470f, 0.870f, 0.200f) }, // 독성 옐로우그린
-            { ElementType.Holy,      new Color(1.000f, 0.920f, 0.500f) }, // 신성 황금빛
+            { ElementType.Steam,    (ElementType.Fire,      ElementType.Ice)    },
+            { ElementType.Storm,    (ElementType.Lightning,  ElementType.Nature) },
+            { ElementType.Twilight, (ElementType.Dark,       ElementType.Light)  },
+            { ElementType.Poison,   (ElementType.Nature,     ElementType.Dark)   },
+            { ElementType.Holy,     (ElementType.Light,      ElementType.Arcane) },
         };
+
+        static CardColorUtility()
+        {
+            var baseColors = new Dictionary<ElementType, Color>
+            {
+                { ElementType.None,      Color.white },
+                { ElementType.Fire,      new Color(0.906f, 0.298f, 0.235f) },
+                { ElementType.Lightning, new Color(0.100f, 0.200f, 0.820f) },
+                { ElementType.Nature,    new Color(0.180f, 0.800f, 0.443f) },
+                { ElementType.Light,     new Color(0.980f, 0.960f, 0.600f) },
+                { ElementType.Ice,       new Color(0.365f, 0.851f, 0.949f) },
+                { ElementType.Dark,      new Color(0.050f, 0.300f, 0.100f) },
+                { ElementType.Arcane,    new Color(0.557f, 0.267f, 0.678f) },
+            };
+
+            ElementColors = new Dictionary<ElementType, Color>(baseColors);
+
+            foreach (var kvp in FusionParents)
+            {
+                var (a, b) = kvp.Value;
+                if (baseColors.TryGetValue(a, out var ca) && baseColors.TryGetValue(b, out var cb))
+                    ElementColors[kvp.Key] = Color.Lerp(ca, cb, 0.5f);
+            }
+        }
 
         public static readonly Dictionary<CardGrade, Color> GradeColors = new()
         {

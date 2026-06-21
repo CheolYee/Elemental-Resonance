@@ -17,9 +17,9 @@ namespace Battle.Presentation
             _battleUIController = battleUIController;
         }
 
-        public UniTask ExecuteAsync(SkillPresentationPlaybackContext context, SkillKeyframeData keyframe)
+        public async UniTask ExecuteAsync(SkillPresentationPlaybackContext context, SkillKeyframeData keyframe)
         {
-            if (keyframe == null) return UniTask.CompletedTask;
+            if (keyframe == null) return;
 
             switch (keyframe.property)
             {
@@ -29,7 +29,11 @@ namespace Battle.Presentation
                     break;
 
                 case SkillKeyframeProperty.EffectSlot:
-                    _effectService?.Execute(context, keyframe);
+                    if (_effectService != null)
+                    {
+                        bool success = await _effectService.ExecuteAsync(context, keyframe);
+                        if (!success) context.FizzleToken.RequestFizzle();
+                    }
                     break;
 
                 case SkillKeyframeProperty.UiAction:
@@ -44,8 +48,6 @@ namespace Battle.Presentation
                     _battleUIController?.PlaySfx(keyframe.sfxSound);
                     break;
             }
-
-            return UniTask.CompletedTask;
         }
     }
 }

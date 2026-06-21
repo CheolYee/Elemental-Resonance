@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Nature_04_\uB300\uC21C\uD658"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Nature_04_\uB300\uC21C\uD658"
+  cardName: "\uB300\uC21C\uD658"
+  cost: 0
+  artwork: {fileID: 21300000, guid: 166652b4abc53154182f13b5868cd0d5, type: 3}
+  description: "\uB300\uC790\uC5F0\uC758 \uC21C\uD658\uC5D0 \uBAB8\uC744 \uB9E1\uACA8
+    \uCE74\uB4DC 3\uC7A5\uC744 \uBF51\uACE0 \uCF54\uC2A4\uD2B8\uB97C 2 \uD68C\uBCF5\uD55C\uB2E4."
+  targetType: 0
+  disposePolicy: 0
+  elementType: 3
+  grade: 3
+  cardType: 1
+  effectSlots:
+  - effectSlotId: 8c2e162b-e7d3-4ccc-9c55-757c74e60056
+    effect:
+      rid: 3413310031493857476
+  - effectSlotId: 121025d9-4a12-46d1-a60b-b991d0f5bba5
+    effect:
+      rid: 3413310031493857477
+  presentationData: {fileID: 11400000, guid: b3aafaa7105331a4ea2ea4c982e059f8, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413310031493857476
+      type: {class: RandomDrawEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        sourcePile: 1
+        drawCount: 3
+    - rid: 3413310031493857477
+      type: {class: CostGainEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        costGain: 2
+        condition: 0
+        conditionValue: 0

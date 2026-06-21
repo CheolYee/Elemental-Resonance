@@ -13,5 +13,6 @@ namespace Battle.Presentation
         public Vector3      cameraPosition;
         public Vector3      cameraRotationEuler;
         public float        cameraFov = 60f;
+        public Vector3      noneVfxSpawnPosition;
     }
 }

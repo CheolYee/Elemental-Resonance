@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Battle.Events;
+using Battle.Instances;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
 using LitMotion;
@@ -41,6 +42,7 @@ namespace Battle.UI
         private MotionHandle _fadeHandle;
         private CancellationTokenSource _delayCts;
         private CancellationTokenSource _scrollCts;
+        private CardInstance _currentHoveredInstance;
 
         private void OnEnable()
         {
@@ -56,8 +58,17 @@ namespace Battle.UI
             _scrollCts?.Cancel();
         }
 
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (hasFocus) return;
+            _delayCts?.Cancel();
+            _scrollCts?.Cancel();
+            if (_isOpen) ClosePanel();
+        }
+
         private void OnCardHover(CardHoverEvent evt)
         {
+            _currentHoveredInstance = evt.CardInstance;
             _delayCts?.Cancel();
             _delayCts = new CancellationTokenSource();
 
@@ -77,6 +88,10 @@ namespace Battle.UI
 
         private void OnCardHoverExit(CardHoverExitEvent evt)
         {
+            // 이미 다른 카드로 hover가 옮겨간 경우 무시
+            if (evt.CardInstance != _currentHoveredInstance) return;
+
+            _currentHoveredInstance = null;
             _delayCts?.Cancel();
             _scrollCts?.Cancel();
             if (_isOpen) ClosePanel();

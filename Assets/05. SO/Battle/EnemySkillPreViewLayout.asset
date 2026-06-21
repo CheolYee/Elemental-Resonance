@@ -22,3 +22,4 @@ MonoBehaviour:
   cameraPosition: {x: 1.5858643, y: 15.018379, z: 31.658499}
   cameraRotationEuler: {x: 10, y: -15, z: 0}
   cameraFov: 70
+  noneVfxSpawnPosition: {x: 0, y: 13.46, z: 37}

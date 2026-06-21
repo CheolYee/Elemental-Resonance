@@ -10,13 +10,15 @@ namespace Battle.Presentation
 {
     public sealed class SkillVfxExecutionService
     {
-        private readonly PoolManagerSo _pool;
-        private readonly PoolItemSo    _containerItem;
+        private readonly PoolManagerSo       _pool;
+        private readonly PoolItemSo          _containerItem;
+        private readonly SkillPreviewLayoutSO _layout;
 
-        public SkillVfxExecutionService(PoolManagerSo pool, PoolItemSo containerItem)
+        public SkillVfxExecutionService(PoolManagerSo pool, PoolItemSo containerItem, SkillPreviewLayoutSO layout)
         {
             _pool          = pool;
             _containerItem = containerItem;
+            _layout        = layout;
         }
 
         public void SpawnAndPlay(SkillVfxObjectData vfxObject, SkillPresentationPlaybackContext context, CancellationToken token)
@@ -27,10 +29,34 @@ namespace Battle.Presentation
                 Debug.LogWarning("[SkillVfxExecution] PoolManagerSo 또는 containerItem이 설정되지 않았습니다.");
                 return;
             }
-            PlayVfxAsync(vfxObject, context, token).Forget();
+
+            if (context.RandomTargetResolver != null &&
+                (vfxObject.spawnTarget == SkillVfxSpawnTarget.Target ||
+                 vfxObject.spawnTarget == SkillVfxSpawnTarget.BetweenCasterAndTarget))
+            {
+                var resolvedTarget = context.GetPreResolvedHitTarget(vfxObject.hitIndex);
+                if (resolvedTarget != null)
+                {
+                    Vector3 pos = vfxObject.spawnTarget == SkillVfxSpawnTarget.BetweenCasterAndTarget
+                        ? Vector3.Lerp(context.Caster?.transform.position ?? Vector3.zero, resolvedTarget.transform.position, 0.5f)
+                        : resolvedTarget.transform.position;
+                    PlayVfxAsync(vfxObject, pos + vfxObject.spawnPositionOffset, token).Forget();
+                    return;
+                }
+            }
+
+            if (vfxObject.spawnTarget == SkillVfxSpawnTarget.Target && context.Targets.Count > 0)
+            {
+                foreach (var target in context.Targets)
+                    PlayVfxAsync(vfxObject, target.transform.position + vfxObject.spawnPositionOffset, token).Forget();
+                return;
+            }
+
+            Vector3 spawnPos = ResolveSpawnPosition(vfxObject, context) + vfxObject.spawnPositionOffset;
+            PlayVfxAsync(vfxObject, spawnPos, token).Forget();
         }
 
-        private async UniTaskVoid PlayVfxAsync(SkillVfxObjectData vfxObject, SkillPresentationPlaybackContext context, CancellationToken token)
+        private async UniTaskVoid PlayVfxAsync(SkillVfxObjectData vfxObject, Vector3 spawnPos, CancellationToken token)
         {
             SkillVfxContainer container = _pool.Pop<SkillVfxContainer>(_containerItem);
             if (container == null)
@@ -39,7 +65,6 @@ namespace Battle.Presentation
                 return;
             }
 
-            Vector3 spawnPos = ResolveSpawnPosition(vfxObject, context) + vfxObject.spawnPositionOffset;
             container.transform.position   = spawnPos;
             container.transform.rotation   = Quaternion.Euler(vfxObject.spawnRotationEuler);
             container.transform.localScale = Vector3.one;
@@ -63,7 +88,7 @@ namespace Battle.Presentation
                 {
                     container.Play(vfxObject.vfxDefinition.key, vfxObject.simulationSpeed, vfxObject.startLifetimeMultiplier);
                     if (vfxObject.keyframes != null && vfxObject.keyframes.Count > 0)
-                        AnimateTransformAsync(container.transform, vfxObject.keyframes, vfxObject.spawnTime, token).Forget(); // fire-and-forget in legacy path
+                        AnimateTransformAsync(container.transform, vfxObject.keyframes, vfxObject.spawnTime, token).Forget();
 
                     float waitTime = vfxObject.lifeTime > 0f
                         ? vfxObject.lifeTime
@@ -112,8 +137,6 @@ namespace Battle.Presentation
             catch (OperationCanceledException) { }
         }
 
-        // keyframes는 VfxPosition / VfxRotation / VfxScale property 키를 혼합 보유
-        // timeSeconds는 스킬 절대 시간 기준 → spawnTime 오프셋으로 상대 시간 계산
         private async UniTask AnimateTransformAsync(
             Transform t,
             List<SkillKeyframeData> keyframes,
@@ -251,13 +274,14 @@ namespace Battle.Presentation
             return result;
         }
 
-        private static Vector3 ResolveSpawnPosition(SkillVfxObjectData vfxObject, SkillPresentationPlaybackContext context)
+        private Vector3 ResolveSpawnPosition(SkillVfxObjectData vfxObject, SkillPresentationPlaybackContext context)
         {
             if (vfxObject.spawnTarget == SkillVfxSpawnTarget.Target && context.Target == null)
                 return context.Caster?.transform.position ?? Vector3.zero;
 
             return vfxObject.spawnTarget switch
             {
+                SkillVfxSpawnTarget.None     => _layout != null ? _layout.noneVfxSpawnPosition : Vector3.zero,
                 SkillVfxSpawnTarget.Caster   => context.Caster?.transform.position ?? Vector3.zero,
                 SkillVfxSpawnTarget.Target   => context.Target?.transform.position ?? Vector3.zero,
                 SkillVfxSpawnTarget.BetweenCasterAndTarget =>

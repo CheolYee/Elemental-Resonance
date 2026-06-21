@@ -40,20 +40,82 @@ namespace Battle.UI
             }
         }
 
+        private void Start() => RefreshCurrentDeckCount();
+
         private void OnEnable()
         {
             battleEventChannel.AddListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.AddListener<BattleDefeatEvent>(OnBattleEnded);
+            battleEventChannel.AddListener<DiscardCardsEvent>(OnDiscardCards);
+            battleEventChannel.AddListener<RandomDrawRequestEvent>(OnRandomDrawRequest);
+            battleEventChannel.AddListener<CreateTempCardsRequestEvent>(OnCreateTempCardsRequest);
         }
 
         private void OnDisable()
         {
             battleEventChannel.RemoveListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.RemoveListener<BattleDefeatEvent>(OnBattleEnded);
+            battleEventChannel.RemoveListener<DiscardCardsEvent>(OnDiscardCards);
+            battleEventChannel.RemoveListener<RandomDrawRequestEvent>(OnRandomDrawRequest);
+            battleEventChannel.RemoveListener<CreateTempCardsRequestEvent>(OnCreateTempCardsRequest);
         }
 
         private void OnBattleEnded(BattleVictoryEvent _) => Cleanup();
         private void OnBattleEnded(BattleDefeatEvent _)  => Cleanup();
+
+        private void OnDiscardCards(DiscardCardsEvent evt)
+        {
+            if (evt.Cards == null) return;
+            foreach (var card in evt.Cards)
+                ForceDiscard(card);
+        }
+
+        private void OnRandomDrawRequest(RandomDrawRequestEvent evt)
+        {
+            var drawn = evt.SourcePile == PileType.DrawPile
+                ? DrawCards(evt.DrawCount)
+                : DrawFromSpecificPile(evt.SourcePile, evt.DrawCount);
+            evt.Tcs.TrySetResult(drawn);
+        }
+
+        private void OnCreateTempCardsRequest(CreateTempCardsRequestEvent evt)
+        {
+            var created = new List<CardInstance>();
+            for (int i = 0; i < evt.Count; i++)
+            {
+                var card = new CardInstance(evt.CardData);
+                AddFusionCard(card);
+                created.Add(card);
+            }
+            evt.Tcs.TrySetResult(created);
+        }
+
+        private List<CardInstance> DrawFromSpecificPile(PileType sourcePile, int count)
+        {
+            var source = sourcePile switch
+            {
+                PileType.DiscardPile => _discardPile,
+                PileType.GravePile   => _gravePile,
+                _                    => null
+            };
+
+            var drawn = new List<CardInstance>();
+            if (source == null || source.Count == 0) return drawn;
+
+            int take = Mathf.Min(count, source.Count);
+            for (int i = 0; i < take; i++)
+            {
+                int idx = UnityEngine.Random.Range(0, source.Count);
+                var card = source[idx];
+                source.RemoveAt(idx);
+                card.currentPile = PileType.Hand;
+                _hand.Add(card);
+                drawn.Add(card);
+            }
+
+            NotifyPileChanged();
+            return drawn;
+        }
 
         public void Initialize()
         {
@@ -176,6 +238,13 @@ namespace Battle.UI
             card.currentPile = PileType.GravePile;
             _gravePile.Add(card);
             NotifyPileChanged();
+        }
+
+        // Fizzle 발생 시 호출 — disposePolicy 무관하게 항상 DiscardPile로 강제 이동
+        public void ForceDiscard(CardInstance card)
+        {
+            _hand.Remove(card);
+            MoveToDiscard(card);
         }
 
         // 카드 사용 시 호출 — disposePolicy 기준으로 DiscardPile 또는 GravePile로 이동

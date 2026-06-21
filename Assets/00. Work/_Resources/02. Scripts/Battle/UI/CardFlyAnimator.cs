@@ -8,6 +8,7 @@ using Gamelib.EventSystem;
 using Gamelib.ObjectPool.Runtime;
 using LitMotion;
 using UnityEngine;
+using DelayType = Cysharp.Threading.Tasks.DelayType;
 
 namespace Battle.UI
 {
@@ -95,8 +96,8 @@ namespace Battle.UI
         // C-10: HandLayoutController가 직접 호출 — 턴 종료 손패 전체 이동
         public void FlyAllToDiscard(List<Vector2> screenPositions)
         {
-            for (int i = 0; i < screenPositions.Count; i++)
-                FlyCardAsync(screenPositions[i], PileDisplayTarget.Discard).Forget();
+            foreach (var pos in screenPositions)
+                FlyCardAsync(pos, PileDisplayTarget.Discard).Forget();
         }
 
         private async UniTaskVoid FlyWithDelayAsync(Vector2 from, PileDisplayTarget to, float delay)
@@ -138,6 +139,7 @@ namespace Battle.UI
 
             await LMotion.Create(0f, 1f, duration)
                 .WithEase(flyEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(t =>
                 {
                     float mt = 1f - t;
@@ -172,7 +174,7 @@ namespace Battle.UI
             card.PlayArrivalEffect();
 
             // 카드/지속 파티클은 즉시 사라지지만, 트레일은 잔광으로 잠시 남겨둔 뒤 풀에 반환한다.
-            await UniTask.Delay(TimeSpan.FromSeconds(trailLingerDuration), cancellationToken: destroyCancellationToken);
+            await UniTask.Delay(TimeSpan.FromSeconds(trailLingerDuration), DelayType.UnscaledDeltaTime, cancellationToken: destroyCancellationToken);
 
             _pool.Push(card);
         }

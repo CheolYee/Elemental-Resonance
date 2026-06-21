@@ -134,6 +134,7 @@ namespace Battle.UI
                 GameObjectInjector.InjectRecursive(go, _container);
                 var enemy = go.GetComponent<AbstractEnemy>();
                 enemyRegistry.Register(enemy);
+                enemy.OnDeathStarted += () => enemyRegistry.Unregister(enemy);
             }
             battleEventChannel.RaiseEvent(new EnemiesUpdatedEvent());
         }

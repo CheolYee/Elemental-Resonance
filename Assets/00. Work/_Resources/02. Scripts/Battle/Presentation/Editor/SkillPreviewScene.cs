@@ -515,6 +515,7 @@ namespace Battle.Presentation.Editor
                 SkillVfxSpawnTarget.Caster                 => casterPos,
                 SkillVfxSpawnTarget.Target                 => targetPos,
                 SkillVfxSpawnTarget.BetweenCasterAndTarget => (casterPos + targetPos) * 0.5f,
+                SkillVfxSpawnTarget.None                   => layout.noneVfxSpawnPosition,
                 _                                           => casterPos
             };
 

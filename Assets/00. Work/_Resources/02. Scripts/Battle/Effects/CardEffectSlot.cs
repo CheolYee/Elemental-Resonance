@@ -8,10 +8,5 @@ namespace Battle.Effects
     {
         [HideInInspector] public string effectSlotId;
         [SerializeReference] public CardEffect effect;
-
-        public CardEffectSlot()
-        {
-            effectSlotId = Guid.NewGuid().ToString();
-        }
     }
 }

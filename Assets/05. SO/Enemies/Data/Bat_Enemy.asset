@@ -15,7 +15,7 @@ MonoBehaviour:
   enemyId: Test_1
   enemyName: "\uBC15\uC950"
   enemyPrefab: {fileID: 1308748609954290718, guid: 8bc70d0752c74d24ab7be75ab9e4f3f3, type: 3}
-  maxHp: 10
+  maxHp: 30
   hpStatSO: {fileID: 11400000, guid: 817ec46370e71f448b0fd9dfaa094d2a, type: 2}
   attackCards:
   - {fileID: 11400000, guid: 8d818724090ca6241a360abc16a53c8c, type: 2}
