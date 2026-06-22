@@ -126,7 +126,7 @@ namespace Battle.Map.Editor
         private void UpdateStageRefVisibility()
         {
             if (_stageRefRow == null || _selectedNode == null) return;
-            bool needsStage = _selectedNode.nodeType is MapNodeType.Battle or MapNodeType.Elite;
+            bool needsStage = _selectedNode.nodeType is MapNodeType.Battle or MapNodeType.Elite or MapNodeType.Boss;
             _stageRefRow.style.display = needsStage ? DisplayStyle.Flex : DisplayStyle.None;
         }
 

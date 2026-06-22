@@ -20,6 +20,14 @@ namespace Gamelib.SoundSystem
 
         private void Awake()
         {
+            var existing = FindObjectsByType<SoundManager>(FindObjectsSortMode.None);
+            if (existing.Length > 1)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            DontDestroyOnLoad(gameObject);
+
             SoundChannel.AddListener<PlaySoundEvent>(HandlePlaySoundEvent);
             SoundChannel.AddListener<StopSoundEvent>(HandleStopSoundEvent);
             SoundChannel.AddListener<PlayManagedSoundEvent>(HandlePlayManagedSoundEvent);
@@ -95,15 +103,18 @@ namespace Gamelib.SoundSystem
             {
                 _channelPlayers.Remove(evt.ChannelId);
 
-                if (evt.CrossfadeExisting)
+                if (existingPlayer != null)
                 {
-                    existingPlayer.FadeOutAndStop(evt.FadeOutDuration);
-                }
-                else
-                {
-                    existingPlayer.OnSoundFinished -= HandleSoundFinish;
-                    existingPlayer.ForceStopSound();
-                    poolManager.Push(existingPlayer);
+                    if (evt.CrossfadeExisting)
+                    {
+                        existingPlayer.FadeOutAndStop(evt.FadeOutDuration);
+                    }
+                    else
+                    {
+                        existingPlayer.OnSoundFinished -= HandleSoundFinish;
+                        existingPlayer.ForceStopSound();
+                        poolManager.Push(existingPlayer);
+                    }
                 }
             }
 
@@ -203,6 +214,7 @@ namespace Gamelib.SoundSystem
         {
             SoundPlayer player = poolManager.Pop<SoundPlayer>(soundItem);
             player.transform.position = position;
+            DontDestroyOnLoad(player.gameObject);
             player.OnSoundFinished -= HandleSoundFinish;
             player.OnSoundFinished += HandleSoundFinish;
             return player;

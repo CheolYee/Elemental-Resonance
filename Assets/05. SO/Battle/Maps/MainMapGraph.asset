@@ -1,0 +1,176 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eddd1491f938a18428bbea6bc683a601, type: 3}
+  m_Name: MainMapGraph
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Map.Data.MapGraphSO
+  nodes:
+  - nodeId: start
+    floorIndex: 0
+    xOffset: 0
+    nodeType: 0
+    nextNodeIds:
+    - f1a
+    - f1b
+    stageRef: {fileID: 0}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f1a
+    floorIndex: 1
+    xOffset: -0.25
+    nodeType: 1
+    nextNodeIds:
+    - f2
+    stageRef: {fileID: 11400000, guid: 3a69f032289d43b98934574cb2f01cab, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f1b
+    floorIndex: 1
+    xOffset: 0.2
+    nodeType: 1
+    nextNodeIds:
+    - f2
+    stageRef: {fileID: 11400000, guid: ff8b811f978742e99538c2bb809fab9d, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f2
+    floorIndex: 2
+    xOffset: 0
+    nodeType: 1
+    nextNodeIds:
+    - f3b
+    - f3r
+    stageRef: {fileID: 11400000, guid: f99bd3af89014235aa68a31f3f64a90f, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f3b
+    floorIndex: 3
+    xOffset: -0.25
+    nodeType: 1
+    nextNodeIds:
+    - f4e
+    - f4s
+    stageRef: {fileID: 11400000, guid: 440a79b8473e4a918aa4043f3d84098f, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f3r
+    floorIndex: 3
+    xOffset: 0.25
+    nodeType: 3
+    nextNodeIds:
+    - f4e
+    - f4s
+    stageRef: {fileID: 0}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f4e
+    floorIndex: 4
+    xOffset: -0.25
+    nodeType: 2
+    nextNodeIds:
+    - f5a
+    - f5b
+    stageRef: {fileID: 11400000, guid: 9fb8531919f544de8b8e8af2831f183b, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f4s
+    floorIndex: 4
+    xOffset: 0.25
+    nodeType: 4
+    nextNodeIds:
+    - f5a
+    - f5b
+    stageRef: {fileID: 0}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f5a
+    floorIndex: 5
+    xOffset: -0.25
+    nodeType: 1
+    nextNodeIds:
+    - f6b
+    - f6r
+    stageRef: {fileID: 11400000, guid: c97894badb024d398ccb295b721c5618, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f5b
+    floorIndex: 5
+    xOffset: 0.25
+    nodeType: 1
+    nextNodeIds:
+    - f6b
+    - f6r
+    stageRef: {fileID: 11400000, guid: d7b491044bc34083b7a051aec9ccaaa9, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f6b
+    floorIndex: 6
+    xOffset: -0.25
+    nodeType: 1
+    nextNodeIds:
+    - f7e
+    stageRef: {fileID: 11400000, guid: 835f4e244a394e7da7c98c08075e3ffe, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f6r
+    floorIndex: 6
+    xOffset: 0.25
+    nodeType: 3
+    nextNodeIds:
+    - f7e
+    stageRef: {fileID: 0}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f7e
+    floorIndex: 7
+    xOffset: 0
+    nodeType: 2
+    nextNodeIds:
+    - f8s
+    - f8b
+    stageRef: {fileID: 11400000, guid: 553f9b50416b42b2a51a0e1f6f729169, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f8s
+    floorIndex: 8
+    xOffset: -0.25
+    nodeType: 4
+    nextNodeIds:
+    - f9
+    stageRef: {fileID: 0}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f8b
+    floorIndex: 8
+    xOffset: 0.25
+    nodeType: 1
+    nextNodeIds:
+    - f9
+    stageRef: {fileID: 11400000, guid: e608efe3f5044c159c5af3e91d311942, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: f9
+    floorIndex: 9
+    xOffset: 0
+    nodeType: 1
+    nextNodeIds:
+    - boss
+    stageRef: {fileID: 11400000, guid: 0ffff4f543264af2be7ab044a90d6e8c, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: boss
+    floorIndex: 10
+    xOffset: 0
+    nodeType: 5
+    nextNodeIds: []
+    stageRef: {fileID: 11400000, guid: 70e019802bf944be94c8b1f457a446a6, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}

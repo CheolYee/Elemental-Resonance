@@ -189,6 +189,8 @@ namespace Gamelib.SoundSystem
 
         private void StopActiveCoroutines(bool stopAudio = false)
         {
+            if (this == null) return;
+
             if (_finishCoroutine != null)
             {
                 StopCoroutine(_finishCoroutine);

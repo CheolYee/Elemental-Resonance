@@ -16,7 +16,8 @@ namespace Battle.Presentation
         public float timeSeconds;
 
         // Animation
-        public AnimParamSO animParam;
+        public AnimParamSO   animParam;
+        public AnimationClip animClip;
 
         // Effect
         public string effectSlotId;

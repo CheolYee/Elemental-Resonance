@@ -24,6 +24,7 @@ namespace Battle.Map.UI
         [SerializeField] private Sprite _eliteSprite;
         [SerializeField] private Sprite _restSprite;
         [SerializeField] private Sprite _shopSprite;
+        [SerializeField] private Sprite _bossSprite;
 
         [Header("Node Type Colors")]
         [SerializeField] private Color _startColor  = Color.white;
@@ -31,6 +32,7 @@ namespace Battle.Map.UI
         [SerializeField] private Color _eliteColor  = Color.white;
         [SerializeField] private Color _restColor   = Color.white;
         [SerializeField] private Color _shopColor   = Color.white;
+        [SerializeField] private Color _bossColor   = Color.white;
 
         private MapGraphSO _graph;
         private RunMapState _state;
@@ -160,6 +162,7 @@ namespace Battle.Map.UI
             MapNodeType.Elite  => _eliteSprite,
             MapNodeType.Rest   => _restSprite,
             MapNodeType.Shop   => _shopSprite,
+            MapNodeType.Boss   => _bossSprite != null ? _bossSprite : _eliteSprite,
             _                  => _startSprite
         };
 
@@ -169,6 +172,7 @@ namespace Battle.Map.UI
             MapNodeType.Elite  => _eliteColor,
             MapNodeType.Rest   => _restColor,
             MapNodeType.Shop   => _shopColor,
+            MapNodeType.Boss   => _bossColor,
             _                  => _startColor
         };
     }

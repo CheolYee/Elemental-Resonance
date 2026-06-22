@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6ccf66031a7a624eb008431d29434b2, type: 3}
   m_Name: ShopConfig
   m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.ShopConfigSO
-  cardSlotCount: 4
-  normalCardPrice: 40
-  rareCardPrice: 70
-  epicCardPrice: 100
-  legendaryCardPrice: 180
-  rerollCost: 25
-  removeCardCost: 25
+  cardSlotCount: 5
+  normalCardPrice: 25
+  rareCardPrice: 50
+  epicCardPrice: 90
+  legendaryCardPrice: 160
+  rerollCost: 20
+  removeCardCost: 35
   rerollCostMultiplier: 1.5
-  removeCardCostMultiplier: 1.5
+  removeCardCostMultiplier: 1

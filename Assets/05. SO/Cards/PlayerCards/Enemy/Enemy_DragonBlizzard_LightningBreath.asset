@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: Enemy_DragonBlizzard_LightningBreath
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: Enemy_DragonBlizzard_LightningBreath
+  cardName: "\uBC88\uAC1C \uBE0C\uB808\uC2A4"
+  cost: 0
+  artwork: {fileID: 21300000, guid: 95a06c4749fd7614aa0d5988cc5a1194, type: 3}
+  description: "\uC804\uAE30\uB97C \uBFDC\uC5B4\uB0B4\uC5B4 12\uC758 \uD53C\uD574\uB97C
+    \uC785\uD78C\uB2E4."
+  targetType: 2
+  disposePolicy: 0
+  elementType: 2
+  grade: 0
+  cardType: 0
+  effectSlots:
+  - effectSlotId: d05c5103-bf25-4089-9040-c76c7913700c
+    effect:
+      rid: 3484072241761802485
+  presentationData: {fileID: 11400000, guid: 56aeafa531654ca8bd6edf3415658e8a, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3484072241761802485
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 12

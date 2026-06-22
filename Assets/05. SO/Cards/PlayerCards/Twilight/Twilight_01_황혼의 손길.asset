@@ -17,7 +17,7 @@ MonoBehaviour:
   cost: 1
   artwork: {fileID: 21300000, guid: 69f9784f67f2fe54b8259879c020dc39, type: 3}
   description: "\uC5B4\uB460\uACFC \uBE5B\uC774 \uAD50\uCC28\uD558\uB294 \uD669\uD63C\uC758
-    \uD798\uC73C\uB85C \uB2E8\uC77C \uC801\uC5D0\uAC8C 8\uC758 \uD53C\uD574\uB97C
+    \uD798\uC73C\uB85C \uB2E8\uC77C \uC801\uC5D0\uAC8C 10\uC758 \uD53C\uD574\uB97C
     \uC785\uD788\uACE0 8\uC758 \uBC29\uC5B4\uB3C4\uB97C \uC5BB\uB294\uB2E4."
   targetType: 1
   disposePolicy: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
       type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
       data:
         isRepeat: 1
-        damage: 8
+        damage: 10
     - rid: 3413310031493857517
       type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
       data:

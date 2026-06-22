@@ -8,9 +8,9 @@ namespace Battle.Data
     public class RewardConfigSO : ScriptableObject
     {
         [Header("Gold Formula")]
-        public int baseGold       = 50;
-        public int perFloorBonus  = 10;
-        public int randomVariance = 15;
+        public int baseGold       = 25;
+        public int perFloorBonus  = 6;
+        public int randomVariance = 8;
 
         [Header("Grade Weights by Floor")]
         public List<FloorGradeWeight> gradeWeightTable = new()
@@ -20,6 +20,9 @@ namespace Battle.Data
             new FloorGradeWeight { floorFrom = 6, floorTo = 8,  normalWeight = 20, rareWeight = 35, epicWeight = 30, legendaryWeight = 15 },
             new FloorGradeWeight { floorFrom = 9, floorTo = 99, normalWeight = 10, rareWeight = 25, epicWeight = 35, legendaryWeight = 30 },
         };
+
+        [Header("Elite Bonus")]
+        public float eliteGoldMultiplier = 2f;
 
         [Header("Rest Node")]
         [Range(0f, 1f)]
@@ -40,12 +43,15 @@ namespace Battle.Data
             return new[] { 60, 30, 8, 2 };
         }
 
-        public int CalculateGold(int floorIndex)
+        public int CalculateGold(int floorIndex, int goldBonus = 0, RewardProfile profile = RewardProfile.Normal)
         {
             int variance = randomVariance > 0
                 ? UnityEngine.Random.Range(-randomVariance, randomVariance + 1)
                 : 0;
-            return Mathf.Max(0, baseGold + floorIndex * perFloorBonus + variance);
+            int raw = Mathf.Max(0, baseGold + floorIndex * perFloorBonus + goldBonus + variance);
+            if (profile == RewardProfile.Elite)
+                raw = Mathf.RoundToInt(raw * eliteGoldMultiplier);
+            return raw;
         }
     }
 

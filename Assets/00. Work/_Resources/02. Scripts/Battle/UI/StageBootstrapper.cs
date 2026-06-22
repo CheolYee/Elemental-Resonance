@@ -29,6 +29,9 @@ namespace Battle.UI
         private int _currentWaveIndex;
         private bool _battleEnded;
 
+        public int CurrentStageGoldBonus   => stageData?.goldBonus     ?? 0;
+        public RewardProfile CurrentRewardProfile => stageData?.rewardProfile ?? RewardProfile.Normal;
+
         private void OnEnable()
         {
             battleEventChannel.AddListener<WaveClearEvent>(OnWaveClear);
@@ -126,6 +129,7 @@ namespace Battle.UI
         {
             enemyRegistry.Clear();
             var wave = stageData.waves[waveIndex];
+            float hpMultiplier = 1f + 0.12f * (playerRunState?.CurrentFloorIndex ?? 0);
             foreach (var entry in wave.enemySpawns)
             {
                 int slot = entry.isLargeEnemy ? 1 : entry.slotIndex;
@@ -133,6 +137,8 @@ namespace Battle.UI
                 var go = Instantiate(entry.enemyData.enemyPrefab, pos, Quaternion.identity);
                 GameObjectInjector.InjectRecursive(go, _container);
                 var enemy = go.GetComponent<AbstractEnemy>();
+                int scaledHp = Mathf.Max(1, Mathf.RoundToInt(entry.enemyData.maxHp * hpMultiplier));
+                enemy.Health.InitializeHp(scaledHp, scaledHp);
                 enemyRegistry.Register(enemy);
                 enemy.OnDeathStarted += () => enemyRegistry.Unregister(enemy);
             }

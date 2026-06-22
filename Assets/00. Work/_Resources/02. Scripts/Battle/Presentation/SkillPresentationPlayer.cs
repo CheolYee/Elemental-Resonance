@@ -69,19 +69,18 @@ namespace Battle.Presentation
             SkillPresentationTimeline timeline,
             CancellationToken token)
         {
-            float elapsed           = 0f;
+            float startTime         = Time.time;
             int   currentBatchIndex = 0;
             var   executedKeyframes = new HashSet<SkillKeyframeData>();
 
             while (currentBatchIndex < schedule.Count)
             {
                 SkillPresentationScheduledBatch batch = schedule[currentBatchIndex];
-                float waitSeconds = Mathf.Max(0f, batch.TimeSeconds - elapsed);
+                float waitSeconds = Mathf.Max(0f, startTime + batch.TimeSeconds - Time.time);
                 if (waitSeconds > 0f)
                     await DelayAsync(waitSeconds, token);
 
                 token.ThrowIfCancellationRequested();
-                elapsed = batch.TimeSeconds;
 
                 for (int i = 0; i < batch.Keyframes.Count; i++)
                 {
@@ -94,7 +93,7 @@ namespace Battle.Presentation
                 currentBatchIndex++;
             }
 
-            float remainingDuration = Mathf.Max(0f, timeline.GetEffectiveDuration() - elapsed);
+            float remainingDuration = Mathf.Max(0f, timeline.GetEffectiveDuration() - (Time.time - startTime));
             if (remainingDuration > 0f)
                 await DelayAsync(remainingDuration, token);
         }

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Enemy_Thunder_\uB099\uB8B0"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Enemy_Thunder_\uB099\uB8B0"
+  cardName: "\uB099\uB8B0"
+  cost: 0
+  artwork: {fileID: 21300000, guid: 3522b1134b75a3748b99ffd45f766bd2, type: 3}
+  description: "\uC554\uD751\uC758 \uBC88\uAC1C\uB97C \uB0B4\uB9AC\uCCD0 5\uC758
+    \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4."
+  targetType: 2
+  disposePolicy: 0
+  elementType: 2
+  grade: 0
+  cardType: 0
+  effectSlots:
+  - effectSlotId: 1d70abb4-61a6-4819-b644-7e5fcb81573b
+    effect:
+      rid: 3413309807165177940
+  presentationData: {fileID: 11400000, guid: 2576c37595e0e174893e9bb2f03f1a84, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3413309807165177940
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 5

@@ -40,4 +40,5 @@ MonoBehaviour:
     rareWeight: 25
     epicWeight: 35
     legendaryWeight: 30
+  eliteGoldMultiplier: 2
   restHealPercent: 0.3

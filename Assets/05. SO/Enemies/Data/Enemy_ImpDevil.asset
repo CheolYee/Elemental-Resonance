@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c16db73cbaa0f8141994db82e4ba7134, type: 3}
+  m_Name: Enemy_ImpDevil
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.EnemyDataSO
+  enemyId: Enemy_ImpDevil
+  enemyName: "\uC545\uB9C8 \uC784\uD504"
+  enemyPrefab: {fileID: 1308748609954290718, guid: d993a7781fa3ca04fb4c432d12cc56f8, type: 3}
+  maxHp: 40
+  hpStatSO: {fileID: 11400000, guid: 817ec46370e71f448b0fd9dfaa094d2a, type: 2}
+  attackCards:
+  - {fileID: 11400000, guid: 9b9a27279cc328d4d9df12b5c7a48f7c, type: 2}
+  - {fileID: 11400000, guid: 43ced2c4aee942740ae036f28bb9a953, type: 2}

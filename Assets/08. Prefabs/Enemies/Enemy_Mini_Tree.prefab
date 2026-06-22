@@ -60,10 +60,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 1.56
   m_Height: 1.78
   m_Direction: 1
-  m_Center: {x: 0, y: 1.17, z: 0}
+  m_Center: {x: 0, y: 0.41, z: 0}
 --- !u!114 &6986251598938389247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,7 +83,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   enemyStates: {fileID: 11400000, guid: 8ea2240c99faeb4498a1f15851561649, type: 2}
-  enemyData: {fileID: 11400000, guid: bf0e7b42b047b494eb89cba79e022fdc, type: 2}
+  enemyData: {fileID: 11400000, guid: 110839cb63353494da915c6aa7ba32e5, type: 2}
 --- !u!114 &2985259933610261460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cce72b535fdf5514dbe27666bcad839f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.DamageTextTrigger
-  spawnOffset: {x: 0, y: 1.5, z: 0}
+  spawnOffset: {x: 0, y: 1, z: 0}
 --- !u!1001 &835023692821286230
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -445,7 +445,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2827140905092394434, guid: 99ff0fbe66a6f644ba7551cea46cb7d6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.29
       objectReference: {fileID: 0}
     - target: {fileID: 2827140905092394434, guid: 99ff0fbe66a6f644ba7551cea46cb7d6, type: 3}
       propertyPath: m_LocalPosition.z

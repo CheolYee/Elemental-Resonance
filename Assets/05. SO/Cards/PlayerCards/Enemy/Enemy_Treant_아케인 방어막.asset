@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Enemy_Treant_\uC544\uCF00\uC778 \uBC29\uC5B4\uB9C9"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Enemy_Treant_\uC544\uCF00\uC778 \uBC29\uC5B4\uB9C9"
+  cardName: "\uC544\uCF00\uC778 \uBC29\uC5B4\uB9C9"
+  cost: 0
+  artwork: {fileID: 21300000, guid: d29cd2c755e54244199a178900882501, type: 3}
+  description: "\uB9C8\uB825\uC73C\uB85C \uBAB8\uC744 \uAC10\uC2F8 \uBC29\uC5B4\uB3C4
+    7\uC744 \uC5BB\uB294\uB2E4."
+  targetType: 1
+  disposePolicy: 0
+  elementType: 7
+  grade: 0
+  cardType: 1
+  effectSlots:
+  - effectSlotId: 8c7d636c-254b-40f7-abb6-759d8ccde2fd
+    effect:
+      rid: 3348232982252297893
+  presentationData: {fileID: 11400000, guid: 933e8272187b411db258c4b1613c8749, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3348232982252297893
+      type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        block: 7

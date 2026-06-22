@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Enemy_ImpDevil_Superior_\uC545\uB9C8 \uD3ED\uC5FC"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Enemy_ImpDevil_Superior_\uC545\uB9C8 \uD3ED\uC5FC"
+  cardName: "\uC545\uB9C8 \uD3ED\uC5FC"
+  cost: 0
+  artwork: {fileID: 0}
+  description: "\uC9C0\uC625\uC758 \uBD88\uAF43\uC744 \uD130\uB728\uB824 22\uC758 \uD53C\uD574\uB97C \uC785\uD78C\uB2E4."
+  targetType: 2
+  disposePolicy: 0
+  elementType: 1
+  grade: 0
+  cardType: 0
+  effectSlots:
+  - effectSlotId: be041bb5-988f-4074-8bf4-da28aee3de53
+    effect:
+      rid: 3111111111111111111
+  presentationData: {fileID: 11400000, guid: ff0d3fd457c6441b9c6fe0381d966de8, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3111111111111111111
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 22

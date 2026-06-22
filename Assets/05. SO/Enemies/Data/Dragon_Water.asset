@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c16db73cbaa0f8141994db82e4ba7134, type: 3}
+  m_Name: Dragon_Water
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.EnemyDataSO
+  enemyId: Dragon_Water
+  enemyName: "\uC544\uAE30 \uB4DC\uB798\uACE4"
+  enemyPrefab: {fileID: 1308748609954290718, guid: 5a13fe349ac6e7443ac544b44f614589, type: 3}
+  maxHp: 60
+  hpStatSO: {fileID: 11400000, guid: 817ec46370e71f448b0fd9dfaa094d2a, type: 2}
+  attackCards:
+  - {fileID: 11400000, guid: b8f01d58301d51342b11b989d60c23f3, type: 2}
+  - {fileID: 11400000, guid: 59c0ddfb70f5c77498b51422f365a404, type: 2}

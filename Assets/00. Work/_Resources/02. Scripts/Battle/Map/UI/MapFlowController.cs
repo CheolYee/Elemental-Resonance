@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Battle.Data;
 using Battle.Events;
@@ -9,6 +10,7 @@ using Battle.Map.Runtime;
 using Battle.UI;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -28,6 +30,13 @@ namespace Battle.Map.UI
         [SerializeField] private EnvironmentController _skyboxController;
         [SerializeField] private CinemachineBrain _cinemachineBrain;
         [SerializeField] private PlayerRunStateSO _playerRunState;
+        [SerializeField] private RunClearPanel  _runClearPanel;
+        [SerializeField] private SaveController _saveController;
+
+        [Header("BGM")]
+        [SerializeField] private EventChannelSO _soundChannel;
+        [SerializeField] private float          _bgmFadeIn  = 1f;
+        [SerializeField] private float          _bgmFadeOut = 1f;
 
         [SerializeField] private float _mapOpenDelay = 0.5f;
         [SerializeField] private bool _openForSelectionOnStart = false;
@@ -41,6 +50,8 @@ namespace Battle.Map.UI
         private readonly MapRouteRuleService _routeRuleService = new();
         private bool _pendingVictoryMapOpen;
 
+        public RunMapState CurrentMapState => _runMapState;
+
         private void Start()
         {
             if (_fadeCanvasGroup != null)
@@ -50,13 +61,30 @@ namespace Battle.Map.UI
             }
             if (_mapGraph != null)
             {
-                InitializeRun();
-                if (_openForSelectionOnStart)
+                bool restored = _saveController != null && _saveController.TryRestoreIfPending();
+                if (!restored)
                 {
-                    _mapOverlayController.OpenForSelection();
-                    RefreshPresenter();
+                    InitializeRun();
+                    if (_openForSelectionOnStart)
+                    {
+                        _mapOverlayController.OpenForSelection();
+                        RefreshPresenter();
+                    }
                 }
             }
+        }
+
+        public void RestoreMapState(RunSaveData data)
+        {
+            _runMapState = new RunMapState
+            {
+                graphId         = data.graphId,
+                currentNodeId   = data.currentNodeId,
+                visitedNodeIds  = new List<string>(data.visitedNodeIds),
+                resolvedNodeIds = new List<string>(data.resolvedNodeIds),
+            };
+            _mapOverlayController.OpenForSelection();
+            RefreshPresenter();
         }
 
         private void OnEnable()
@@ -65,6 +93,7 @@ namespace Battle.Map.UI
             _battleEventChannel.AddListener<BattleDefeatEvent>(OnBattleDefeat);
             _battleEventChannel.AddListener<RewardPanelClosedEvent>(OnRewardPanelClosed);
             _battleEventChannel.AddListener<BattleSessionStartEvent>(OnSessionStart);
+            _battleEventChannel.AddListener<RunClearedEvent>(OnRunCleared);
             if (_mapScreenPresenter != null)
                 _mapScreenPresenter.OnNodeClicked += OnNodeViewClicked;
             if (_restPanel != null)
@@ -79,6 +108,7 @@ namespace Battle.Map.UI
             _battleEventChannel.RemoveListener<BattleDefeatEvent>(OnBattleDefeat);
             _battleEventChannel.RemoveListener<RewardPanelClosedEvent>(OnRewardPanelClosed);
             _battleEventChannel.RemoveListener<BattleSessionStartEvent>(OnSessionStart);
+            _battleEventChannel.RemoveListener<RunClearedEvent>(OnRunCleared);
             if (_mapScreenPresenter != null)
                 _mapScreenPresenter.OnNodeClicked -= OnNodeViewClicked;
             if (_restPanel != null)
@@ -126,6 +156,8 @@ namespace Battle.Map.UI
             // 런 종료 — 맵 열지 않음. Phase 8에서 씬 전환 추가 예정.
         }
 
+        private void OnRunCleared(RunClearedEvent _) => _runClearPanel?.Show();
+
         private void OnNodeViewClicked(string nodeId)
         {
             if (_mapOverlayController.State != MapOverlayState.SelectionPending) return;
@@ -163,14 +195,16 @@ namespace Battle.Map.UI
             var node = _mapGraph.GetNode(nodeId);
             if (node != null)
             {
-                if ((node.nodeType == MapNodeType.Battle || node.nodeType == MapNodeType.Elite)
+                if ((node.nodeType == MapNodeType.Battle || node.nodeType == MapNodeType.Elite || node.nodeType == MapNodeType.Boss)
                     && node.stageRef != null && _stageBootstrapper != null)
                 {
+                    PlayBgm(BgmSounds.MAIN);
                     _playerRunState?.SetFloorIndex(node.floorIndex);
                     _stageBootstrapper.BeginStage(node.stageRef).Forget();
                 }
                 else if (node.nodeType == MapNodeType.Rest)
                 {
+                    PlayBgm(BgmSounds.REST);
                     _battleEventChannel.RaiseEvent(new NodeContextEnteredEvent());
                     _skyboxController?.SetNight();
                     _restPanel?.EnterNode(node.restContent);
@@ -178,6 +212,7 @@ namespace Battle.Map.UI
                 }
                 else if (node.nodeType == MapNodeType.Shop)
                 {
+                    PlayBgm(BgmSounds.SHOP);
                     _battleEventChannel.RaiseEvent(new NodeContextEnteredEvent());
                     _shopPanel?.EnterNode(node.shopContent);
                     await WaitForCameraBlend(ct);
@@ -288,6 +323,13 @@ namespace Battle.Map.UI
             if (_cinemachineBrain == null) return;
             await UniTask.NextFrame(ct);
             await UniTask.WaitUntil(() => !_cinemachineBrain.IsBlending, cancellationToken: ct);
+        }
+
+        private void PlayBgm(BgmSounds bgm)
+        {
+            _soundChannel?.RaiseEvent(new PlayManagedSoundEvent(
+                bgm, Vector3.zero, SoundChannelId.Bgm,
+                _bgmFadeIn, _bgmFadeOut, crossfadeExisting: true));
         }
     }
 }

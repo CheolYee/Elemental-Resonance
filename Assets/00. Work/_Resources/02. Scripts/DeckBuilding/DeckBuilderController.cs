@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Battle.Data;
+using Battle.UI;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace DeckBuilding
@@ -82,7 +82,7 @@ namespace DeckBuilding
         {
             _playerRunState?.Reset();
             _deckProvider.SetDeck(_selectedCards);
-            SceneManager.LoadScene(_mainSceneName);
+            FadeManager.Instance?.GoToScene(_mainSceneName);
         }
     }
 }

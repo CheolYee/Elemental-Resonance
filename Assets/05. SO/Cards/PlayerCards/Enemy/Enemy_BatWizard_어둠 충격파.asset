@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Enemy_BatWizard_\uC5B4\uB460 \uCDA9\uACA9\uD30C"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Enemy_BatWizard_\uC5B4\uB460 \uCDA9\uACA9\uD30C"
+  cardName: "\uC5B4\uB460 \uCDA9\uACA9\uD30C"
+  cost: 0
+  artwork: {fileID: 21300000, guid: 9a616aaea5b8b084b946c7f7a0e6c33d, type: 3}
+  description: "\uC5B4\uB460 \uC5D0\uB108\uC9C0\uB97C \uD3ED\uBC1C\uC2DC\uCF1C 13\uC758
+    \uD53C\uD574\uB97C \uC785\uD78C\uB2E4."
+  targetType: 2
+  disposePolicy: 0
+  elementType: 6
+  grade: 0
+  cardType: 0
+  effectSlots:
+  - effectSlotId: 92054994-e6fd-41ab-b114-113612a445b9
+    effect:
+      rid: 3033876154875322412
+  presentationData: {fileID: 11400000, guid: 3e4a20c312c741f3aea5e9c88fe23933, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3033876154875322412
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 13

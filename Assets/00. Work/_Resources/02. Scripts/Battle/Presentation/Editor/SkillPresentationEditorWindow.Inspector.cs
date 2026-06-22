@@ -651,17 +651,52 @@ namespace Battle.Presentation.Editor
 
         // ── Animation Param ───────────────────────────────────────────────────
 
-        private ObjectField CreateAnimParamField(SkillKeyframeData keyframe)
+        private VisualElement CreateAnimParamField(SkillKeyframeData keyframe)
         {
-            var field = new ObjectField("Anim Param")
+            var container = new VisualElement();
+
+            var paramField = new ObjectField("Anim Param")
             {
                 objectType        = typeof(AnimParamSO),
                 allowSceneObjects = false,
                 value             = keyframe.animParam
             };
-            StyleInspectorField(field);
-            field.RegisterValueChangedCallback(evt => ApplyKeyframeChange(() => keyframe.animParam = evt.newValue as AnimParamSO));
-            return field;
+            StyleInspectorField(paramField);
+            paramField.RegisterValueChangedCallback(evt =>
+                ApplyKeyframeChange(() => keyframe.animParam = evt.newValue as AnimParamSO));
+
+            var clipField = new ObjectField("Anim Clip")
+            {
+                objectType        = typeof(AnimationClip),
+                allowSceneObjects = false,
+                value             = keyframe.animClip
+            };
+            StyleInspectorField(clipField);
+
+            var durationLabel = new Label();
+            durationLabel.style.color       = new UnityEngine.Color(0.6f, 0.8f, 0.6f);
+            durationLabel.style.fontSize    = 10;
+            durationLabel.style.paddingLeft = 4;
+            durationLabel.style.paddingTop  = 2;
+
+            void UpdateDuration(AnimationClip clip)
+            {
+                durationLabel.text = clip != null ? $"클립 길이: {clip.length:F2}s" : "";
+            }
+
+            clipField.RegisterValueChangedCallback(evt =>
+            {
+                var clip = evt.newValue as AnimationClip;
+                ApplyKeyframeChange(() => keyframe.animClip = clip);
+                UpdateDuration(clip);
+            });
+
+            UpdateDuration(keyframe.animClip);
+
+            container.Add(paramField);
+            container.Add(clipField);
+            container.Add(durationLabel);
+            return container;
         }
 
         // ── Effect Inspector ──────────────────────────────────────────────────

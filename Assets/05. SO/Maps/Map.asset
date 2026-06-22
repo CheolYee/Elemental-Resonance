@@ -178,7 +178,16 @@ MonoBehaviour:
     floorIndex: 6
     xOffset: 0
     nodeType: 2
-    nextNodeIds: []
+    nextNodeIds:
+    - 9e4bb185
     stageRef: {fileID: 11400000, guid: a96ed993c472c8a4f95761ea5dea0bdc, type: 2}
+    restContent: {fileID: 0}
+    shopContent: {fileID: 0}
+  - nodeId: 9e4bb185
+    floorIndex: 7
+    xOffset: 0
+    nodeType: 5
+    nextNodeIds: []
+    stageRef: {fileID: 0}
     restContent: {fileID: 0}
     shopContent: {fileID: 0}

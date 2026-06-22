@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Enemy_TreantForest_\uC544\uCF00\uC778 \uBC29\uBCBD"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Enemy_TreantForest_\uC544\uCF00\uC778 \uBC29\uBCBD"
+  cardName: "\uC544\uCF00\uC778 \uBC29\uBCBD"
+  cost: 0
+  artwork: {fileID: 21300000, guid: e0673ec0ba9c55c4ca60133347249a49, type: 3}
+  description: "\uC544\uCF00\uC778 \uC5D0\uB108\uC9C0\uB85C \uBC29\uBCBD\uC744 \uC138\uC6CC
+    \uBC29\uC5B4\uB3C4 20\uC744 \uC5BB\uB294\uB2E4."
+  targetType: 1
+  disposePolicy: 0
+  elementType: 7
+  grade: 0
+  cardType: 1
+  effectSlots:
+  - effectSlotId: a54cb6c1-0c8b-4c85-9290-d45990651f27
+    effect:
+      rid: 3593314457445219427
+  presentationData: {fileID: 11400000, guid: 7ade720a75314fcd9c81525265fde7c3, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3593314457445219427
+      type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        block: 20

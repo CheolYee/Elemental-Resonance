@@ -66,5 +66,15 @@ namespace Battle.Data
         }
 
         public bool RemoveCard(CardDataSO card) => _currentPile.Remove(card);
+
+        public void LoadFromSave(int gold, int currentHp, int maxHp, int floorIndex, List<CardDataSO> cards)
+        {
+            _gold              = gold;
+            _currentHp         = currentHp;
+            _maxHp             = maxHp;
+            _currentFloorIndex = floorIndex;
+            _currentPile.Clear();
+            _currentPile.AddRange(cards);
+        }
     }
 }

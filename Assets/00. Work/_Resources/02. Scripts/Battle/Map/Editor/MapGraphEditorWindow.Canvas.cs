@@ -17,6 +17,7 @@ namespace Battle.Map.Editor
         private static readonly Color NodeColorElite    = new(0.36f, 0.14f, 0.50f);
         private static readonly Color NodeColorRest     = new(0.16f, 0.42f, 0.18f);
         private static readonly Color NodeColorShop     = new(0.14f, 0.28f, 0.52f);
+        private static readonly Color NodeColorBoss     = new(0.65f, 0.08f, 0.08f);
         private static readonly Color BorderSelected    = new(1.00f, 0.85f, 0.00f);
         private static readonly Color BorderError      = new(1.00f, 0.25f, 0.20f);
         private static readonly Color BorderNormal     = new(0.45f, 0.45f, 0.48f);
@@ -207,6 +208,7 @@ namespace Battle.Map.Editor
             MapNodeType.Elite  => NodeColorElite,
             MapNodeType.Rest   => NodeColorRest,
             MapNodeType.Shop   => NodeColorShop,
+            MapNodeType.Boss   => NodeColorBoss,
             _                  => NodeColorStart
         };
 
@@ -217,6 +219,7 @@ namespace Battle.Map.Editor
             MapNodeType.Elite  => "ELITE",
             MapNodeType.Rest   => "REST",
             MapNodeType.Shop   => "SHOP",
+            MapNodeType.Boss   => "BOSS",
             _                  => "???"
         };
 

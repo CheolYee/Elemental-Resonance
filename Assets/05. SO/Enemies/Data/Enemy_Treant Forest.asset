@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c16db73cbaa0f8141994db82e4ba7134, type: 3}
+  m_Name: Enemy_Treant Forest
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.EnemyDataSO
+  enemyId: Enemy_Treant Forest
+  enemyName: "\uC232\uC758 \uC218\uD638\uC790"
+  enemyPrefab: {fileID: 2914709224034715052, guid: 333d576385825b8428312b25ef39416c, type: 3}
+  maxHp: 200
+  hpStatSO: {fileID: 11400000, guid: 817ec46370e71f448b0fd9dfaa094d2a, type: 2}
+  attackCards:
+  - {fileID: 11400000, guid: 9afb4e1f5507e72419028845b46871db, type: 2}
+  - {fileID: 11400000, guid: 8100d8e144b4e114fbef743f674c19b5, type: 2}

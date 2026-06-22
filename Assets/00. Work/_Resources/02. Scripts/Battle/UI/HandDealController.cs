@@ -4,6 +4,7 @@ using Battle.Events;
 using Battle.Instances;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using UnityEngine;
 
 namespace Battle.UI
@@ -11,6 +12,7 @@ namespace Battle.UI
     public class HandDealController : MonoBehaviour
     {
         [SerializeField] private EventChannelSO battleEventChannel;
+        [SerializeField] private EventChannelSO soundChannel;
         [SerializeField] private DeckController deckController;
         [SerializeField] private HandLayoutController handLayoutController;
         [SerializeField] private CardFlyAnimator cardFlyAnimator;
@@ -69,6 +71,7 @@ namespace Battle.UI
             {
                 var view = handLayoutController.AddCard(cardInstance);
                 view.SetInteractable(false);
+                soundChannel?.RaiseEvent(new PlaySoundEvent(SfxSounds.CARD_DROW, Vector3.zero));
                 await UniTask.Delay(TimeSpan.FromSeconds(dealStaggerDelay), cancellationToken: destroyCancellationToken);
             }
 
@@ -121,6 +124,7 @@ namespace Battle.UI
             {
                 var view = handLayoutController.AddCard(cardInstance);
                 view.SetInteractable(false);
+                soundChannel?.RaiseEvent(new PlaySoundEvent(SfxSounds.CARD_DROW, Vector3.zero));
                 await UniTask.Delay(TimeSpan.FromSeconds(dealStaggerDelay), cancellationToken: destroyCancellationToken);
             }
             await UniTask.Delay(TimeSpan.FromSeconds(handLayoutController.TweenDuration), cancellationToken: destroyCancellationToken);

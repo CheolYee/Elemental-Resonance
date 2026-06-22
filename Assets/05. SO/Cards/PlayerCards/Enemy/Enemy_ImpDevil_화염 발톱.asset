@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Enemy_ImpDevil_\uD654\uC5FC \uBC1C\uD1B1"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Enemy_ImpDevil_\uD654\uC5FC \uBC1C\uD1B1"
+  cardName: "\uD654\uC5FC \uBC1C\uD1B1"
+  cost: 0
+  artwork: {fileID: 21300000, guid: 8c5283883268cce4aa0430b6484251d8, type: 3}
+  description: "\uBD88\uAF43 \uBC1C\uD1B1\uC73C\uB85C \uD560\uD034\uC5B4 10\uC758
+    \uD53C\uD574\uB97C \uC785\uD78C\uB2E4."
+  targetType: 2
+  disposePolicy: 0
+  elementType: 1
+  grade: 0
+  cardType: 0
+  effectSlots:
+  - effectSlotId: 812f13ac-ce77-4503-a5bf-c9aa9dc19e9d
+    effect:
+      rid: 3025264444177981146
+  presentationData: {fileID: 11400000, guid: bf3af5f2798b4dcbbaae71d39315b754, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3025264444177981146
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 10

@@ -6,6 +6,7 @@ namespace Battle.Map.Enums
         Battle,
         Elite,
         Rest,
-        Shop
+        Shop,
+        Boss,
     }
 }

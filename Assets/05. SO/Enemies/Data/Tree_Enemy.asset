@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.EnemyDataSO
   enemyId: Enemy_mini_Tree
   enemyName: "\uC791\uC740 \uB098\uBB34"
-  enemyPrefab: {fileID: 1308748609954290718, guid: 8bc70d0752c74d24ab7be75ab9e4f3f3, type: 3}
-  maxHp: 10
+  enemyPrefab: {fileID: 1308748609954290718, guid: 87282c1c3a38f384fb994dd602f7c84a, type: 3}
+  maxHp: 30
   hpStatSO: {fileID: 11400000, guid: 817ec46370e71f448b0fd9dfaa094d2a, type: 2}
   attackCards:
-  - {fileID: 11400000, guid: 8d818724090ca6241a360abc16a53c8c, type: 2}
-  - {fileID: 11400000, guid: 8017d5d9c6ce1774d835b53ede03bf26, type: 2}
+  - {fileID: 11400000, guid: d38d06d2f601b31448d392814a8226bb, type: 2}
+  - {fileID: 11400000, guid: c5fe87861afb77c4b81057bb0bcbf1e7, type: 2}

@@ -17,6 +17,7 @@ namespace Battle.UI
         [SerializeField] private PlayerRunStateSO      _playerRunState;
         [SerializeField] private RewardConfigSO        _rewardConfig;
         [SerializeField] private RewardCardPoolService _cardPoolService;
+        [SerializeField] private StageBootstrapper     _stageBootstrapper;
 
         [SerializeField] private CardFlyAnimator  _cardFlyAnimator;
         [SerializeField] private DeckController   _deckController;
@@ -38,7 +39,8 @@ namespace Battle.UI
         [SerializeField] private Ease  _showEase     = Ease.OutBack;
 
         private readonly List<GameObject> _spawnedButtons = new();
-        private int _pendingClaimsCount;
+        private int  _pendingClaimsCount;
+        private bool _isCardPanelOpen;
 
         private void Awake()
         {
@@ -67,10 +69,13 @@ namespace Battle.UI
             foreach (var go in _spawnedButtons) Destroy(go);
             _spawnedButtons.Clear();
 
-            int  gold  = _rewardConfig.CalculateGold(_playerRunState.CurrentFloorIndex);
-            var  cards = _cardPoolService.DrawCards(3, _playerRunState.CurrentFloorIndex);
+            var profile = _stageBootstrapper?.CurrentRewardProfile ?? RewardProfile.Normal;
+            int gold    = _rewardConfig.CalculateGold(_playerRunState.CurrentFloorIndex, _stageBootstrapper?.CurrentStageGoldBonus ?? 0, profile);
+            var cards   = _cardPoolService.DrawCards(3, _playerRunState.CurrentFloorIndex);
 
-            _pendingClaimsCount = _rewardOrder.Count;
+            bool isElite = profile == RewardProfile.Elite;
+            _pendingClaimsCount = _rewardOrder.Count + (isElite ? 1 : 0);
+            _isCardPanelOpen    = false;
 
             if (_closeButton != null)
             {
@@ -87,6 +92,9 @@ namespace Battle.UI
                     case RewardType.Card: SpawnCardButton(cards); break;
                 }
             }
+
+            if (isElite)
+                SpawnCardButton(_cardPoolService.DrawCards(3, _playerRunState.CurrentFloorIndex));
 
             if (_backgroundCanvasGroup != null)
             {
@@ -137,25 +145,32 @@ namespace Battle.UI
             var btn = go.GetComponent<RewardItemButtonView>();
             if (btn == null) return;
             btn.Setup("카드 선택", _cardIcon);
-            btn.OnClaimed = () =>
-            {
-                if (_cardRewardPanel != null)
-                {
-                    _cardRewardPanel.OnCardSelected = (card, screenPos) =>
-                    {
-                        _playerRunState.AddCard(card);
-                        _deckController?.AddRewardCard(card);
-                        _cardFlyAnimator?.FlyToCurrentDeck(screenPos);
-                        OnRewardClaimed();
-                    };
-                    _cardRewardPanel.Show(cards);
-                }
-                else
-                {
-                    OnRewardClaimed();
-                }
-            };
+            btn.OnClaimed = () => OpenCardPanelAsync(cards).Forget();
             _spawnedButtons.Add(go);
+        }
+
+        private async UniTaskVoid OpenCardPanelAsync(List<CardDataSO> cards)
+        {
+            var ct = destroyCancellationToken;
+            await UniTask.WaitUntil(() => !_isCardPanelOpen, cancellationToken: ct);
+
+            if (_cardRewardPanel != null)
+            {
+                _isCardPanelOpen = true;
+                _cardRewardPanel.OnCardSelected = (card, screenPos) =>
+                {
+                    _isCardPanelOpen = false;
+                    _playerRunState.AddCard(card);
+                    _deckController?.AddRewardCard(card);
+                    _cardFlyAnimator?.FlyToCurrentDeck(screenPos);
+                    OnRewardClaimed();
+                };
+                _cardRewardPanel.Show(cards);
+            }
+            else
+            {
+                OnRewardClaimed();
+            }
         }
 
         private void OnRewardClaimed()

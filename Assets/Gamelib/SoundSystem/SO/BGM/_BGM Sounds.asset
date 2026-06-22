@@ -14,13 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SoundSystem::Gamelib.SoundSystem.SoundListSo
   enumName: BgmSounds
   sounds:
-  - {fileID: 11400000, guid: 054636b6c642c784caa7583bbf84d513, type: 2}
-  - {fileID: 11400000, guid: 9f402302ad2ec404cbcd9ad093f7a40e, type: 2}
-  - {fileID: 11400000, guid: aa1a71ca9b3b72c4198522de358f9f3e, type: 2}
-  - {fileID: 11400000, guid: d9f5b8ec48d9bcd4ab6bdbd3227d884a, type: 2}
-  - {fileID: 11400000, guid: 7e28c66f5634a9c4cb5d344f840501d5, type: 2}
-  - {fileID: 11400000, guid: e1ec00c7586255d4193a700b9225f7cf, type: 2}
-  - {fileID: 11400000, guid: 4d40812ba63b51246b6944b55fea35e9, type: 2}
-  - {fileID: 11400000, guid: ce46419689d142d4bbf3171f250fc06f, type: 2}
-  - {fileID: 11400000, guid: f407cb08bb5f8a248bd48f7cb1bdde1c, type: 2}
-  - {fileID: 11400000, guid: 7794c818016e9ff46bab44cecba6c071, type: 2}
+  - {fileID: 11400000, guid: 5f127b6912634404795c01b89af6e6a4, type: 2}
+  - {fileID: 11400000, guid: cbd5bc4ac1302df48a1606ef71e41320, type: 2}
+  - {fileID: 11400000, guid: 8d64368aa8742ce4cb42fefb81387997, type: 2}
+  - {fileID: 11400000, guid: 6f7a466b72fdd1d4daead07a86c562d2, type: 2}

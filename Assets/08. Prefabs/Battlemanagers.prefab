@@ -152,6 +152,54 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Battle.Services.RewardCardPoolService
   _database: {fileID: 11400000, guid: 6174599cd5099a74fadecc28972fc5b5, type: 2}
   _rewardConfig: {fileID: 11400000, guid: efefde71b9688964a98312e0d1a77f4a, type: 2}
+--- !u!1 &2414924265619083182
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7762375335502561655}
+  - component: {fileID: 1736841378847286170}
+  m_Layer: 0
+  m_Name: SaveController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7762375335502561655
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2414924265619083182}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6965182571171736944}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1736841378847286170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2414924265619083182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 559169d436243f64885a1ef6bf862b26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.SaveController
+  _playerRunState: {fileID: 11400000, guid: 9f5667ffd8dfe0c42b02bbab5cfd86bc, type: 2}
+  _mapFlowController: {fileID: 0}
+  _cardDatabase: {fileID: 11400000, guid: 6174599cd5099a74fadecc28972fc5b5, type: 2}
+  _titleSceneName: Title
 --- !u!1 &2573287165311898920
 GameObject:
   m_ObjectHideFlags: 0
@@ -497,6 +545,7 @@ Transform:
   - {fileID: 4407082483234117223}
   - {fileID: 4596000458540135403}
   - {fileID: 6687732103079193656}
+  - {fileID: 7762375335502561655}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4844010390962326273

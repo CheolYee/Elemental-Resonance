@@ -1,0 +1,38 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21174a4d724b9354d829273a8fd79285, type: 3}
+  m_Name: "Enemy_TreantForest_\uB300\uC9C0 \uAC15\uD0C0"
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.CardDataSO
+  cardId: "Enemy_TreantForest_\uB300\uC9C0 \uAC15\uD0C0"
+  cardName: "\uB300\uC9C0 \uAC15\uD0C0"
+  cost: 0
+  artwork: {fileID: 21300000, guid: d664683c84ff6944e86ed7eac0c62ce6, type: 3}
+  description: "\uB300\uC9C0\uC758 \uD798\uC744 \uB2F4\uC544 22\uC758 \uD53C\uD574\uB97C
+    \uC785\uD78C\uB2E4."
+  targetType: 2
+  disposePolicy: 0
+  elementType: 3
+  grade: 0
+  cardType: 0
+  effectSlots:
+  - effectSlotId: eb98ee09-067e-4162-9b2c-8453b5d3093a
+    effect:
+      rid: 3435692310489381042
+  presentationData: {fileID: 11400000, guid: ddeb61cc03e9432a9e48ae8c7f291452, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3435692310489381042
+      type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        damage: 22
