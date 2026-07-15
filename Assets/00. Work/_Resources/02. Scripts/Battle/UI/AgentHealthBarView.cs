@@ -58,6 +58,7 @@ namespace Battle.UI
 
             if (_redHandle.IsActive()) _redHandle.Cancel();
             _redHandle = LMotion.Create(redSlider.value, (float)currentHp, redDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(v =>
                 {
                     redSlider.value = v;
@@ -67,6 +68,7 @@ namespace Battle.UI
             if (_grayHandle.IsActive()) _grayHandle.Cancel();
             _grayHandle = LMotion.Create(graySlider.value, (float)currentHp, grayDuration)
                 .WithDelay(grayDelay)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(v => graySlider.value = v);
         }
 

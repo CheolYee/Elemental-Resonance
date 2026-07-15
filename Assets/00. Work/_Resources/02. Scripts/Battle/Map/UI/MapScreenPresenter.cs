@@ -127,6 +127,8 @@ namespace Battle.Map.UI
             bool interactable = _overlayState == MapOverlayState.SelectionPending
                                 && visualState == MapNodeVisualState.Selectable;
             view.Setup(node.nodeId, GetSprite(node.nodeType), GetNodeColor(node.nodeType), visualState, interactable);
+            if (view.TryGetComponent<Battle.Tutorial.TutorialTarget>(out var tutTarget))
+                tutTarget.targetId = node.nodeType.ToString();
             view.OnClicked += id => OnNodeClicked?.Invoke(id);
             _nodeViews.Add(view);
             _nodeViewDict[node.nodeId] = view;

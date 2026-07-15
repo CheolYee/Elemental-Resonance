@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Gamelib.EventSystem;
 using Gamelib.ObjectPool.Runtime;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace Gamelib.SoundSystem
 {
@@ -14,6 +15,9 @@ namespace Gamelib.SoundSystem
         [SerializeField] private PoolItemSo soundItem;
 
         [field: SerializeField] public EventChannelSO SoundChannel { get; private set; }
+
+        [Header("Volume Init")]
+        [SerializeField] private AudioMixer _audioMixer;
 
         private readonly Dictionary<SoundChannelId, SoundPlayer> _channelPlayers = new();
         private readonly Dictionary<SoundChannelId, HashSet<SoundPlayer>> _groupPlayers = new();
@@ -36,6 +40,11 @@ namespace Gamelib.SoundSystem
             SoundChannel.AddListener<ResumeSoundEvent>(HandleResumeSoundEvent);
         }
 
+        private void Start()
+        {
+            ApplyVolumeFromPrefs();
+        }
+
         private void OnDestroy()
         {
             SoundChannel.RemoveListener<PlaySoundEvent>(HandlePlaySoundEvent);
@@ -44,6 +53,20 @@ namespace Gamelib.SoundSystem
             SoundChannel.RemoveListener<StopManagedSoundEvent>(HandleStopManagedSoundEvent);
             SoundChannel.RemoveListener<PauseSoundEvent>(HandlePauseSoundEvent);
             SoundChannel.RemoveListener<ResumeSoundEvent>(HandleResumeSoundEvent);
+        }
+
+        private void ApplyVolumeFromPrefs()
+        {
+            if (_audioMixer == null) return;
+            SetMixerVolume("MasterVolume", PlayerPrefs.GetFloat("Setting_MasterVolume", 1f));
+            SetMixerVolume("BGMVolume",    PlayerPrefs.GetFloat("Setting_BgmVolume",    1f));
+            SetMixerVolume("SFXVolume",    PlayerPrefs.GetFloat("Setting_SfxVolume",    1f));
+        }
+
+        private void SetMixerVolume(string parameter, float linear)
+        {
+            float db = linear > 0.0001f ? Mathf.Log10(linear) * 20f : -80f;
+            _audioMixer.SetFloat(parameter, db);
         }
 
         private void HandlePlaySoundEvent(PlaySoundEvent evt)
@@ -213,8 +236,8 @@ namespace Gamelib.SoundSystem
         private SoundPlayer CreatePlayer(Vector3 position)
         {
             SoundPlayer player = poolManager.Pop<SoundPlayer>(soundItem);
+            player.transform.SetParent(transform);
             player.transform.position = position;
-            DontDestroyOnLoad(player.gameObject);
             player.OnSoundFinished -= HandleSoundFinish;
             player.OnSoundFinished += HandleSoundFinish;
             return player;

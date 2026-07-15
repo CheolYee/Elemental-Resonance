@@ -7,6 +7,7 @@ namespace Battle.Map.Runtime
     [Serializable]
     public class RunMapState
     {
+        public int    seed;
         public string graphId;
         public string currentNodeId;
         public string pendingNodeId;

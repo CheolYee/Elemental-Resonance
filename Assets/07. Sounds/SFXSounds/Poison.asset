@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52e7f627fdca4338950d31708d2c06ad, type: 3}
+  m_Name: Poison
+  m_EditorClassIdentifier: SoundSystem::Gamelib.SoundSystem.SoundClipSo
+  soundIndex: 69
+  soundName: Poison
+  note: "\uB3C5 \uD6A8\uACFC\uC74C1"
+  audioType: 0
+  clip: {fileID: 8300000, guid: c5151648575678645be31cc2f7c6915a, type: 3}
+  loop: 0
+  randomizePitch: 0
+  randomPitchModifier: 0.1
+  volume: 1
+  pitch: 1

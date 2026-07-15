@@ -27,8 +27,10 @@ namespace Battle.UI
 
         private SkillModule _playerSkillModule;
         private readonly Queue<CardDroppedOnTargetEvent> _queue = new();
+        private readonly List<Agent> _allTargetsBuffer = new();
         private bool _isRunning;
         private bool _battleEnded;
+        private bool _isWaveClearing;
 
         private void Start()
         {
@@ -39,6 +41,8 @@ namespace Battle.UI
         {
             battleEventChannel.AddListener<BattleSessionStartEvent>(OnSessionStart);
             battleEventChannel.AddListener<CardDroppedOnTargetEvent>(OnCardDropped);
+            battleEventChannel.AddListener<WaveClearEvent>(OnWaveClear);
+            battleEventChannel.AddListener<PlayerTurnStartEvent>(OnPlayerTurnStart);
             battleEventChannel.AddListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.AddListener<BattleDefeatEvent>(OnBattleEnded);
         }
@@ -47,21 +51,40 @@ namespace Battle.UI
         {
             battleEventChannel.RemoveListener<BattleSessionStartEvent>(OnSessionStart);
             battleEventChannel.RemoveListener<CardDroppedOnTargetEvent>(OnCardDropped);
+            battleEventChannel.RemoveListener<WaveClearEvent>(OnWaveClear);
+            battleEventChannel.RemoveListener<PlayerTurnStartEvent>(OnPlayerTurnStart);
             battleEventChannel.RemoveListener<BattleVictoryEvent>(OnBattleEnded);
             battleEventChannel.RemoveListener<BattleDefeatEvent>(OnBattleEnded);
         }
 
-        private void OnSessionStart(BattleSessionStartEvent _) { _battleEnded = false; _queue.Clear(); _isRunning = false; }
+        private void OnSessionStart(BattleSessionStartEvent _)
+        {
+            _battleEnded = false; _isWaveClearing = false; _queue.Clear(); _isRunning = false;
+        }
+
         private void OnBattleEnded(BattleVictoryEvent _) { _battleEnded = true; _queue.Clear(); }
-        private void OnBattleEnded(BattleDefeatEvent _) { _battleEnded = true; _queue.Clear(); }
+        private void OnBattleEnded(BattleDefeatEvent _)  { _battleEnded = true; _queue.Clear(); }
+
+        private void OnPlayerTurnStart(PlayerTurnStartEvent _) => _isWaveClearing = false;
+
+        private void OnWaveClear(WaveClearEvent _)
+        {
+            _isWaveClearing = true;
+            // 큐에 대기 중인 카드를 모두 사용 처리(버림/소멸 정책에 따라)하고 비운다
+            while (_queue.Count > 0)
+                deckController.UseCard(_queue.Dequeue().CardInstance);
+        }
 
         private void OnCardDropped(CardDroppedOnTargetEvent evt)
         {
             if (_battleEnded) return;
 
+            //코스트는 드롭 즉시 차감해야 연속 사용 조건이 제대로 걸린다
             costModel.currentCost -= evt.CardInstance.data.cost;
             costModel.currentCost += ResolveCostGain(evt.CardInstance);
             battleEventChannel.RaiseEvent(new CostChangedEvent(costModel.currentCost));
+
+            //이미 실행 중이면 큐에만 넣고 아닐 때만 루프를 새로 시작한다
             _queue.Enqueue(evt);
             RaiseQueueChanged(currentCard: null);
 
@@ -97,7 +120,8 @@ namespace Battle.UI
             _isRunning = true;
             battleEventChannel.RaiseEvent(new SkillQueueStartedEvent());
 
-            while (_queue.Count > 0 && !_battleEnded)
+            //큐가 다 빌 때까지 순서대로 처리하고 전투가 끝나면 바로 멈춘다
+            while (_queue.Count > 0 && !_battleEnded && !_isWaveClearing)
             {
                 var evt      = _queue.Dequeue();
                 var card     = evt.CardInstance;
@@ -108,9 +132,10 @@ namespace Battle.UI
 
                 if (card.data.targetType == CardTargetType.AllEnemies && enemyRegistry != null)
                 {
-                    allTargets = new List<Agent>();
+                    _allTargetsBuffer.Clear();
                     foreach (var enemy in enemyRegistry.Enemies)
-                        if (enemy != null) allTargets.Add(enemy);
+                        if (enemy != null) _allTargetsBuffer.Add(enemy);
+                    allTargets = _allTargetsBuffer;
                 }
                 else if (card.data.targetType == CardTargetType.RandomEnemy && enemyRegistry != null)
                 {
@@ -129,10 +154,12 @@ namespace Battle.UI
                 battleEventChannel.RaiseEvent(new SkillExecutionStartEvent());
                 var data = SkillUsageData.FromCard(card);
                 var fizzleToken = new SkillFizzleToken();
+                //연출이 끝날 때까지 await으로 기다려야 다음 카드와 겹치지 않는다
                 await _playerSkillModule.UseSkillAsync(data, targetGo, destroyCancellationToken, allTargets, randomTargetResolver, fizzleToken);
 
                 if (fizzleToken.IsFizzled)
                 {
+                    //실패했으면 코스트를 돌려주고 카드는 버림 더미로 보낸다
                     costModel.currentCost += card.data.cost;
                     battleEventChannel.RaiseEvent(new CostChangedEvent(costModel.currentCost));
                     deckController.ForceDiscard(card);

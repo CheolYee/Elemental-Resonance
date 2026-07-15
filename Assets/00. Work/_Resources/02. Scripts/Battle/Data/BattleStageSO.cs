@@ -13,6 +13,5 @@ namespace Battle.Data
         [Tooltip("엘리트: 45, 보스: 90, 일반: 0")]
         public int goldBonus;
         public RewardProfile rewardProfile;
-        public string clearRewardPlaceholder;
     }
 }

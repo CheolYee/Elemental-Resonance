@@ -1,5 +1,7 @@
 using System;
 using Battle.Map.Enums;
+using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,6 +16,11 @@ namespace Battle.Map.UI
         [SerializeField] private Image _currentRingImage; // Visited/Current 정적 링
 
         [SerializeField] private Button _button;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO _soundChannel;
+        [SerializeField] private SfxSounds      _hoverSound;
+        [SerializeField] private SfxSounds      _transitionSound;
 
         [Header("Hover")]
         [SerializeField] private float _hoverScale    = 1.18f;
@@ -98,12 +105,15 @@ namespace Battle.Map.UI
 
                 case MapNodeVisualState.TransitionSelected:
                     _iconImage.color = WithAlpha(_baseColor, 1f);
+                    _soundChannel?.RaiseEvent(new PlaySoundEvent(_transitionSound, Vector3.zero));
                     _pulseRingImage.gameObject.SetActive(true);
                     _ringFillHandle = LMotion.Create(0f, 1f, _ringDuration)
                         .WithEase(Ease.OutCubic)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(v => _pulseRingImage.fillAmount = v);
                     _ringScaleHandle = LMotion.Create(1f, _ringMaxScale, _ringDuration)
                         .WithEase(Ease.OutCubic)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(s => _pulseRingImage.transform.localScale = new Vector3(s, s, 1f));
                     break;
             }
@@ -112,12 +122,15 @@ namespace Battle.Map.UI
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (_currentVisualState != MapNodeVisualState.Selectable) return;
+            _soundChannel?.RaiseEvent(new PlaySoundEvent(_hoverSound, Vector3.zero));
             if (_hoverScaleHandle.IsActive()) _hoverScaleHandle.Cancel();
             if (_hoverAlphaHandle.IsActive()) _hoverAlphaHandle.Cancel();
             _hoverScaleHandle = LMotion.Create(transform.localScale.x, _hoverScale, _hoverDuration)
                 .WithEase(Ease.OutCubic)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => transform.localScale = new Vector3(s, s, 1f));
             _hoverAlphaHandle = LMotion.Create(_iconImage.color.a, 1f, _hoverDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => _iconImage.color = WithAlpha(_baseColor, a));
         }
 
@@ -128,8 +141,10 @@ namespace Battle.Map.UI
             if (_hoverAlphaHandle.IsActive()) _hoverAlphaHandle.Cancel();
             _hoverScaleHandle = LMotion.Create(transform.localScale.x, 1f, _hoverDuration)
                 .WithEase(Ease.OutCubic)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => transform.localScale = new Vector3(s, s, 1f));
             _hoverAlphaHandle = LMotion.Create(_iconImage.color.a, 0.6f, _hoverDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => _iconImage.color = WithAlpha(_baseColor, a));
         }
 

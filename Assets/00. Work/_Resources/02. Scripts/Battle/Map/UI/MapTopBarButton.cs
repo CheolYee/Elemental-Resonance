@@ -1,6 +1,7 @@
 using Battle.Events;
 using Battle.Map.Enums;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +13,11 @@ namespace Battle.Map.UI
         [SerializeField] private MapOverlayController _mapOverlayController;
         [SerializeField] private EventChannelSO       _battleEventChannel;
         [SerializeField] private Button _button;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO _soundChannel;
+        [SerializeField] private SfxSounds      _mapOpenSound;
+        [SerializeField] private SfxSounds      _mapCloseSound;
 
         private bool _isPileOpen;
         private bool _isSessionStarting;
@@ -41,9 +47,15 @@ namespace Battle.Map.UI
         {
             var state = _mapOverlayController.State;
             if (state == MapOverlayState.Hidden)
+            {
+                _soundChannel?.RaiseEvent(new PlaySoundEvent(_mapOpenSound, Vector3.zero));
                 _mapFlowController.OpenInspect();
+            }
             else if (state == MapOverlayState.InspectOnly)
+            {
+                _soundChannel?.RaiseEvent(new PlaySoundEvent(_mapCloseSound, Vector3.zero));
                 _mapOverlayController.TryClose();
+            }
         }
 
         private void OnMapStateChanged(MapOverlayState _) => Refresh();

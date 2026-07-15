@@ -920,6 +920,9 @@ MonoBehaviour:
   spreadDuration: 0.15
   pulseDuration: 0.45
   brightAmount: 0.15
+  soundChannel: {fileID: 11400000, guid: 003782f36feea424397b144ea235cde9, type: 2}
+  hoverSound: 72
+  clickSound: 39
   claimDuration: 0.25
 --- !u!1 &9214640308294129545
 GameObject:

@@ -62,6 +62,23 @@ namespace Battle.UI
             _                => string.Empty,
         };
 
+        public static string GetElementName(ElementType type) => type switch
+        {
+            ElementType.Fire      => "화염",
+            ElementType.Lightning => "번개",
+            ElementType.Nature    => "자연",
+            ElementType.Light     => "빛",
+            ElementType.Ice       => "얼음",
+            ElementType.Dark      => "어둠",
+            ElementType.Arcane    => "비전",
+            ElementType.Steam     => "증기",
+            ElementType.Storm     => "폭풍",
+            ElementType.Twilight  => "황혼",
+            ElementType.Poison    => "독",
+            ElementType.Holy      => "신성",
+            _                     => "무속성",
+        };
+
         public static void Apply(Image frameImage, Image labelImage, CardDataSO data)
         {
             if (frameImage != null && ElementColors.TryGetValue(data.elementType, out var elemColor))
@@ -86,6 +103,23 @@ namespace Battle.UI
                 typeEffect.underlayColor = color;
                 typeEffect.SetupEffect();
             }
+        }
+
+        public static void ApplyElementTextEffect(TMPEffect effect, ElementType element)
+        {
+            if (effect == null) return;
+            var color = GetElementColor(element);
+            effect.outlineColor  = color;
+            effect.underlayColor = color;
+            effect.SetupEffect();
+        }
+
+        public static void ApplyCostImage(Image costImage, ElementIconTableSO table, ElementType element)
+        {
+            if (costImage == null || table == null) return;
+            var icon = table.GetIcon(element);
+            costImage.sprite  = icon;
+            costImage.enabled = icon != null;
         }
 
         public static void Reset(Image frameImage, Image labelImage)

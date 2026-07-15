@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using _00._Work._Resources._02._Scripts.Systems.AnimationSystems;
 using Battle.Effects;
 using Battle.Enums;
+using Gamelib.SoundSystem;
+using Gamelib.SoundSystem.Editor;
 using LitMotion;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using PopupWindow = UnityEditor.PopupWindow;
 
 namespace Battle.Presentation.Editor
 {
@@ -316,11 +319,31 @@ namespace Battle.Presentation.Editor
                     break;
 
                 case SkillKeyframeProperty.SfxId:
-                    if (Enum.GetValues(typeof(Gamelib.SoundSystem.SfxSounds)).Length == 0)
+                    if (Enum.GetValues(typeof(SfxSounds)).Length == 0)
                         content.Add(MakeInspectorInfoLabel("효과음이 존재하지 않습니다"));
                     else
-                        content.Add(CreateEnumField("Sfx Sound", _selectedKeyframe.sfxSound,
-                            v => _selectedKeyframe.sfxSound = v));
+                    {
+                        content.Add(CreateSfxSoundField(_selectedKeyframe));
+
+                        var previewRow = new VisualElement { style = { flexDirection = FlexDirection.Row, marginTop = 4 } };
+
+                        var playBtn = new Button(() =>
+                        {
+                            var clip = FindSfxClip(_selectedKeyframe.sfxSound);
+                            if (clip != null)
+                                PlayEditorClip(clip);
+                            else
+                                Debug.LogWarning($"[SFX Preview] '{_selectedKeyframe.sfxSound}' 클립을 찾을 수 없습니다.");
+                        }) { text = "▶ Preview" };
+                        playBtn.style.flexGrow = 1;
+                        previewRow.Add(playBtn);
+
+                        var stopBtn = new Button(StopEditorClip) { text = "■ Stop" };
+                        stopBtn.style.flexGrow = 1;
+                        previewRow.Add(stopBtn);
+
+                        content.Add(previewRow);
+                    }
                     break;
 
                 case SkillKeyframeProperty.VfxActive:
@@ -881,5 +904,54 @@ namespace Battle.Presentation.Editor
         };
 
         private static void StyleInspectorField(VisualElement field) => field.style.marginBottom = 8;
+
+        // ── SFX Dropdown ──────────────────────────────────────────────────────
+
+        private VisualElement CreateSfxSoundField(SkillKeyframeData keyframe)
+        {
+            var allValues    = (SfxSounds[])Enum.GetValues(typeof(SfxSounds));
+            var sfxList      = SoundEditorUtils.FindSoundList<SfxSounds>();
+            var displayNames = SoundEditorUtils.BuildDisplayNames(allValues, sfxList);
+            var intValues    = Array.ConvertAll(allValues, v => (int)v);
+
+            int currentIndex = Array.IndexOf(allValues, keyframe.sfxSound);
+            if (currentIndex < 0) currentIndex = 0;
+
+            var container = new VisualElement
+            {
+                style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, marginBottom = 8 }
+            };
+
+            var label = new Label("Sfx Sound") { style = { minWidth = 120, flexShrink = 0 } };
+            container.Add(label);
+
+            var button = new Button
+            {
+                text  = displayNames[currentIndex],
+                style = { flexGrow = 1, unityTextAlign = TextAnchor.MiddleLeft, paddingLeft = 4 }
+            };
+
+            button.clicked += () =>
+            {
+                var popup = new EnumPickerPopup(displayNames, intValues, selected =>
+                {
+                    var sfx = (SfxSounds)selected;
+                    ApplyKeyframeChange(() => keyframe.sfxSound = sfx);
+                    int newIdx = Array.IndexOf(allValues, sfx);
+                    button.text = newIdx >= 0 ? displayNames[newIdx] : sfx.ToString();
+                });
+                PopupWindow.Show(button.worldBound, popup);
+            };
+
+            container.Add(button);
+            return container;
+        }
+
+        // ── SFX Preview ───────────────────────────────────────────────────────
+
+        private static void PlayEditorClip(AudioClip clip) => SoundEditorUtils.PlayEditorClip(clip);
+        private static void StopEditorClip()               => SoundEditorUtils.StopEditorClip();
+
+        private static AudioClip FindSfxClip(SfxSounds sfx) => SoundEditorUtils.FindSfxClip(sfx);
     }
 }

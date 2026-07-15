@@ -58,6 +58,8 @@ namespace Battle.UI
             if (hasSecondary)
                 secondaryText.text = request.SecondaryText;
 
+            request.OnShow?.Invoke();
+
             // 배경은 독립 실행 — 자체 시퀀스에 Show+Hold+Hide 포함, 텍스트와 동시 시작
             if (!string.IsNullOrEmpty(request.BackgroundSequence))
                 backgroundPlayer.Play(request.BackgroundSequence, externalCt: ct);

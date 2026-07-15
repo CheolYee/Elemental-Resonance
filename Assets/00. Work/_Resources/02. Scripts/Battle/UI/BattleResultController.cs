@@ -22,6 +22,7 @@ namespace Battle.UI
 
         private void OnEnable()
         {
+            //이벤트 채널로 구독하여 발행자를 모르고도 구독할 수 있어 의존이 분리된다
             battleEventChannel.AddListener<BattleSessionStartEvent>(OnSessionStart);
             battleEventChannel.AddListener<SkillExecutionStartEvent>(OnSkillStart);
             battleEventChannel.AddListener<SkillExecutionEndEvent>(OnSkillEnd);
@@ -32,6 +33,7 @@ namespace Battle.UI
 
         private void OnDisable()
         {
+            //씬 전환이나 오브젝트가 꺼질 때 해제하지 않으면 이벤트가 죽은 객체를 참조하게 된다
             battleEventChannel.RemoveListener<BattleSessionStartEvent>(OnSessionStart);
             battleEventChannel.RemoveListener<SkillExecutionStartEvent>(OnSkillStart);
             battleEventChannel.RemoveListener<SkillExecutionEndEvent>(OnSkillEnd);
@@ -62,6 +64,7 @@ namespace Battle.UI
         private void OnSkillEnd(SkillExecutionEndEvent _)
         {
             _isExecuting = false;
+            //보류해뒀던 클리어가 있으면 연출이 끝난 이 시점에 처리한다
             if (_pendingWaveClear) ResolveWaveClear();
         }
 
@@ -87,6 +90,7 @@ namespace Battle.UI
             _livingEnemyCount--;
             if (_livingEnemyCount > 0 || _battleEnded) return;
 
+            //스킬 연출 중에 클리어를 처리하면 UI가 겹쳐서 보류했다가 연출이 끝나면 처리한다
             if (_isExecuting) _pendingWaveClear = true;
             else ResolveWaveClear();
         }
@@ -94,6 +98,7 @@ namespace Battle.UI
         private void ResolveWaveClear()
         {
             _pendingWaveClear = false;
+            //WaveClearEvent만 발행하고 다음 웨이브인지 클리어인지는 StageBootstrapper가 판단한다
             battleEventChannel.RaiseEvent(new WaveClearEvent());
         }
     }

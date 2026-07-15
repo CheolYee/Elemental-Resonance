@@ -35,21 +35,27 @@ namespace Battle.Presentation
                  vfxObject.spawnTarget == SkillVfxSpawnTarget.BetweenCasterAndTarget))
             {
                 var resolvedTarget = context.GetPreResolvedHitTarget(vfxObject.hitIndex);
-                if (resolvedTarget != null)
-                {
-                    Vector3 pos = vfxObject.spawnTarget == SkillVfxSpawnTarget.BetweenCasterAndTarget
-                        ? Vector3.Lerp(context.Caster?.transform.position ?? Vector3.zero, resolvedTarget.transform.position, 0.5f)
-                        : resolvedTarget.transform.position;
-                    PlayVfxAsync(vfxObject, pos + vfxObject.spawnPositionOffset, token).Forget();
-                    return;
-                }
+                // 타겟이 도중에 Destroy됐으면 스냅샷 위치 사용
+                Vector3 targetPos = resolvedTarget != null
+                    ? resolvedTarget.transform.position
+                    : context.GetPreResolvedHitPosition(vfxObject.hitIndex);
+                Vector3 pos = vfxObject.spawnTarget == SkillVfxSpawnTarget.BetweenCasterAndTarget
+                    ? Vector3.Lerp(context.Caster?.transform.position ?? Vector3.zero, targetPos, 0.5f)
+                    : targetPos;
+                PlayVfxAsync(vfxObject, pos + vfxObject.spawnPositionOffset, token).Forget();
+                return;
             }
 
             if (vfxObject.spawnTarget == SkillVfxSpawnTarget.Target && context.Targets.Count > 0)
             {
+                bool spawned = false;
                 foreach (var target in context.Targets)
+                {
+                    if (target == null) continue;
                     PlayVfxAsync(vfxObject, target.transform.position + vfxObject.spawnPositionOffset, token).Forget();
-                return;
+                    spawned = true;
+                }
+                if (spawned) return;
             }
 
             Vector3 spawnPos = ResolveSpawnPosition(vfxObject, context) + vfxObject.spawnPositionOffset;
@@ -69,26 +75,28 @@ namespace Battle.Presentation
             container.transform.rotation   = Quaternion.Euler(vfxObject.spawnRotationEuler);
             container.transform.localScale = Vector3.one;
 
-            var activeKeys = FilterAndSort(vfxObject.keyframes, SkillKeyframeProperty.VfxActive);
+            var activeKeys = vfxObject.GetActiveKeys();
             bool useActiveKeyframes = activeKeys.Count > 0;
 
             try
             {
                 if (useActiveKeyframes)
                 {
-                    var tasks = new List<UniTask>
-                    {
-                        AnimateActiveAsync(container, vfxObject, activeKeys, vfxObject.spawnTime, token)
-                    };
-                    if (vfxObject.keyframes != null && vfxObject.keyframes.Count > 0)
-                        tasks.Add(AnimateTransformAsync(container.transform, vfxObject.keyframes, vfxObject.spawnTime, token));
-                    await UniTask.WhenAll(tasks);
+                    bool hasTransformKeys = vfxObject.GetPosKeys().Count > 0
+                                        || vfxObject.GetRotKeys().Count > 0
+                                        || vfxObject.GetScaleKeys().Count > 0;
+                    await UniTask.WhenAll(
+                        AnimateActiveAsync(container, vfxObject, activeKeys, vfxObject.spawnTime, token),
+                        hasTransformKeys ? AnimateTransformAsync(container.transform, vfxObject, token) : UniTask.CompletedTask);
                 }
                 else
                 {
                     container.Play(vfxObject.vfxDefinition.key, vfxObject.simulationSpeed, vfxObject.startLifetimeMultiplier);
-                    if (vfxObject.keyframes != null && vfxObject.keyframes.Count > 0)
-                        AnimateTransformAsync(container.transform, vfxObject.keyframes, vfxObject.spawnTime, token).Forget();
+                    bool hasTransformKeys = vfxObject.GetPosKeys().Count > 0
+                                        || vfxObject.GetRotKeys().Count > 0
+                                        || vfxObject.GetScaleKeys().Count > 0;
+                    if (hasTransformKeys)
+                        AnimateTransformAsync(container.transform, vfxObject, token).Forget();
 
                     float waitTime = vfxObject.lifeTime > 0f
                         ? vfxObject.lifeTime
@@ -137,22 +145,14 @@ namespace Battle.Presentation
             catch (OperationCanceledException) { }
         }
 
-        private async UniTask AnimateTransformAsync(
-            Transform t,
-            List<SkillKeyframeData> keyframes,
-            float spawnTime,
-            CancellationToken token)
+        private async UniTask AnimateTransformAsync(Transform t, SkillVfxObjectData vfxObject, CancellationToken token)
         {
-            var posKeys   = FilterAndSort(keyframes, SkillKeyframeProperty.VfxPosition);
-            var rotKeys   = FilterAndSort(keyframes, SkillKeyframeProperty.VfxRotation);
-            var scaleKeys = FilterAndSort(keyframes, SkillKeyframeProperty.VfxScale);
-
             try
             {
                 await UniTask.WhenAll(
-                    AnimatePositionAsync(t, posKeys, spawnTime, token),
-                    AnimateRotationAsync(t, rotKeys, spawnTime, token),
-                    AnimateScaleAsync(t, scaleKeys, spawnTime, token));
+                    AnimatePositionAsync(t, vfxObject.GetPosKeys(), vfxObject.spawnTime, token),
+                    AnimateRotationAsync(t, vfxObject.GetRotKeys(), vfxObject.spawnTime, token),
+                    AnimateScaleAsync(t, vfxObject.GetScaleKeys(), vfxObject.spawnTime, token));
             }
             catch (OperationCanceledException) { }
         }
@@ -263,15 +263,6 @@ namespace Battle.Presentation
                 }
             }
             catch (OperationCanceledException) { }
-        }
-
-        private static List<SkillKeyframeData> FilterAndSort(List<SkillKeyframeData> keys, SkillKeyframeProperty property)
-        {
-            var result = new List<SkillKeyframeData>();
-            foreach (var k in keys)
-                if (k != null && k.property == property) result.Add(k);
-            result.Sort((a, b) => a.timeSeconds.CompareTo(b.timeSeconds));
-            return result;
         }
 
         private Vector3 ResolveSpawnPosition(SkillVfxObjectData vfxObject, SkillPresentationPlaybackContext context)

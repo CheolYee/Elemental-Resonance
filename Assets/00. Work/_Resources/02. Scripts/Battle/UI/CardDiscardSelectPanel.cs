@@ -3,6 +3,7 @@ using Battle.Events;
 using Battle.Instances;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using TMPro;
 using UnityEngine;
@@ -35,6 +36,16 @@ namespace Battle.UI
         [SerializeField] private float cardShrinkDuration = 0.2f;
         [SerializeField] private Ease cardShrinkEase = Ease.InBack;
 
+        [Header("Card Hover")]
+        [SerializeField] private float cardHoverScale    = 1.1f;
+        [SerializeField] private float cardHoverDuration = 0.15f;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO soundChannel;
+        [SerializeField] private SfxSounds      hoverSound;
+        [SerializeField] private SfxSounds      selectSound;
+        [SerializeField] private SfxSounds      deselectSound;
+
         private int _discardCount;
         private UniTaskCompletionSource<List<CardInstance>> _tcs;
 
@@ -45,7 +56,8 @@ namespace Battle.UI
 
         private float _floatingBaseY; // 손패 영역 Y (패널 루트 좌표계)
 
-        private readonly Dictionary<CardView, CardSelectClickBridge> _bridges = new();
+        private readonly Dictionary<CardView, CardSelectClickBridge>  _bridges      = new();
+        private readonly Dictionary<CardView, CardDiscardHoverBridge> _hoverBridges = new();
 
         private void Awake()
         {
@@ -93,6 +105,7 @@ namespace Battle.UI
                 detached.SetInteractable(false);
                 _floatingViews.Add(detached);
                 AttachBridge(detached, () => OnFloatingClicked(detached));
+                AttachHoverBridge(detached);
             }
 
             // 손패 Y 기준 저장 (재정렬 시 사용)
@@ -113,8 +126,10 @@ namespace Battle.UI
         private void OnFloatingClicked(CardView view)
         {
             if (!CanSelectMore()) return;
+            soundChannel?.RaiseEvent(new PlaySoundEvent(selectSound, Vector3.zero));
             _floatingViews.Remove(view);
             RemoveBridge(view);
+            ResetHoverScale(view);
 
             view.transform.SetParent(selectedArea, true);
             _selectedViews.Add(view);
@@ -127,8 +142,10 @@ namespace Battle.UI
 
         private void OnSelectedClicked(CardView view)
         {
+            soundChannel?.RaiseEvent(new PlaySoundEvent(deselectSound, Vector3.zero));
             _selectedViews.Remove(view);
             RemoveBridge(view);
+            ResetHoverScale(view);
 
             // 패널 루트로 복귀 — HandLayoutController가 아닌 패널 하위에 유지
             view.transform.SetParent(transform, true);
@@ -181,6 +198,7 @@ namespace Battle.UI
             {
                 selected.Add(view.CardInstance);
                 RemoveBridge(view);
+                RemoveHoverBridge(view);
                 handLayoutController.ReturnViewToPool(view);
             }
             _selectedViews.Clear();
@@ -189,6 +207,7 @@ namespace Battle.UI
             foreach (var view in _floatingViews)
             {
                 RemoveBridge(view);
+                RemoveHoverBridge(view);
                 handLayoutController.ReattachCard(view);
                 view.SetInteractable(true);
             }
@@ -268,11 +287,40 @@ namespace Battle.UI
             _bridges.Remove(view);
         }
 
+        private void AttachHoverBridge(CardView view)
+        {
+            if (_hoverBridges.TryGetValue(view, out var existing))
+            {
+                Destroy(existing);
+                _hoverBridges.Remove(view);
+            }
+            var bridge = view.gameObject.AddComponent<CardDiscardHoverBridge>();
+            bridge.Init(soundChannel, hoverSound, cardHoverScale, cardHoverDuration);
+            _hoverBridges[view] = bridge;
+        }
+
+        private void RemoveHoverBridge(CardView view)
+        {
+            if (!_hoverBridges.TryGetValue(view, out var bridge)) return;
+            if (bridge != null) Destroy(bridge);
+            _hoverBridges.Remove(view);
+        }
+
+        private void ResetHoverScale(CardView view)
+        {
+            if (_hoverBridges.TryGetValue(view, out var bridge) && bridge != null)
+                bridge.ResetScale();
+        }
+
         private void OnDestroy()
         {
             foreach (var bridge in _bridges.Values)
                 if (bridge != null) Destroy(bridge);
             _bridges.Clear();
+
+            foreach (var bridge in _hoverBridges.Values)
+                if (bridge != null) Destroy(bridge);
+            _hoverBridges.Clear();
         }
     }
 }

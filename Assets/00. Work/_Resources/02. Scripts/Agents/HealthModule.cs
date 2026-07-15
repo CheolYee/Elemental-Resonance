@@ -76,6 +76,7 @@ namespace _00._Work._Resources._02._Scripts.Agents
             Block = 0;
             IsDead = false;
             OnHpChanged?.Invoke(CurrentHp, MaxHp);
+            OnBlockChanged?.Invoke(Block);
         }
 
         public void InitializeHp(int currentHp, int maxHp)
@@ -85,6 +86,7 @@ namespace _00._Work._Resources._02._Scripts.Agents
             Block = 0;
             IsDead = CurrentHp <= 0;
             OnHpChanged?.Invoke(CurrentHp, MaxHp);
+            OnBlockChanged?.Invoke(Block);
         }
 
         public void Heal(int amount)

@@ -5,6 +5,7 @@ using Battle.Events;
 using Battle.Services;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using UnityEngine;
 using UnityEngine.UI;
@@ -38,6 +39,10 @@ namespace Battle.UI
         [SerializeField] private float _showDuration = 0.35f;
         [SerializeField] private Ease  _showEase     = Ease.OutBack;
 
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO _soundChannel;
+        [SerializeField] private SfxSounds      _panelShowSound;
+
         private readonly List<GameObject> _spawnedButtons = new();
         private int  _pendingClaimsCount;
         private bool _isCardPanelOpen;
@@ -60,11 +65,13 @@ namespace Battle.UI
         private void OnEnable()  => _battleEventChannel.AddListener<BattleResultShownEvent>(OnBattleResultShown);
         private void OnDisable() => _battleEventChannel.RemoveListener<BattleResultShownEvent>(OnBattleResultShown);
 
-        private void OnBattleResultShown(BattleResultShownEvent _) => ShowAsync().Forget();
+        private void OnBattleResultShown(BattleResultShownEvent evt) { if (evt.IsVictory) ShowAsync().Forget(); }
 
         private async UniTaskVoid ShowAsync()
         {
             var ct = destroyCancellationToken;
+
+            _soundChannel?.RaiseEvent(new PlaySoundEvent(_panelShowSound, Vector3.zero));
 
             foreach (var go in _spawnedButtons) Destroy(go);
             _spawnedButtons.Clear();
@@ -79,7 +86,7 @@ namespace Battle.UI
 
             if (_closeButton != null)
             {
-                _closeButton.interactable = false;
+                _closeButton.interactable = true;
                 _closeButton.onClick.RemoveAllListeners();
                 _closeButton.onClick.AddListener(OnClose);
             }
@@ -112,14 +119,19 @@ namespace Battle.UI
             await UniTask.WhenAll(
                 _backgroundCanvasGroup != null
                     ? LMotion.Create(0f, 1f, _showDuration)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(a => _backgroundCanvasGroup.alpha = a).ToUniTask(ct)
                     : UniTask.CompletedTask,
                 _panelCanvasGroup != null
                     ? LMotion.Create(0f, 1f, _showDuration).WithEase(_showEase)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(a => _panelCanvasGroup.alpha = a).ToUniTask(ct)
                     : UniTask.CompletedTask,
                 LMotion.Create(0.85f, 1f, _showDuration).WithEase(_showEase)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(s => transform.localScale = new Vector3(s, s, 1f)).ToUniTask(ct));
+
+            _battleEventChannel?.RaiseEvent(new RewardPanelShownEvent());
         }
 
         private void SpawnGoldButton(int gold)
@@ -186,6 +198,12 @@ namespace Battle.UI
         {
             var ct = destroyCancellationToken;
 
+            if (_isCardPanelOpen)
+            {
+                _cardRewardPanel?.ForceClose();
+                _isCardPanelOpen = false;
+            }
+
             if (_backgroundCanvasGroup != null)
                 _backgroundCanvasGroup.blocksRaycasts = false;
             if (_panelCanvasGroup != null)
@@ -197,10 +215,12 @@ namespace Battle.UI
             await UniTask.WhenAll(
                 _backgroundCanvasGroup != null
                     ? LMotion.Create(_backgroundCanvasGroup.alpha, 0f, _showDuration)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(a => _backgroundCanvasGroup.alpha = a).ToUniTask(ct)
                     : UniTask.CompletedTask,
                 _panelCanvasGroup != null
                     ? LMotion.Create(_panelCanvasGroup.alpha, 0f, _showDuration)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(a => _panelCanvasGroup.alpha = a).ToUniTask(ct)
                     : UniTask.CompletedTask);
 

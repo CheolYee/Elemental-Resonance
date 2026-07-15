@@ -19,7 +19,7 @@ MonoBehaviour:
   - material1: 1
     material2: 2
     result: 9
-  - material1: 2
+  - material1: 4
     material2: 6
     result: 10
   - material1: 3

@@ -16,10 +16,10 @@ MonoBehaviour:
   cardName: "\uC790\uC5F0\uC758 \uD750\uB984"
   cost: 0
   artwork: {fileID: 21300000, guid: e2a3cc5415b61bb4d852f23255273e03, type: 3}
-  description: "\uC790\uC5F0\uC758 \uD750\uB984\uC744 \uD0C0 \uCE74\uB4DC 2\uC7A5\uC744
-    \uBF51\uACE0 \uCF54\uC2A4\uD2B8\uB97C 1 \uD68C\uBCF5\uD55C\uB2E4."
+  description: "\uCE74\uB4DC 2\uC7A5\uC744 \uBF51\uACE0 \uCF54\uC2A4\uD2B8\uB97C
+    2 \uD68C\uBCF5\uD55C\uB2E4.\n\uC18C\uBA78"
   targetType: 0
-  disposePolicy: 0
+  disposePolicy: 1
   elementType: 3
   grade: 2
   cardType: 1
@@ -44,6 +44,6 @@ MonoBehaviour:
       type: {class: CostGainEffect, ns: Battle.Effects, asm: Assembly-CSharp}
       data:
         isRepeat: 1
-        costGain: 1
+        costGain: 2
         condition: 0
         conditionValue: 0

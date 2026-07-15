@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using _02._Scripts.CombatSystem.Skills;
 using Battle.Enums;
 using Battle.Instances;
+using UnityEngine;
 
 namespace Battle.Presentation
 {
@@ -23,8 +24,9 @@ namespace Battle.Presentation
         public Func<Agent> RandomTargetResolver { get; }
         public SkillFizzleToken FizzleToken { get; }
 
-        private Agent[] _preResolvedHitTargets = Array.Empty<Agent>();
-        private int _damageHitIndex;
+        private Agent[]   _preResolvedHitTargets   = Array.Empty<Agent>();
+        private Vector3[] _preResolvedHitPositions = Array.Empty<Vector3>();
+        private int       _damageHitIndex;
 
         private UniTaskCompletionSource _pauseGate;
 
@@ -52,7 +54,13 @@ namespace Battle.Presentation
 
         public void SetPreResolvedHitTargets(Agent[] targets)
         {
-            _preResolvedHitTargets = targets ?? Array.Empty<Agent>();
+            _preResolvedHitTargets   = targets ?? Array.Empty<Agent>();
+            _preResolvedHitPositions = new Vector3[_preResolvedHitTargets.Length];
+            for (int i = 0; i < _preResolvedHitTargets.Length; i++)
+            {
+                var t = _preResolvedHitTargets[i];
+                _preResolvedHitPositions[i] = t != null ? t.transform.position : Vector3.zero;
+            }
             _damageHitIndex = 0;
         }
 
@@ -68,6 +76,13 @@ namespace Battle.Presentation
             if (index >= 0 && index < _preResolvedHitTargets.Length)
                 return _preResolvedHitTargets[index];
             return RandomTargetResolver?.Invoke();
+        }
+
+        public Vector3 GetPreResolvedHitPosition(int index)
+        {
+            if (index >= 0 && index < _preResolvedHitPositions.Length)
+                return _preResolvedHitPositions[index];
+            return Vector3.zero;
         }
 
         public SkillPresentationPlaybackContext(

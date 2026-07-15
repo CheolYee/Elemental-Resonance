@@ -108,11 +108,14 @@ StageDataSO는 덱을 알면 안 된다 — 적 Wave 정보만 보유.
 11. ✅ 슬로우 모션 타겟팅 + VFX/캐스터 이동 — docs/2026-06-15-slowmo-targeting-vfx-caster.md (Phase 1~6 완료)
 12. ✅ 맵 UI Phase 8 — 씬 연결 + 수동 검증 완료 (docs/2026-06-10-sts-map-ui-design.md)
 13. ✅ 배틀 UI 리뉴얼 — HP바·방어도·데미지 텍스트·적 인텐트 + 날아다니는 카드 트레일 연출 (docs/2026-06-15-battle-ui-renewal.md, docs/2026-06-16-flying-card-trail-effect.md)
-14. Fusion / Grade / Resonance System — 카드 합성 + 합성 단계 + 연출, 원소 속성에 따른 카드 색상 분기 ← Phase 1 완료, Phase 2~ 대기 중 (docs/2026-06-16-fusion-grade-element-system.md)
+14. ✅ Fusion / Grade / Resonance System — 카드 합성 + 합성 단계 + 연출, 원소 속성에 따른 카드 색상 분기 (docs/2026-06-16-fusion-grade-element-system.md)
 15. ✅ Reward System — 보상 패널 UI, 카드 선택 → FlyingCard → currentPile 연동 (docs/2026-06-17-reward-gold-system.md Phase 1~3 완료)
 16. ✅ Gold System — TopBar 골드 표시, GoldChangedEvent, LMotion 카운팅 연출
-17. Shop / Rest 실제 기능 — UI 열기/닫기 + 상점 구매/버리기/리롤 + 휴식 HP 회복 (docs/2026-06-17-shop-rest-ui.md)
-18. Scene Transition System
+17. ✅ Shop / Rest 실제 기능 — UI 열기/닫기 + 상점 구매/버리기/리롤 + 휴식 HP 회복 (docs/2026-06-17-shop-rest-ui.md)
+18. ✅ Scene Transition System
+19. ✅ 튜토리얼 시스템 — 하이라이트+블로킹 방식, TutorialStepSO+EventChannel 완료조건, 10단계 (docs/2026-06-29-tutorial-system.md)
+20. ✅ 절차적 맵 생성 — 시드 기반 동적 노드 생성, 저/중/고층 스테이지 풀 분리, 튜토리얼 우회 (docs/2026-07-05-procedural-map-generation.md)
+21. ✅ 시드 선택 UI — 새 게임 팝업(일반/시드 플레이), PlayerPrefs 씬 간 전달, 설정창 시드 표시+복사
 ```
 
 ---

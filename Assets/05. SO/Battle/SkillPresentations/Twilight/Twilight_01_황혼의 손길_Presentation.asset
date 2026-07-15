@@ -19,6 +19,7 @@ MonoBehaviour:
       - property: 0
         timeSeconds: 0
         animParam: {fileID: 11400000, guid: dcf46ea7f29389949bdf26e41937cc1a, type: 2}
+        animClip: {fileID: 0}
         effectSlotId: 
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -39,6 +40,7 @@ MonoBehaviour:
       - property: 1
         timeSeconds: 0.4
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: 63026d13-37f0-406d-876e-2e0e446ee250
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -57,6 +59,7 @@ MonoBehaviour:
       - property: 1
         timeSeconds: 0.44166666
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: ecc99714-1d88-4fea-bfd5-f3676c398e1e
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -86,6 +89,7 @@ MonoBehaviour:
       - property: 4
         timeSeconds: 0
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: 
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -104,6 +108,7 @@ MonoBehaviour:
       - property: 5
         timeSeconds: 0.4
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: 
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -122,6 +127,7 @@ MonoBehaviour:
       - property: 5
         timeSeconds: 1.5
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: 
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -150,6 +156,7 @@ MonoBehaviour:
       - property: 5
         timeSeconds: 0.4
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: 
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -168,6 +175,7 @@ MonoBehaviour:
       - property: 5
         timeSeconds: 1.5
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: 
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -188,6 +196,7 @@ MonoBehaviour:
       - property: 8
         timeSeconds: 0.2
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: 
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -206,6 +215,7 @@ MonoBehaviour:
       - property: 9
         timeSeconds: 0.4
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: 
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -224,6 +234,7 @@ MonoBehaviour:
       - property: 8
         timeSeconds: 0.4
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: 
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -242,6 +253,7 @@ MonoBehaviour:
       - property: 8
         timeSeconds: 0.5
         animParam: {fileID: 0}
+        animClip: {fileID: 0}
         effectSlotId: 
         valueMultiplier: 1
         position: {x: 0, y: 0, z: 0}
@@ -262,12 +274,70 @@ MonoBehaviour:
     uiTrack:
       keyframes: []
     sfxTrack:
-      keyframes: []
-    addedObjects: 01000000040000000800000002000000
+      keyframes:
+      - property: 11
+        timeSeconds: 0.1
+        animParam: {fileID: 0}
+        animClip: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxSound: 27
+      - property: 11
+        timeSeconds: 0.1
+        animParam: {fileID: 0}
+        animClip: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxSound: 60
+      - property: 11
+        timeSeconds: 0.1
+        animParam: {fileID: 0}
+        animClip: {fileID: 0}
+        effectSlotId: 
+        valueMultiplier: 1
+        position: {x: 0, y: 0, z: 0}
+        rotationEuler: {x: 0, y: 0, z: 0}
+        scale: {x: 1, y: 1, z: 1}
+        isHold: 0
+        easing: 0
+        vfxActiveAction: 0
+        cameraPosition: {x: 0, y: 0, z: 0}
+        cameraRotationEuler: {x: 0, y: 0, z: 0}
+        fieldOfView: 60
+        amplitude: 1
+        shakeDuration: 0.2
+        uiAction: 0
+        sfxSound: 54
+    addedObjects: 0100000004000000080000000200000007000000
     endMarkerKeyframe:
       property: 12
       timeSeconds: 1.6
       animParam: {fileID: 0}
+      animClip: {fileID: 0}
       effectSlotId: 
       valueMultiplier: 1
       position: {x: 0, y: 0, z: 0}

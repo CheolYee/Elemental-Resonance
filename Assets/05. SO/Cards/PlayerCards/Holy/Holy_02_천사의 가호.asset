@@ -16,8 +16,8 @@ MonoBehaviour:
   cardName: "\uCC9C\uC0AC\uC758 \uAC00\uD638"
   cost: 2
   artwork: {fileID: 21300000, guid: 17eb2fc763265f54a86bf20cd9489bbf, type: 3}
-  description: "\uCC9C\uC0AC\uC758 \uAC00\uD638\uB85C 18\uC758 \uBC29\uC5B4\uB3C4\uC744
-    \uC5BB\uACE0 \uC2E0\uC131 \uD654\uC0B4 2\uBC1C\uC744 \uC190\uD328\uC5D0 \uCD94\uAC00\uD55C\uB2E4."
+  description: "30\uC758 \uBC29\uC5B4\uB3C4\uC744 \uC5BB\uACE0 \uC2E0\uC131 \uD654\uC0B4
+    2\uBC1C\uC744 \uC190\uD328\uC5D0 \uCD94\uAC00\uD55C\uB2E4."
   targetType: 0
   disposePolicy: 0
   elementType: 12
@@ -38,7 +38,7 @@ MonoBehaviour:
       type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
       data:
         isRepeat: 1
-        block: 18
+        block: 30
     - rid: 3413310031493857540
       type: {class: CreateCardEffect, ns: Battle.Effects, asm: Assembly-CSharp}
       data:

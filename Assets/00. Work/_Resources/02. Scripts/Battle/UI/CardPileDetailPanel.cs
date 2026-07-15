@@ -5,6 +5,7 @@ using Battle.Events;
 using Battle.Instances;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using TMPro;
 using UnityEngine;
@@ -24,6 +25,11 @@ namespace Battle.UI
         [Header("Fade")]
         [SerializeField] private float fadeDuration = 0.2f;
         [SerializeField] private Ease fadeEase = Ease.OutCubic;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO soundChannel;
+        [SerializeField] private SfxSounds      openSound;
+        [SerializeField] private SfxSounds      closeSound;
 
         private readonly List<PileCardItem> _activeItems = new();
         private MotionHandle _fadeHandle;
@@ -79,6 +85,7 @@ namespace Battle.UI
 
         private async UniTaskVoid FadeInAsync()
         {
+            soundChannel?.RaiseEvent(new PlaySoundEvent(openSound, Vector3.zero));
             if (panelRoot != null) panelRoot.SetActive(true);
             if (panelCanvasGroup == null) return;
 
@@ -89,6 +96,7 @@ namespace Battle.UI
             if (_fadeHandle.IsActive()) _fadeHandle.Cancel();
             _fadeHandle = LMotion.Create(0f, 1f, fadeDuration)
                 .WithEase(fadeEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => panelCanvasGroup.alpha = a);
             await _fadeHandle.ToUniTask(cancellationToken: destroyCancellationToken);
 
@@ -98,6 +106,7 @@ namespace Battle.UI
 
         private async UniTaskVoid FadeOutAsync()
         {
+            soundChannel?.RaiseEvent(new PlaySoundEvent(closeSound, Vector3.zero));
             if (panelCanvasGroup != null)
             {
                 panelCanvasGroup.interactable = false;
@@ -106,6 +115,7 @@ namespace Battle.UI
                 if (_fadeHandle.IsActive()) _fadeHandle.Cancel();
                 _fadeHandle = LMotion.Create(panelCanvasGroup.alpha, 0f, fadeDuration)
                     .WithEase(fadeEase)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(a => panelCanvasGroup.alpha = a);
                 await _fadeHandle.ToUniTask(cancellationToken: destroyCancellationToken);
             }

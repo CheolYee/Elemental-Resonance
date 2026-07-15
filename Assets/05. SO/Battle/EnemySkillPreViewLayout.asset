@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91856a6b9502ebc4d8124f5b7b05ee5e, type: 3}
   m_Name: EnemySkillPreViewLayout
   m_EditorClassIdentifier: Assembly-CSharp::Battle.Presentation.SkillPreviewLayoutSO
-  casterPrefab: {fileID: 3283772792485048793, guid: 01c01a332b6411340b38cf34001dfa10, type: 3}
+  casterPrefab: {fileID: 6182256961490819118, guid: c61dba1266c1fd049ad55afc0562d6a3, type: 3}
   targetPrefabs:
   - {fileID: 104440630590430532, guid: e75bb88d724d4734dbf99ea8ff3f10d4, type: 3}
   casterPosition: {x: 0, y: 14.072, z: 41.25}

@@ -36,6 +36,7 @@ namespace Battle.UI
 
             if (_fadeHandle.IsActive()) _fadeHandle.Cancel();
             _fadeHandle = LMotion.Create(0f, 1f, fadeInDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => canvasGroup.alpha = a);
         }
 

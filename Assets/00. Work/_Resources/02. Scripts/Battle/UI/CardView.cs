@@ -6,6 +6,7 @@ using Battle.Instances;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
 using Gamelib.ObjectPool.Runtime;
+using Gamelib.SoundSystem;
 using LitMotion;
 using TMPro;
 using TMProEffect;
@@ -22,6 +23,8 @@ namespace Battle.UI
         [SerializeField] private Image artworkImage;
         [SerializeField] private Image frameImage;
         [SerializeField] private Image labelImage;
+        [SerializeField] private Image costImage;
+        [SerializeField] private ElementIconTableSO elementIconTable;
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text typeText;
         [SerializeField] private TMP_Text costText;
@@ -29,6 +32,10 @@ namespace Battle.UI
         [SerializeField] private TMPEffect nameTextEffect;
         [SerializeField] private TMPEffect typeTextEffect;
 
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO soundChannel;
+        [SerializeField] private SfxSounds      hoverSound;
 
         [Header("Hover")]
         [SerializeField] private EventChannelSO battleEventChannel;
@@ -51,9 +58,11 @@ namespace Battle.UI
         [SerializeField] private Image fusionDimOverlay;
         [SerializeField] private Color fusionDimColor = new Color(0f, 0f, 0f, 0.6f);
         [SerializeField] private float fusionFadeDuration = 0.15f;
-        [SerializeField] private float fusionPulseMin = 0.5f;
+        [SerializeField] private float fusionPulseMin = 0.65f;
         [SerializeField] private float fusionPulseMax = 1.0f;
-        [SerializeField] private float fusionPulseDuration = 0.7f;
+        [SerializeField] private float fusionPulseDuration = 0.4f;
+        [SerializeField] private float fusionFloatHeight   = 6f;
+        [SerializeField] private float fusionFloatDuration = 0.5f;
 
         [Header("Fusion Hover")]
         [SerializeField] private float fusionHoverScale       = 1.2f;
@@ -73,10 +82,12 @@ namespace Battle.UI
         private MotionHandle _costPopHandle;
         private MotionHandle _fusionGlowHandle;
         private MotionHandle _fusionDimHandle;
+        private MotionHandle _fusionFloatHandle;
         private MotionHandle _fusionHoverScaleHandle;
-        private MotionHandle _fusionHoverPosHandle;
         private MotionHandle _fusionHoverRotHandle;
-        private bool _isFusionHovered;
+        private bool    _isFusionHovered;
+        private Vector2 _fusionBasePos;
+        private CancellationTokenSource _fusionFloatCts;
 
         private float _currentRotZ;
         private Vector2 _layoutPos;
@@ -113,6 +124,7 @@ namespace Battle.UI
             if (typeText != null) typeText.text = CardColorUtility.GetTypeName(instance.data.cardType);
             CardColorUtility.Apply(frameImage, labelImage, instance.data);
             CardColorUtility.ApplyTextEffects(nameTextEffect, typeTextEffect, instance.data.grade);
+            CardColorUtility.ApplyCostImage(costImage, elementIconTable, instance.data.elementType);
 
             RefreshUsability(costModel.currentCost);
         }
@@ -185,6 +197,7 @@ namespace Battle.UI
                     _fusionGlowHandle = LMotion.Create(fusionPulseMin, fusionPulseMax, fusionPulseDuration)
                         .WithLoops(-1, LoopType.Yoyo)
                         .WithEase(Ease.InOutSine)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(a => { if (fusionGlowImage != null) fusionGlowImage.color = new Color(glowColor.r, glowColor.g, glowColor.b, a); });
                 }
                 else
@@ -202,6 +215,36 @@ namespace Battle.UI
                 _fusionDimHandle = LMotion.Create(fusionDimOverlay.color.a, targetAlpha, fusionFadeDuration)
                     .Bind(a => { if (fusionDimOverlay != null) fusionDimOverlay.color = new Color(fusionDimColor.r, fusionDimColor.g, fusionDimColor.b, a); });
             }
+
+            // 부유 모션
+            _fusionFloatCts?.Cancel();
+            _fusionFloatCts?.Dispose();
+            _fusionFloatCts = null;
+            if (_fusionFloatHandle.IsActive()) _fusionFloatHandle.Cancel();
+
+            if (eligible)
+            {
+                _fusionFloatCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
+                StartFusionFloatAsync(_fusionFloatCts.Token).Forget();
+            }
+            else
+            {
+                _rectTransform.anchoredPosition = _layoutPos;
+            }
+        }
+
+        private async UniTaskVoid StartFusionFloatAsync(CancellationToken ct)
+        {
+            // 진행 중인 레이아웃 트윈이 끝날 때까지 대기 (RefreshLayout 직후 호출 시 튀는 현상 방지)
+            await UniTask.WaitUntil(() => !_posHandle.IsActive(), cancellationToken: ct);
+            if (ct.IsCancellationRequested) return;
+
+            _fusionBasePos = _layoutPos;
+            _fusionFloatHandle = LMotion.Create(0f, fusionFloatHeight, fusionFloatDuration)
+                .WithLoops(-1, LoopType.Yoyo)
+                .WithEase(Ease.InOutSine)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
+                .Bind(y => { if (this != null) _rectTransform.anchoredPosition = new Vector2(_fusionBasePos.x, _fusionBasePos.y + y); });
         }
 
         public void SetFusionHoverState(bool active)
@@ -210,7 +253,6 @@ namespace Battle.UI
             _isFusionHovered = active;
 
             if (_fusionHoverScaleHandle.IsActive()) _fusionHoverScaleHandle.Cancel();
-            if (_fusionHoverPosHandle.IsActive())   _fusionHoverPosHandle.Cancel();
             if (_fusionHoverRotHandle.IsActive())   _fusionHoverRotHandle.Cancel();
 
             // 소팅 오더 — 드래그 카드(20) 뒤, 일반 카드들 앞
@@ -225,22 +267,17 @@ namespace Battle.UI
             }
 
             float targetScale = active ? fusionHoverScale * _layoutScale : _layoutScale;
-            Vector2 targetPos = active
-                ? new Vector2(_layoutPos.x, CalculateSnapToBottomY())
-                : _layoutPos;
-            float targetRotZ = active ? 0f : _layoutRotZ;
-            var ease = active ? Ease.OutBack : Ease.OutCubic;
+            float targetRotZ  = active ? 0f : _layoutRotZ;
+            var   ease        = active ? Ease.OutBack : Ease.OutCubic;
 
             _fusionHoverScaleHandle = LMotion.Create(transform.localScale.x, targetScale, fusionHoverDuration)
                 .WithEase(ease)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => transform.localScale = new Vector3(s, s, 1f));
-
-            _fusionHoverPosHandle = LMotion.Create(_rectTransform.anchoredPosition, targetPos, fusionHoverDuration)
-                .WithEase(ease)
-                .Bind(p => _rectTransform.anchoredPosition = p);
 
             _fusionHoverRotHandle = LMotion.Create(_currentRotZ, targetRotZ, fusionHoverDuration)
                 .WithEase(ease)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(z =>
                 {
                     _currentRotZ = z;
@@ -279,6 +316,12 @@ namespace Battle.UI
                 _fusionDimHandle = LMotion.Create(fusionDimOverlay.color.a, 0f, fusionFadeDuration)
                     .Bind(a => { if (fusionDimOverlay != null) fusionDimOverlay.color = new Color(0f, 0f, 0f, a); });
             }
+
+            _fusionFloatCts?.Cancel();
+            _fusionFloatCts?.Dispose();
+            _fusionFloatCts = null;
+            if (_fusionFloatHandle.IsActive()) _fusionFloatHandle.Cancel();
+            _rectTransform.anchoredPosition = _layoutPos;
         }
 
         public void CancelLayoutTween()
@@ -290,30 +333,6 @@ namespace Battle.UI
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (!_isInteractable) return;
-
-            if (!_canAfford)
-            {
-                PlayShakeAsync(destroyCancellationToken).Forget();
-                FlashCostRed();
-                PopCostText();
-                battleEventChannel.RaiseEvent(new InsufficientCostEvent());
-                return;
-            }
-
-            if (!_conditionMet)
-            {
-                PlayShakeAsync(destroyCancellationToken).Forget();
-                return;
-            }
-
-            // 손패 수 체크: 드래그 카드 본인 제외한 손패 수 < DiscardEffect 요구량이면 차단
-            int discardRequired = GetRequiredDiscardCount();
-            if (discardRequired > 0 && _dragHandler != null && _dragHandler.HandCardCount - 1 < discardRequired)
-            {
-                PlayShakeAsync(destroyCancellationToken).Forget();
-                return;
-            }
-
             ForceExitHover(tweenBack: false);
             _dragHandler.HandleBeginDrag(eventData);
         }
@@ -330,7 +349,37 @@ namespace Battle.UI
 
         public void OnDrag(PointerEventData eventData) => _dragHandler.HandleDrag(eventData);
 
-        public void OnEndDrag(PointerEventData eventData) => _dragHandler.HandleEndDrag(eventData);
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            // 타겟팅 경로(스킬 사용)일 때만 코스트/조건 체크. 합성 경로는 항상 허용.
+            if (_dragHandler != null && _dragHandler.IsTargeting)
+            {
+                if (!_canAfford)
+                {
+                    PlayShakeAsync(destroyCancellationToken).Forget();
+                    FlashCostRed();
+                    PopCostText();
+                    battleEventChannel.RaiseEvent(new InsufficientCostEvent());
+                    _dragHandler.ForceReturnToHand();
+                    return;
+                }
+                if (!_conditionMet)
+                {
+                    PlayShakeAsync(destroyCancellationToken).Forget();
+                    _dragHandler.ForceReturnToHand();
+                    return;
+                }
+                // 드래그 시작 시 카드는 이미 손패에서 제거됨 → HandCardCount에 자신 미포함
+                int discardRequired = GetRequiredDiscardCount();
+                if (discardRequired > 0 && _dragHandler.HandCardCount < discardRequired)
+                {
+                    PlayShakeAsync(destroyCancellationToken).Forget();
+                    _dragHandler.ForceReturnToHand();
+                    return;
+                }
+            }
+            _dragHandler.HandleEndDrag(eventData);
+        }
 
         // --- IPointerEnterHandler ---
 
@@ -341,6 +390,8 @@ namespace Battle.UI
             _exitDebounce?.Cancel();
             if (_isHovered) return;
             _isHovered = true;
+
+            soundChannel?.RaiseEvent(new PlaySoundEvent(hoverSound, Vector3.zero));
 
             if (_canvas != null)
             {
@@ -493,8 +544,11 @@ namespace Battle.UI
             if (_costPopHandle.IsActive()) _costPopHandle.Cancel();
             if (_fusionGlowHandle.IsActive()) _fusionGlowHandle.Cancel();
             if (_fusionDimHandle.IsActive()) _fusionDimHandle.Cancel();
+            _fusionFloatCts?.Cancel();
+            _fusionFloatCts?.Dispose();
+            _fusionFloatCts = null;
+            if (_fusionFloatHandle.IsActive()) _fusionFloatHandle.Cancel();
             if (_fusionHoverScaleHandle.IsActive()) _fusionHoverScaleHandle.Cancel();
-            if (_fusionHoverPosHandle.IsActive())   _fusionHoverPosHandle.Cancel();
             if (_fusionHoverRotHandle.IsActive())   _fusionHoverRotHandle.Cancel();
             _isFusionHovered = false;
 

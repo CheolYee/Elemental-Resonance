@@ -3,6 +3,8 @@ using System.Threading;
 using Battle.Enums;
 using Battle.Instances;
 using Cysharp.Threading.Tasks;
+using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -31,6 +33,12 @@ namespace Battle.UI
 
         [Header("Glow")]
         [SerializeField] private float glowAlpha = 0.8f;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO soundChannel;
+        [Tooltip("인덱스 = CardGrade 순서 (Normal=0, Rare=1, Epic=2, Legendary=3)")]
+        [SerializeField] private SfxSounds[] gradePopSounds;
+        [SerializeField] private SfxSounds   revealSound;
 
         private bool _isAnimating;
         private CancellationTokenSource _skipCts;
@@ -64,6 +72,7 @@ namespace Battle.UI
 
             // 패널 페이드 인
             await LMotion.Create(0f, 1f, fadeInDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => panelCanvasGroup.alpha = a)
                 .ToUniTask(cancellationToken: destroyCt);
 
@@ -80,12 +89,16 @@ namespace Battle.UI
                 {
                     if (_skipCts.Token.IsCancellationRequested) break;
 
+                    if (gradePopSounds != null && g < gradePopSounds.Length)
+                        PlaySfx(gradePopSounds[g]);
+
                     var gradeColor = CardColorUtility.GradeColors[(CardGrade)g];
                     glowImage.color = new Color(gradeColor.r, gradeColor.g, gradeColor.b, glowAlpha);
 
                     // 스케일 팝 (cardContainer + glowImage 동시)
                     await LMotion.Create(1f, 1.2f, gradePopDuration * 0.5f)
                         .WithEase(Ease.OutQuad)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(s =>
                         {
                             cardContainer.localScale        = Vector3.one * s;
@@ -95,6 +108,7 @@ namespace Battle.UI
 
                     await LMotion.Create(1.2f, 1f, gradePopDuration * 0.5f)
                         .WithEase(Ease.InQuad)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(s =>
                         {
                             cardContainer.localScale        = Vector3.one * s;
@@ -127,9 +141,11 @@ namespace Battle.UI
             {
                 var capturedColor = glowImage.color;
                 await LMotion.Create(glowAlpha, 1f, flashDuration * 0.5f)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(a => glowImage.color = new Color(capturedColor.r, capturedColor.g, capturedColor.b, a))
                     .ToUniTask(cancellationToken: destroyCt);
                 await LMotion.Create(1f, glowAlpha, flashDuration * 0.5f)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(a => glowImage.color = new Color(capturedColor.r, capturedColor.g, capturedColor.b, a))
                     .ToUniTask(cancellationToken: destroyCt);
             }
@@ -140,6 +156,7 @@ namespace Battle.UI
                 whiteFlashOverlay.color = new Color(1f, 1f, 1f, 0f);
                 await LMotion.Create(0f, 1f, whiteFlashInDuration)
                     .WithEase(Ease.OutQuad)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(a => whiteFlashOverlay.color = new Color(1f, 1f, 1f, a))
                     .ToUniTask(cancellationToken: destroyCt);
             }
@@ -148,12 +165,14 @@ namespace Battle.UI
             cardSilhouette.SetActive(false);
             resultCardView.gameObject.SetActive(true);
             resultCardView.transform.localScale = Vector3.zero;
+            PlaySfx(revealSound);
 
             // 흰색 플래시 — out + 카드 reveal 동시 진행
             if (whiteFlashOverlay != null)
             {
                 LMotion.Create(1f, 0f, whiteFlashOutDuration)
                     .WithEase(Ease.InQuad)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(a => whiteFlashOverlay.color = new Color(1f, 1f, 1f, a))
                     .ToUniTask(cancellationToken: destroyCt)
                     .Forget();
@@ -161,6 +180,7 @@ namespace Battle.UI
 
             await LMotion.Create(0f, 1f, revealDuration)
                 .WithEase(Ease.OutBack)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => resultCardView.transform.localScale = _resultCardOriginalScale * s)
                 .ToUniTask(cancellationToken: destroyCt);
 
@@ -170,12 +190,19 @@ namespace Battle.UI
 
             // 패널 페이드 아웃
             await LMotion.Create(1f, 0f, fadeOutDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => panelCanvasGroup.alpha = a)
                 .ToUniTask(cancellationToken: destroyCt);
 
             // 인터랙션 차단 해제 (SetActive 없이 CanvasGroup으로 제어)
             panelCanvasGroup.blocksRaycasts = false;
             panelCanvasGroup.interactable   = false;
+        }
+
+        private void PlaySfx(SfxSounds sound)
+        {
+            if (soundChannel == null) return;
+            soundChannel.RaiseEvent(new PlaySoundEvent(sound, Vector3.zero));
         }
 
         public void OnPointerClick(PointerEventData eventData)

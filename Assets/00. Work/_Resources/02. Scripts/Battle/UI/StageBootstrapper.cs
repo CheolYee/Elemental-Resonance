@@ -137,7 +137,7 @@ namespace Battle.UI
                 var go = Instantiate(entry.enemyData.enemyPrefab, pos, Quaternion.identity);
                 GameObjectInjector.InjectRecursive(go, _container);
                 var enemy = go.GetComponent<AbstractEnemy>();
-                int scaledHp = Mathf.Max(1, Mathf.RoundToInt(entry.enemyData.maxHp * hpMultiplier));
+                int scaledHp = Mathf.Max(1, Mathf.RoundToInt(entry.enemyData.maxHp * hpMultiplier * entry.hpMultiplier));
                 enemy.Health.InitializeHp(scaledHp, scaledHp);
                 enemyRegistry.Register(enemy);
                 enemy.OnDeathStarted += () => enemyRegistry.Unregister(enemy);

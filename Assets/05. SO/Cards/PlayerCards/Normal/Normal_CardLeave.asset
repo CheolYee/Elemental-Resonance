@@ -16,9 +16,9 @@ MonoBehaviour:
   cardName: "\uB4F1\uAC00\uAD50\uD658"
   cost: 1
   artwork: {fileID: 21300000, guid: bea5e6687082289468fecc360c8ee1d3, type: 3}
-  description: "\uC120\uD0DD\uD55C \uCE74\uB4DC\uB97C 2\uC7A5 \uBC84\uB9AC\uACE0
+  description: "\uC190\uD328\uC5D0\uC11C \uCE74\uB4DC\uB97C 2\uC7A5 \uBC84\uB9AC\uACE0
     \uBF51\uC744 \uCE74\uB4DC \uB354\uBBF8\uC5D0\uC11C \uCE74\uB4DC\uB97C 2\uC7A5
-    \uBF51\uC2B5\uB2C8\uB2E4."
+    \uBF51\uB294\uB2E4."
   targetType: 0
   disposePolicy: 0
   elementType: 0
@@ -31,7 +31,6 @@ MonoBehaviour:
   - effectSlotId: f97cd0cd-e0db-4738-b524-05c3549b0ba9
     effect:
       rid: 3413310016346128607
-  skillData: {fileID: 11400000, guid: 33d4fbcc24938064d8a9811e5aef1228, type: 2}
   presentationData: {fileID: 11400000, guid: fec6593d1bdc9014ba37e8d80e4ca429, type: 2}
   references:
     version: 2

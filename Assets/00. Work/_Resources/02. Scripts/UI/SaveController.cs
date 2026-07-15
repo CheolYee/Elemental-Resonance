@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Battle.Data;
+using Battle.Events;
 using Battle.Map.UI;
+using Battle.Tutorial;
 using DeckBuilding;
+using Gamelib.EventSystem;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,6 +19,8 @@ namespace Battle.UI
         [SerializeField] private PlayerRunStateSO  _playerRunState;
         [SerializeField] private MapFlowController _mapFlowController;
         [SerializeField] private CardDatabaseSO    _cardDatabase;
+        [SerializeField] private TempStartCardSO   _deckProvider;
+        [SerializeField] private EventChannelSO    _battleEventChannel;
         [SerializeField] private string            _titleSceneName = "Title";
 
         // ── 정적 유틸 (시작화면에서도 호출 가능) ─────────────────
@@ -43,10 +48,12 @@ namespace Battle.UI
             var mapState = _mapFlowController?.CurrentMapState;
             var data = new RunSaveData
             {
+                seed            = mapState?.seed            ?? 0,
                 gold            = _playerRunState.Gold,
                 currentHp       = _playerRunState.CurrentHp,
                 maxHp           = _playerRunState.MaxHp,
                 floorIndex      = _playerRunState.CurrentFloorIndex,
+                startingCardIds = _deckProvider?.GetDeck().Select(c => c.cardId).ToList() ?? new List<string>(),
                 cardIds         = _playerRunState.CurrentPile.Select(c => c.cardId).ToList(),
                 graphId         = mapState?.graphId         ?? "",
                 currentNodeId   = mapState?.currentNodeId   ?? "",
@@ -70,12 +77,20 @@ namespace Battle.UI
             var data = JsonUtility.FromJson<RunSaveData>(json);
             if (data == null) return false;
 
-            var cards = data.cardIds
+            var startingCards = data.startingCardIds
                 .Select(id => _cardDatabase.allCards.FirstOrDefault(c => c.cardId == id))
                 .Where(c => c != null)
                 .ToList();
 
-            _playerRunState.LoadFromSave(data.gold, data.currentHp, data.maxHp, data.floorIndex, cards);
+            var rewardCards = data.cardIds
+                .Select(id => _cardDatabase.allCards.FirstOrDefault(c => c.cardId == id))
+                .Where(c => c != null)
+                .ToList();
+
+            _deckProvider?.SetDeck(startingCards);
+            _playerRunState.LoadFromSave(data.gold, data.currentHp, data.maxHp, data.floorIndex, rewardCards);
+            _battleEventChannel?.RaiseEvent(new GoldChangedEvent(0, data.gold));
+            _battleEventChannel?.RaiseEvent(new PlayerHpChangedEvent(0, data.currentHp, data.maxHp, false));
             _mapFlowController?.RestoreMapState(data);
 
             return true;
@@ -83,7 +98,8 @@ namespace Battle.UI
 
         public void SaveAndReturnToTitle()
         {
-            Save();
+            if (!TutorialController.IsActive)
+                Save();
             SceneManager.LoadScene(_titleSceneName);
         }
     }

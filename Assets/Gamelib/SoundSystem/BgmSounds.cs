@@ -6,6 +6,7 @@ namespace Gamelib.SoundSystem
         MAIN = 0,
 		REST = 1,
 		SHOP = 2,
-		START = 3
+		START = 3,
+		MAP = 4
     }
 }

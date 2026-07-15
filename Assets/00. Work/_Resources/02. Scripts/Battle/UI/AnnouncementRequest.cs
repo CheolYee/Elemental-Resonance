@@ -12,6 +12,7 @@ namespace Battle.UI
         public string SecondaryHide;
         public string BackgroundSequence;  // null이면 배경 없음, 지정 시 fire-and-forget으로 독립 실행
         public float HoldDuration;
+        public Action OnShow;
         public Action OnComplete;
     }
 }

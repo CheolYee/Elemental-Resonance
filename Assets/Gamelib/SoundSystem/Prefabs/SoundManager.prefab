@@ -49,3 +49,4 @@ MonoBehaviour:
   poolManager: {fileID: 11400000, guid: 5e69ff3424eec6948ad9777aaeecaa40, type: 2}
   soundItem: {fileID: 11400000, guid: 76526dfa92a63aa45840606ba1816632, type: 2}
   <SoundChannel>k__BackingField: {fileID: 11400000, guid: 003782f36feea424397b144ea235cde9, type: 2}
+  _audioMixer: {fileID: 24100000, guid: 4b12f0cbc7542854cb2e190a82c38496, type: 2}

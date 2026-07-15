@@ -693,6 +693,7 @@ GameObject:
   - component: {fileID: 6714057673802113890}
   - component: {fileID: 6167601215555239690}
   - component: {fileID: 7208047287563563457}
+  - component: {fileID: 6843267976312468125}
   m_Layer: 0
   m_Name: MapNodeView
   m_TagString: Untagged
@@ -746,6 +747,9 @@ MonoBehaviour:
   _pulseRingImage: {fileID: 5820068664918892722}
   _currentRingImage: {fileID: 7331818125012753465}
   _button: {fileID: 7208047287563563457}
+  _soundChannel: {fileID: 11400000, guid: 003782f36feea424397b144ea235cde9, type: 2}
+  _hoverSound: 72
+  _transitionSound: 73
   _hoverScale: 1.18
   _hoverDuration: 0.15
   _ringDuration: 0.35
@@ -795,3 +799,16 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6843267976312468125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8062482608592403196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53cd843688491454cb0fcae24c4191ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Tutorial.TutorialTarget
+  targetId: 

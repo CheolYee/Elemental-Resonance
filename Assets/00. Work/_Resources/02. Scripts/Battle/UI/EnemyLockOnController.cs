@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using _00._Work._Resources._02._Scripts.Agents.Enemies;
 using Battle.Events;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using UnityEngine;
 
 namespace Battle.UI
@@ -13,6 +14,10 @@ namespace Battle.UI
         [SerializeField] private RectTransform viewParent;
         [SerializeField] private Camera battleCamera;
         [SerializeField] private int poolSize = 3;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO soundChannel;
+        [SerializeField] private SfxSounds      hoverSound;
 
         private readonly List<EnemyLockOnView> _pool = new();
         private readonly Dictionary<AbstractEnemy, EnemyLockOnView> _active = new();
@@ -39,7 +44,11 @@ namespace Battle.UI
             battleEventChannel.RemoveListener<EnemyHoverExitEvent>(OnEnemyHoverExit);
         }
 
-        private void OnEnemyHover(EnemyHoverEvent evt) => Show(new List<AbstractEnemy> { evt.Enemy });
+        private void OnEnemyHover(EnemyHoverEvent evt)
+        {
+            soundChannel?.RaiseEvent(new PlaySoundEvent(hoverSound, Vector3.zero));
+            Show(new List<AbstractEnemy> { evt.Enemy });
+        }
         private void OnEnemyHoverExit(EnemyHoverExitEvent _) => HideAll();
 
         public void Show(List<AbstractEnemy> enemies)

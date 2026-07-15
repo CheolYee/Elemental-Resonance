@@ -46,19 +46,17 @@ namespace Battle.Presentation
 
             try
             {
-                var tasks     = new List<UniTask>();
-                var posKeys   = FilterAndSort(cameraTrack.keyframes, SkillKeyframeProperty.CamPosition);
-                var rotKeys   = FilterAndSort(cameraTrack.keyframes, SkillKeyframeProperty.CamRotation);
-                var zoomKeys  = FilterAndSort(cameraTrack.keyframes, SkillKeyframeProperty.CamZoom);
-                var shakeKeys = FilterAndSort(cameraTrack.keyframes, SkillKeyframeProperty.CamShake);
+                var posKeys   = cameraTrack.GetCached(SkillKeyframeProperty.CamPosition);
+                var rotKeys   = cameraTrack.GetCached(SkillKeyframeProperty.CamRotation);
+                var zoomKeys  = cameraTrack.GetCached(SkillKeyframeProperty.CamZoom);
+                var shakeKeys = cameraTrack.GetCached(SkillKeyframeProperty.CamShake);
 
-                if (posKeys.Count   > 0) tasks.Add(PlayPositionAsync(posKeys, basePosition, context, token));
-                if (rotKeys.Count   > 0) tasks.Add(PlayRotationAsync(rotKeys, baseRotation, context, token));
-                if (zoomKeys.Count  > 0) tasks.Add(PlayZoomAsync(zoomKeys, baseFov, context, token));
-                if (shakeKeys.Count > 0) tasks.Add(PlayShakeAsync(shakeKeys, context, token));
-
-                if (tasks.Count > 0)
-                    await UniTask.WhenAll(tasks);
+                if (posKeys.Count > 0 || rotKeys.Count > 0 || zoomKeys.Count > 0 || shakeKeys.Count > 0)
+                    await UniTask.WhenAll(
+                        posKeys.Count   > 0 ? PlayPositionAsync(posKeys, basePosition, context, token) : UniTask.CompletedTask,
+                        rotKeys.Count   > 0 ? PlayRotationAsync(rotKeys, baseRotation, context, token) : UniTask.CompletedTask,
+                        zoomKeys.Count  > 0 ? PlayZoomAsync(zoomKeys, baseFov, context, token)         : UniTask.CompletedTask,
+                        shakeKeys.Count > 0 ? PlayShakeAsync(shakeKeys, context, token)                : UniTask.CompletedTask);
 
                 // 마지막 키프레임 이후 EndMarker 시각까지 Priority = 20 유지
                 float elapsed = 0f;
@@ -239,15 +237,5 @@ namespace Battle.Presentation
             catch (OperationCanceledException) { }
         }
 
-        // ── Helpers ────────────────────────────────────────────────────────────
-
-        private static List<SkillKeyframeData> FilterAndSort(List<SkillKeyframeData> keys, SkillKeyframeProperty property)
-        {
-            var result = new List<SkillKeyframeData>();
-            foreach (var k in keys)
-                if (k != null && k.property == property) result.Add(k);
-            result.Sort((a, b) => a.timeSeconds.CompareTo(b.timeSeconds));
-            return result;
-        }
     }
 }

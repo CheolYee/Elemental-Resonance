@@ -13,6 +13,8 @@ namespace DeckBuilding
         [SerializeField] private Image _artworkImage;
         [SerializeField] private Image _frameImage;
         [SerializeField] private Image _labelImage;
+        [SerializeField] private Image _costImage;
+        [SerializeField] private ElementIconTableSO _elementIconTable;
         [SerializeField] private TextMeshProUGUI _nameText;
         [SerializeField] private TextMeshProUGUI _typeText;
         [SerializeField] private TextMeshProUGUI _costText;
@@ -41,6 +43,7 @@ namespace DeckBuilding
             if (_typeText != null) _typeText.text = CardColorUtility.GetTypeName(data.cardType);
             CardColorUtility.Apply(_frameImage, _labelImage, data);
             CardColorUtility.ApplyTextEffects(_nameTextEffect, _typeTextEffect, data.grade);
+            CardColorUtility.ApplyCostImage(_costImage, _elementIconTable, data.elementType);
         }
     }
 }

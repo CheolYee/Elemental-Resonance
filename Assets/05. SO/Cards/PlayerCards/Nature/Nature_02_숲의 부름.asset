@@ -16,8 +16,8 @@ MonoBehaviour:
   cardName: "\uC232\uC758 \uBD80\uB984"
   cost: 1
   artwork: {fileID: 21300000, guid: 3d76d807d9c650440b95721dbdc1f817, type: 3}
-  description: "\uC232\uC758 \uBAA9\uC18C\uB9AC\uC5D0 \uADC0\uB97C \uAE30\uC6B8\uC5EC
-    \uCE74\uB4DC 2\uC7A5\uC744 \uBF51\uB294\uB2E4."
+  description: "\uBF51\uC744 \uCE74\uB4DC \uB354\uBBF8\uC5D0\uC11C 2\uC7A5\uC744
+    \uBF51\uB294\uB2E4."
   targetType: 0
   disposePolicy: 0
   elementType: 3

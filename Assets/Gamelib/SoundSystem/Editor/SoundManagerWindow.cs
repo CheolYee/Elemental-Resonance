@@ -38,6 +38,11 @@ namespace Gamelib.SoundSystem.Editor
         private Vector2 _editScrollPos;
         private Texture2D _selectedBg;
 
+        // Playback
+        private bool  _isPlaying;
+        private int   _pausedSamplePos;
+        private float _previewTime;
+
         private void OnEnable()
         {
             _sfxAudioFolder = EditorPrefs.GetString(PrefSfxAudio, "Assets/00. Work/CheolYee/10. Sounds/SFX");
@@ -45,12 +50,36 @@ namespace Gamelib.SoundSystem.Editor
             _sfxSoFolder    = EditorPrefs.GetString(PrefSfxSo,    "Assets/00. Work/CheolYee/10. Sounds/SFXSO");
             _bgmSoFolder    = EditorPrefs.GetString(PrefBgmSo,    "Assets/00. Work/CheolYee/10. Sounds/BGMSO");
             AutoFindSoundLists();
+            EditorApplication.update += OnEditorUpdate;
         }
 
         private void OnDisable()
         {
+            EditorApplication.update -= OnEditorUpdate;
+            SoundEditorUtils.StopEditorClip();
+            _isPlaying = false;
             if (_selectedBg != null)
                 DestroyImmediate(_selectedBg);
+        }
+
+        private void OnDestroy() => SoundEditorUtils.StopEditorClip();
+
+        private void OnEditorUpdate()
+        {
+            if (!_isPlaying) return;
+            if (!SoundEditorUtils.IsPreviewPlaying())
+            {
+                // 클립 재생 자연 종료
+                _isPlaying      = false;
+                _pausedSamplePos = 0;
+                _previewTime    = 0f;
+                Repaint();
+                return;
+            }
+            var clip = _selectedSo?.clip;
+            if (clip != null && clip.samples > 0)
+                _previewTime = (float)SoundEditorUtils.GetPreviewSamplePosition() / clip.samples * clip.length;
+            Repaint();
         }
 
         private void AutoFindSoundLists()
@@ -246,7 +275,62 @@ namespace Gamelib.SoundSystem.Editor
                 EditorGUIUtility.PingObject(_selectedSo);
 
             EditorGUILayout.EndScrollView();
+
+            DrawPlaybackPanel(_selectedSo);
+
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawPlaybackPanel(SoundClipSo so)
+        {
+            var clip = so?.clip;
+            EditorGUILayout.Space(4);
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider); // 구분선
+
+            GUI.enabled = clip != null;
+
+            // 시크바
+            float duration   = clip != null ? clip.length : 1f;
+            float newTime    = EditorGUILayout.Slider(_previewTime, 0f, duration);
+            if (!Mathf.Approximately(newTime, _previewTime) && clip != null)
+            {
+                _previewTime     = newTime;
+                _pausedSamplePos = Mathf.RoundToInt(newTime / duration * clip.samples);
+                if (_isPlaying) PlayPreview(); // 드래그 중이면 해당 위치부터 즉시 이어 재생
+            }
+
+            // 시간 표시
+            EditorGUILayout.LabelField(
+                $"{FormatTime(_previewTime)} / {FormatTime(duration)}",
+                EditorStyles.centeredGreyMiniLabel);
+
+            // 버튼 행
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            string playLabel = _isPlaying ? "⏸ Pause" : "▶ Play";
+            if (GUILayout.Button(playLabel, GUILayout.Width(80), GUILayout.Height(24)))
+            {
+                if (_isPlaying) PausePreview();
+                else            PlayPreview();
+            }
+
+            if (GUILayout.Button("■ Stop", GUILayout.Width(70), GUILayout.Height(24)))
+                StopPreview();
+
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(4);
+            GUI.enabled = true;
+        }
+
+        private static string FormatTime(float seconds)
+        {
+            int m = (int)(seconds / 60);
+            int s = (int)(seconds % 60);
+            int ms = (int)((seconds - Mathf.Floor(seconds)) * 10);
+            return $"{m}:{s:00}.{ms}";
         }
 
         private void DrawProp(string propName, string label)
@@ -377,8 +461,39 @@ namespace Gamelib.SoundSystem.Editor
 
         private void SelectSo(SoundClipSo so)
         {
-            _selectedSo             = so;
-            _selectedSoSerialized   = so != null ? new SerializedObject(so) : null;
+            StopPreview();
+            _selectedSo           = so;
+            _selectedSoSerialized = so != null ? new SerializedObject(so) : null;
+        }
+
+        // ── Playback helpers ─────────────────────────────────────────────────
+
+        private void PlayPreview()
+        {
+            var clip = _selectedSo?.clip;
+            if (clip == null) return;
+            SoundEditorUtils.StopEditorClip(); // 기존 재생 반드시 먼저 정지
+            int startSample = Mathf.Clamp(_pausedSamplePos, 0, clip.samples - 1);
+            SoundEditorUtils.PlayEditorClipFromSample(clip, startSample);
+            _isPlaying = true;
+        }
+
+        private void PausePreview()
+        {
+            _pausedSamplePos = SoundEditorUtils.GetPreviewSamplePosition();
+            var clip = _selectedSo?.clip;
+            if (clip != null && clip.samples > 0)
+                _previewTime = (float)_pausedSamplePos / clip.samples * clip.length;
+            SoundEditorUtils.StopEditorClip();
+            _isPlaying = false;
+        }
+
+        private void StopPreview()
+        {
+            SoundEditorUtils.StopEditorClip();
+            _isPlaying       = false;
+            _pausedSamplePos = 0;
+            _previewTime     = 0f;
         }
 
         private void ClearSelection()

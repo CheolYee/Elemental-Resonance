@@ -334,6 +334,7 @@ namespace _00._Work.CheolYee._02._Scripts.Motion
 
             MotionHandle handle = LMotion.Create(fromVal, toVal, duration)
                 .WithEase(ease)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(apply);
 
             _activeHandles.Add(handle);

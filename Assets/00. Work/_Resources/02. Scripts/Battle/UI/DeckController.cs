@@ -276,6 +276,7 @@ namespace Battle.UI
             _hand.Clear();
             _discardPile.Clear();
             _gravePile.Clear();
+            RefreshCurrentDeckCount();
         }
 
         private void MoveToDiscard(CardInstance card)

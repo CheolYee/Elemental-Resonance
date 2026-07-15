@@ -54,12 +54,14 @@ namespace Battle.UI
             skillNameText.text = name;
 
             await LMotion.Create(canvasGroup.alpha, 1f, fadeInDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => canvasGroup.alpha = a)
                 .ToUniTask(token);
 
             await UniTask.Delay(System.TimeSpan.FromSeconds(holdDuration), cancellationToken: token);
 
             await LMotion.Create(canvasGroup.alpha, 0f, fadeOutDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => canvasGroup.alpha = a)
                 .ToUniTask(token);
         }

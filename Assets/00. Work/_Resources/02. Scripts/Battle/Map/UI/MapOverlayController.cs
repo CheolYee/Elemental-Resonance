@@ -3,6 +3,7 @@ using Battle.Map.Enums;
 using LitMotion;
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 namespace Battle.Map.UI
 {
@@ -16,6 +17,7 @@ namespace Battle.Map.UI
 
         public MapOverlayState State => _state;
         public event Action<MapOverlayState> OnStateChanged;
+        public event Action OnMapOpened;
 
         private void Awake()
         {
@@ -34,7 +36,17 @@ namespace Battle.Map.UI
         public void OpenForSelection()
         {
             ApplyState(MapOverlayState.SelectionPending);
-            FadeTo(1f);
+            FadeToAndNotifyAsync(1f).Forget();
+        }
+
+        private async UniTaskVoid FadeToAndNotifyAsync(float target)
+        {
+            if (_fadeHandle.IsActive()) _fadeHandle.Cancel();
+            await LMotion.Create(_canvasGroup.alpha, target, 0.15f)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
+                .Bind(a => _canvasGroup.alpha = a)
+                .ToUniTask();
+            OnMapOpened?.Invoke();
         }
 
         public bool TryClose()
@@ -71,6 +83,7 @@ namespace Battle.Map.UI
         {
             if (_fadeHandle.IsActive()) _fadeHandle.Cancel();
             _fadeHandle = LMotion.Create(_canvasGroup.alpha, target, 0.15f)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => _canvasGroup.alpha = a);
         }
     }

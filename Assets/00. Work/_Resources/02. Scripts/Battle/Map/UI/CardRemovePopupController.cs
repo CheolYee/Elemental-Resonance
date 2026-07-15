@@ -6,6 +6,7 @@ using Battle.Events;
 using Battle.UI;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using TMPro;
 using UnityEngine;
@@ -27,6 +28,10 @@ namespace Battle.Map.UI
 
         [Header("Animation")]
         [SerializeField] private float _fadeDuration = 0.2f;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO _soundChannel;
+        [SerializeField] private SfxSounds      _removeSound;
 
         [Header("Colors")]
         [SerializeField] private Color _normalCostColor      = Color.white;
@@ -101,6 +106,7 @@ namespace Battle.Map.UI
                 return;
             }
 
+            _soundChannel?.RaiseEvent(new PlaySoundEvent(_removeSound, Vector3.zero));
             // 선택 연출
             await view.PlaySelectAsync(destroyCancellationToken);
 
@@ -130,6 +136,7 @@ namespace Battle.Map.UI
 
             await LMotion.Create(0f, 1f, _fadeDuration)
                 .WithEase(Ease.OutCubic)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => _popupGroup.alpha = a)
                 .ToUniTask(ct);
 
@@ -148,6 +155,7 @@ namespace Battle.Map.UI
 
             await LMotion.Create(1f, 0f, _fadeDuration)
                 .WithEase(Ease.InCubic)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => _popupGroup.alpha = a)
                 .ToUniTask(ct);
 

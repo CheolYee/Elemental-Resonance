@@ -115,6 +115,7 @@ namespace Battle.UI
             if (_slideHandle.IsActive()) _slideHandle.Cancel();
             _slideHandle = LMotion.Create(slideTarget.anchoredPosition, _slideInPos + slideOutOffset, slideDuration)
                 .WithEase(slideEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(p => slideTarget.anchoredPosition = p);
         }
 
@@ -124,6 +125,7 @@ namespace Battle.UI
             if (_slideHandle.IsActive()) _slideHandle.Cancel();
             _slideHandle = LMotion.Create(slideTarget.anchoredPosition, _slideInPos, slideDuration)
                 .WithEase(slideEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .WithOnComplete(() => { if (!_turnEndPending) SetButtonInteractable(true); })
                 .Bind(p => slideTarget.anchoredPosition = p);
         }

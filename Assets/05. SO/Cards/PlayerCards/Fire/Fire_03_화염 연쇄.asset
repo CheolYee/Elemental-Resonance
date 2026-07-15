@@ -16,9 +16,8 @@ MonoBehaviour:
   cardName: "\uD654\uC5FC \uC5F0\uC1C4"
   cost: 2
   artwork: {fileID: 21300000, guid: 4d0159518b66be540a93dc930efe3b90, type: 3}
-  description: "\uC791\uC740 \uBD88\uB369\uC774\uB4E4\uC774 \uC77C\uC81C\uD788 \uC3DF\uC774\uC9C4\uB2E4.
-    \uC801 \uD558\uB098\uC5D0\uAC8C 4\uC758 \uD53C\uD574\uB97C 5\uD68C \uC785\uD78C\uB2E4.
-    \uC0AC\uC6A9 \uD6C4 \uC18C\uBA78\uD55C\uB2E4."
+  description: "\uB2E8\uC77C \uC801\uC5D0\uAC8C 8\uC758 \uD53C\uD574\uB97C 5\uD68C
+    \uC785\uD78C\uB2E4.\n\uC18C\uBA78"
   targetType: 1
   disposePolicy: 1
   elementType: 1
@@ -36,4 +35,4 @@ MonoBehaviour:
       type: {class: DamageEffect, ns: Battle.Effects, asm: Assembly-CSharp}
       data:
         isRepeat: 1
-        damage: 4
+        damage: 8

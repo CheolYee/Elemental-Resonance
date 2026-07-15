@@ -271,6 +271,9 @@ namespace Battle.Presentation.Editor
 
             if (_currentTime != _lastSampledTime)
             {
+                if (_isPlaying && _currentTime > _lastSampledTime && _lastSampledTime > float.MinValue)
+                    TriggerSfxInRange(_lastSampledTime, _currentTime);
+
                 _previewScene.Sample(_currentTime);
                 _lastSampledTime = _currentTime;
             }
@@ -488,6 +491,23 @@ namespace Battle.Presentation.Editor
             applyValue(newKey);
             keys.Add(newKey);
             SortByTime(keys);
+        }
+
+        private void TriggerSfxInRange(float fromTime, float toTime)
+        {
+            var tl   = GetEditableTimeline();
+            var keys = tl?.sfxTrack?.keyframes;
+            if (keys == null) return;
+
+            foreach (var kf in keys)
+            {
+                if (kf == null) continue;
+                if (kf.timeSeconds > fromTime && kf.timeSeconds <= toTime)
+                {
+                    var clip = FindSfxClip(kf.sfxSound);
+                    if (clip != null) PlayEditorClip(clip);
+                }
+            }
         }
 
         private void RebuildPreview()

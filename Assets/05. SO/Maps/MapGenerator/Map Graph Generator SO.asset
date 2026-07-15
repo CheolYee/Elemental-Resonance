@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99c9dbb5b66559b4dbf11d08ec120cc4, type: 3}
+  m_Name: Map Graph Generator SO
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Map.Data.MapGraphGeneratorSO
+  lowStagePool:
+  - {fileID: 11400000, guid: 7ff8852dd0d64e47a7f30ad4d9977468, type: 2}
+  - {fileID: 11400000, guid: 7361dcd9c8374e7299a04f67c89a1fdd, type: 2}
+  - {fileID: 11400000, guid: b7e4204f28484fb4958b0ac70c9cb17b, type: 2}
+  - {fileID: 11400000, guid: 9208dba7c968475c858fed04eeaaacdf, type: 2}
+  midStagePool:
+  - {fileID: 11400000, guid: 46b769f03983470eaa6d069e793d3d96, type: 2}
+  - {fileID: 11400000, guid: 8134502c8c3a414c9b7b039ec226c221, type: 2}
+  - {fileID: 11400000, guid: 7b0d97185e1249fd94f5a84a044643a7, type: 2}
+  highStagePool:
+  - {fileID: 11400000, guid: cc158f5ccf004ae7a501520af21de20e, type: 2}
+  - {fileID: 11400000, guid: 19cfe5a0e5174986b80c933f8cacdb41, type: 2}
+  - {fileID: 11400000, guid: 69682811f60146d9864f771bd727bb89, type: 2}
+  eliteStagePool:
+  - {fileID: 11400000, guid: 9fb8531919f544de8b8e8af2831f183b, type: 2}
+  - {fileID: 11400000, guid: 553f9b50416b42b2a51a0e1f6f729169, type: 2}
+  - {fileID: 11400000, guid: 88e5ed80ba11489a9e60072b34d13e15, type: 2}
+  bossStage: {fileID: 11400000, guid: 70e019802bf944be94c8b1f457a446a6, type: 2}
+  defaultRestContent: {fileID: 11400000, guid: a9ba16d95cb493c4a970559197c8c772, type: 2}
+  defaultShopContent: {fileID: 11400000, guid: 8ae85b2103dae2443b39dc41323e1a05, type: 2}

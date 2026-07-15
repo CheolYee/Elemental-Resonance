@@ -16,8 +16,7 @@ MonoBehaviour:
   cardName: "\uBC29\uD328 \uB9C9\uAE30"
   cost: 1
   artwork: {fileID: 21300000, guid: e7da42fea623f1e42b2d80e187c85e1e, type: 3}
-  description: "\uBC29\uD328\uB97C \uC138\uC6CC\uC11C 7\uC758 \uBC29\uC5B4\uB3C4\uB97C
-    \uC5BB\uB294\uB2E4."
+  description: "10\uC758 \uBC29\uC5B4\uB3C4\uB97C \uC5BB\uB294\uB2E4."
   targetType: 2
   disposePolicy: 0
   elementType: 0
@@ -35,4 +34,4 @@ MonoBehaviour:
       type: {class: BlockEffect, ns: Battle.Effects, asm: Assembly-CSharp}
       data:
         isRepeat: 1
-        block: 7
+        block: 10

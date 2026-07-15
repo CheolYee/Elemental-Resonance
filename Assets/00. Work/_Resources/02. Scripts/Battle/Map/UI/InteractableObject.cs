@@ -1,4 +1,6 @@
 using System;
+using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +16,11 @@ namespace Battle.Map.UI
         [SerializeField] private float _defaultOutlineWidth = 4f;
         [SerializeField] private float _hoverOutlineWidth = 8f;
         [SerializeField] private Color _outlineColor = Color.white;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO _soundChannel;
+        [SerializeField] private SfxSounds      _hoverSound;
+        [SerializeField] private SfxSounds      _clickSound;
 
         public event Action OnClicked;
 
@@ -58,7 +65,11 @@ namespace Battle.Map.UI
             if (hit != _isHovered)
             {
                 _isHovered = hit;
-                if (_isHovered) SetOutlineOn();
+                if (_isHovered)
+                {
+                    SetOutlineOn();
+                    _soundChannel?.RaiseEvent(new PlaySoundEvent(_hoverSound, Vector3.zero));
+                }
                 else SetOutlineDefault();
             }
 
@@ -67,6 +78,7 @@ namespace Battle.Map.UI
                 _isInteractable = false;
                 _isHovered = false;
                 SetOutlineOff();
+                _soundChannel?.RaiseEvent(new PlaySoundEvent(_clickSound, Vector3.zero));
                 OnClicked?.Invoke();
             }
         }

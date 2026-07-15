@@ -79,11 +79,13 @@ namespace Battle.UI
             var startRect = ScaleRect(targetRect, spreadScale);
 
             var fadeTask = LMotion.Create(0f, 1f, convergeDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => canvasGroup.alpha = a)
                 .ToUniTask(cancellationToken: ct);
 
             var moveTask = LMotion.Create(0f, 1f, convergeDuration)
                 .WithEase(convergeEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(t =>
                 {
                     var pos = Vector2.Lerp(startRect.position, targetRect.position, t);
@@ -100,6 +102,7 @@ namespace Battle.UI
         private async UniTaskVoid FadeOutAsync(CancellationToken ct)
         {
             await LMotion.Create(canvasGroup.alpha, 0f, fadeOutDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => canvasGroup.alpha = a)
                 .ToUniTask(cancellationToken: ct);
 

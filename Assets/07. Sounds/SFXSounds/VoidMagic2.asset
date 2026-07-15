@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52e7f627fdca4338950d31708d2c06ad, type: 3}
+  m_Name: VoidMagic2
+  m_EditorClassIdentifier: SoundSystem::Gamelib.SoundSystem.SoundClipSo
+  soundIndex: 47
+  soundName: VoidMagic2
+  note: "\uACF5\uD5C8 \uBC0F \uC5B4\uB4602"
+  audioType: 0
+  clip: {fileID: 8300000, guid: 76dab0f1e7b1eb04eb8cccb70f2adf13, type: 3}
+  loop: 0
+  randomizePitch: 0
+  randomPitchModifier: 0.1
+  volume: 1
+  pitch: 1

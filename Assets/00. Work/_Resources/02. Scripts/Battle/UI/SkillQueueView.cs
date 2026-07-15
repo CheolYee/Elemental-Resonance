@@ -79,12 +79,16 @@ namespace Battle.UI
             // fade out + slide left
             await UniTask.WhenAll(
                 LMotion.Create(currentGroup.alpha, 0f, halfDur).WithEase(animEase)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(a => currentGroup.alpha = a).ToUniTask(token),
                 LMotion.Create(nextGroup.alpha, 0f, halfDur).WithEase(animEase)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(a => nextGroup.alpha = a).ToUniTask(token),
                 LMotion.Create(currentRect.anchoredPosition, _currentBasePos + new Vector2(-slideDistance, 0f), halfDur).WithEase(animEase)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(p => currentRect.anchoredPosition = p).ToUniTask(token),
                 LMotion.Create(nextRect.anchoredPosition, _nextBasePos + new Vector2(-slideDistance, 0f), halfDur).WithEase(animEase)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(p => nextRect.anchoredPosition = p).ToUniTask(token)
             );
 
@@ -103,8 +107,10 @@ namespace Battle.UI
             // fade in
             await UniTask.WhenAll(
                 LMotion.Create(0f, 1f, halfDur).WithEase(animEase)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(a => currentGroup.alpha = a).ToUniTask(token),
                 LMotion.Create(0f, 1f, halfDur).WithEase(animEase)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(a => nextGroup.alpha = a).ToUniTask(token)
             );
         }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using Battle.Data;
 using Cysharp.Threading.Tasks;
+using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using UnityEngine;
 
@@ -18,6 +20,10 @@ namespace Battle.UI
         [SerializeField] private float hideDuration       = 0.2f;
         [SerializeField] private float dimAlpha           = 0.3f;
         [SerializeField] private float dimDuration        = 0.2f;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO soundChannel;
+        [SerializeField] private SfxSounds      cardSelectSound;
 
         public Action<CardDataSO, Vector2> OnCardSelected;
 
@@ -99,19 +105,31 @@ namespace Battle.UI
             await UniTask.WhenAll(
                 LMotion.Create(0.8f, 1f, cardAppearDuration)
                     .WithEase(Ease.OutBack)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(s => { if (view != null) view.transform.localScale = Vector3.one * s; })
                     .ToUniTask(ct),
                 group != null
                     ? LMotion.Create(0f, 1f, cardAppearDuration * 0.8f)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(a => { if (group != null) group.alpha = a; })
                         .ToUniTask(ct)
                     : UniTask.CompletedTask);
+        }
+
+        public void ForceClose()
+        {
+            _selected = true;
+            if (panelGroup == null) return;
+            panelGroup.alpha          = 0f;
+            panelGroup.blocksRaycasts = false;
+            panelGroup.interactable   = false;
         }
 
         private void HandleSelect(int index)
         {
             if (_selected) return;
             _selected = true;
+            soundChannel?.RaiseEvent(new PlaySoundEvent(cardSelectSound, Vector3.zero));
             SelectAsync(index).Forget();
         }
 
@@ -129,6 +147,7 @@ namespace Battle.UI
                 {
                     float from = group.alpha;
                     dimTasks.Add(LMotion.Create(from, dimAlpha, dimDuration)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(a => group.alpha = a)
                         .ToUniTask(ct));
                 }
@@ -142,6 +161,7 @@ namespace Battle.UI
 
             if (panelGroup != null)
                 await LMotion.Create(1f, 0f, hideDuration)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(a => panelGroup.alpha = a)
                     .ToUniTask(ct);
 

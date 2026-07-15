@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using TMPro;
 using UnityEngine;
@@ -27,6 +29,11 @@ namespace Battle.UI
         [SerializeField] private float spreadDuration = 0.15f;
         [SerializeField] private float pulseDuration  = 0.45f;
         [SerializeField] private float brightAmount   = 0.15f;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO soundChannel;
+        [SerializeField] private SfxSounds      hoverSound;
+        [SerializeField] private SfxSounds      clickSound;
 
         [Header("Claim")]
         [SerializeField] private float claimDuration = 0.25f;
@@ -77,6 +84,7 @@ namespace Battle.UI
         public void OnPointerEnter(PointerEventData _)
         {
             if (_claimed) return;
+            soundChannel?.RaiseEvent(new PlaySoundEvent(hoverSound, Vector3.zero));
             ResetHoverCts();
             HoverInAsync(_hoverCts.Token).Forget();
         }
@@ -92,6 +100,7 @@ namespace Battle.UI
         {
             if (_claimed) return;
             _claimed = true;
+            soundChannel?.RaiseEvent(new PlaySoundEvent(clickSound, Vector3.zero));
             ResetHoverCts();
             ClaimAsync(destroyCancellationToken).Forget();
         }
@@ -112,6 +121,7 @@ namespace Battle.UI
             await UniTask.WhenAll(
                 bracketContainer != null
                     ? LMotion.Create(currentAlpha, 1f, spreadDuration)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(a => bracketContainer.alpha = a).ToUniTask(ct)
                     : UniTask.CompletedTask,
                 MoveBracketAsync(bracketTL, _tlOrigin + new Vector2(-bracketSpread,  bracketSpread), ct),
@@ -133,6 +143,7 @@ namespace Battle.UI
             await UniTask.WhenAll(
                 bracketContainer != null
                     ? LMotion.Create(currentAlpha, 0f, spreadDuration)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(a => bracketContainer.alpha = a).ToUniTask(ct)
                     : UniTask.CompletedTask,
                 MoveBracketAsync(bracketTL, _tlOrigin, ct),
@@ -147,6 +158,7 @@ namespace Battle.UI
             if (rt == null) return;
             await LMotion.Create(rt.anchoredPosition, target, spreadDuration)
                 .WithEase(Ease.OutCubic)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(p => rt.anchoredPosition = p)
                 .ToUniTask(ct);
         }
@@ -162,6 +174,7 @@ namespace Battle.UI
                     _baseBgColor.a)
                 : _baseBgColor;
             await LMotion.Create(background.color, target, spreadDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(c => background.color = c)
                 .ToUniTask(ct);
         }
@@ -182,6 +195,7 @@ namespace Battle.UI
             return LMotion.Create(from, from + delta, pulseDuration)
                 .WithLoops(-1, LoopType.Yoyo)
                 .WithEase(Ease.InOutSine)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(p => rt.anchoredPosition = p);
         }
 
@@ -203,11 +217,13 @@ namespace Battle.UI
             await UniTask.WhenAll(
                 LMotion.Create(startScale, Vector3.zero, claimDuration)
                     .WithEase(Ease.InBack)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(s => { if (this != null) transform.localScale = s; })
                     .ToUniTask(ct),
                 _canvasGroup != null
                     ? LMotion.Create(startAlpha, 0f, claimDuration)
                         .WithEase(Ease.InQuad)
+                        .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                         .Bind(a => { if (_canvasGroup != null) _canvasGroup.alpha = a; })
                         .ToUniTask(ct)
                     : UniTask.CompletedTask);

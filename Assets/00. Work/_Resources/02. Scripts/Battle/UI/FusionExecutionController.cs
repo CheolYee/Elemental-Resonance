@@ -1,9 +1,11 @@
+using System;
 using Battle.Enums;
 using Battle.Events;
 using Battle.Fusion;
 using Battle.Instances;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using Reflex.Attributes;
 using UnityEngine;
 
@@ -16,6 +18,10 @@ namespace Battle.UI
         [SerializeField] private DeckController deckController;
         [SerializeField] private CardFlyAnimator cardFlyAnimator;
         [SerializeField] private FusionPanel fusionPanel;
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO soundChannel;
+        [SerializeField] private SfxSounds      fusionSound;
 
         [Inject] private FusionRecipeService _fusionRecipeService;
         [Inject] private FusionResultPicker  _fusionResultPicker;
@@ -55,6 +61,7 @@ namespace Battle.UI
             deckController.ConsumeFusionMaterial(evt.TargetCard);
 
             // 5. 팝 → 수축 연출 (두 카드 동시)
+            soundChannel?.RaiseEvent(new PlaySoundEvent(fusionSound, Vector3.zero));
             await UniTask.WhenAll(
                 draggedView.PlayFusionDepartureAsync(destroyCancellationToken),
                 targetView.PlayFusionDepartureAsync(destroyCancellationToken));
@@ -86,10 +93,16 @@ namespace Battle.UI
 
             // 11. 결과 카드 손패에 추가
             deckController.AddFusionCard(resultCard);
-            handLayoutController.AddCard(resultCard);
+            var fusionView = handLayoutController.AddCard(resultCard);
 
             // 12. 손패 입력 잠금 해제
             handLayoutController.SetAllCardsInteractable(true);
+            // 카드 레이아웃 트윈이 끝난 후 발행 — CardRect로 정확한 합성 카드 위치 전달
+            await UniTask.Delay(
+                TimeSpan.FromSeconds(handLayoutController.TweenDuration),
+                ignoreTimeScale: true,
+                cancellationToken: destroyCancellationToken);
+            battleEventChannel.RaiseEvent(new FusionCompletedEvent(fusionView.GetComponent<RectTransform>()));
         }
     }
 }

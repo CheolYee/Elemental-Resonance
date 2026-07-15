@@ -15,8 +15,9 @@ MonoBehaviour:
   cardId: "Enemy_ImpDevil_Superior_\uD751\uC694 \uBC29\uBCBD"
   cardName: "\uD751\uC694 \uBC29\uBCBD"
   cost: 0
-  artwork: {fileID: 0}
-  description: "\uC5B4\uB460\uC758 \uD798\uC73C\uB85C \uD751\uC694\uC11D \uBC29\uBCBD\uC744 \uB450\uB974\uBA70 \uBC29\uC5B4\uB3C4 18\uC744 \uC5BB\uB294\uB2E4."
+  artwork: {fileID: 21300000, guid: d55fbc5220e518b429dd41cf810d065d, type: 3}
+  description: "\uC5B4\uB460\uC758 \uD798\uC73C\uB85C \uD751\uC694\uC11D \uBC29\uBCBD\uC744
+    \uB450\uB974\uBA70 \uBC29\uC5B4\uB3C4 18\uC744 \uC5BB\uB294\uB2E4."
   targetType: 1
   disposePolicy: 0
   elementType: 6

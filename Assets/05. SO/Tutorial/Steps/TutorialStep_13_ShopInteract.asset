@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ef52fa69eaf767439acff8f72dabbab, type: 3}
+  m_Name: TutorialStep_13_ShopInteract
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Tutorial.TutorialStepSO
+  tooltipText: "\uC0C1\uC810\uC5D0 \uB3C4\uCC29\uD588\uC2B5\uB2C8\uB2E4!\nNPC\uB97C
+    \uD074\uB9AD\uD574 \uC0C1\uC810\uC744 \uC5F4\uC5B4\uBCF4\uC138\uC694."
+  targetId: ShopInteractable
+  targetIndex: 0
+  preferredAnchor: 0
+  anchorOffset: {x: -500, y: 0}
+  completionType: 1
+  completionEventTypeName: Battle.Events.ShopOpenedEvent
+  blockAllInput: 0

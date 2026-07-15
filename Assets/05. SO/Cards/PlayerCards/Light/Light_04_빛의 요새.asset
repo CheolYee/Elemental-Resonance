@@ -16,8 +16,8 @@ MonoBehaviour:
   cardName: "\uBE5B\uC758 \uC694\uC0C8"
   cost: 3
   artwork: {fileID: 21300000, guid: 9c44c84f5d6900c45929bbdaef4e8a70, type: 3}
-  description: "\uB118\uC744 \uC218 \uC5C6\uB294 \uBE5B\uC758 \uC694\uC0C8\uB97C
-    \uC138\uC6CC 35\uC758 \uBC29\uC5B4\uB3C4\uB97C \uC5BB\uB294\uB2E4."
+  description: "35\uC758 \uBC29\uC5B4\uB3C4\uB97C \uC5BB\uACE0, \uCF54\uC2A4\uD2B8\uB97C
+    3 \uD68C\uBCF5\uD55C\uB2E4"
   targetType: 2
   disposePolicy: 0
   elementType: 4
@@ -27,6 +27,9 @@ MonoBehaviour:
   - effectSlotId: 1d099a12-0c65-4692-b5af-6e34286a5ab4
     effect:
       rid: 3413310031493857482
+  - effectSlotId: 40a186d0-9774-40db-8816-c8a71e59e402
+    effect:
+      rid: 3413310103937613943
   presentationData: {fileID: 11400000, guid: 89666b90cc99ba94e9541c1f2ed097cd, type: 2}
   references:
     version: 2
@@ -36,3 +39,10 @@ MonoBehaviour:
       data:
         isRepeat: 1
         block: 35
+    - rid: 3413310103937613943
+      type: {class: CostGainEffect, ns: Battle.Effects, asm: Assembly-CSharp}
+      data:
+        isRepeat: 1
+        costGain: 3
+        condition: 0
+        conditionValue: 0

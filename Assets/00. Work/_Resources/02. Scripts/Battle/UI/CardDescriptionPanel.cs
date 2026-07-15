@@ -128,6 +128,7 @@ namespace Battle.UI
         {
             if (_fadeHandle.IsActive()) _fadeHandle.Cancel();
             _fadeHandle = LMotion.Create(canvasGroup.alpha, targetAlpha, fadeDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => canvasGroup.alpha = a);
         }
 
@@ -157,6 +158,7 @@ namespace Battle.UI
             {
                 await LMotion.Create(1f, 0f, scrollDuration)
                     .WithEase(scrollEase)
+                    .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                     .Bind(v => descriptionScrollRect.verticalNormalizedPosition = v)
                     .ToUniTask(cancellationToken: ct);
 

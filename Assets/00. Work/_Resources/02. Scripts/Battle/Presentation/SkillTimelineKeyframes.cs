@@ -53,6 +53,27 @@ namespace Battle.Presentation
     public class SkillSingleTrackData
     {
         public List<SkillKeyframeData> keyframes = new();
+
+        [NonSerialized] private Dictionary<int, List<SkillKeyframeData>> _cache;
+
+        public List<SkillKeyframeData> GetCached(SkillKeyframeProperty property)
+        {
+            _cache ??= new Dictionary<int, List<SkillKeyframeData>>();
+            var key = (int)property;
+            if (!_cache.TryGetValue(key, out var result))
+            {
+                result = new List<SkillKeyframeData>();
+                if (keyframes != null)
+                    foreach (var k in keyframes)
+                        if (k?.property == property) result.Add(k);
+                result.Sort(KeyframeTimeComparison);
+                _cache[key] = result;
+            }
+            return result;
+        }
+
+        private static readonly Comparison<SkillKeyframeData> KeyframeTimeComparison =
+            (a, b) => a.timeSeconds.CompareTo(b.timeSeconds);
     }
 
     // ── VFX 오브젝트 (Story의 StoryActorTrackData에 대응) ─────────────────────
@@ -70,6 +91,29 @@ namespace Battle.Presentation
         public Vector3             spawnPositionOffset;
         public Vector3             spawnRotationEuler;
         public List<SkillKeyframeData> keyframes        = new();    // VfxPosition / VfxRotation / VfxScale
+
+        [NonSerialized] private List<SkillKeyframeData> _cachedActiveKeys;
+        [NonSerialized] private List<SkillKeyframeData> _cachedPosKeys;
+        [NonSerialized] private List<SkillKeyframeData> _cachedRotKeys;
+        [NonSerialized] private List<SkillKeyframeData> _cachedScaleKeys;
+
+        private static readonly Comparison<SkillKeyframeData> KeyframeTimeComparison =
+            (a, b) => a.timeSeconds.CompareTo(b.timeSeconds);
+
+        private List<SkillKeyframeData> BuildFiltered(SkillKeyframeProperty prop)
+        {
+            var list = new List<SkillKeyframeData>();
+            if (keyframes != null)
+                foreach (var k in keyframes)
+                    if (k?.property == prop) list.Add(k);
+            list.Sort(KeyframeTimeComparison);
+            return list;
+        }
+
+        public List<SkillKeyframeData> GetActiveKeys() => _cachedActiveKeys ??= BuildFiltered(SkillKeyframeProperty.VfxActive);
+        public List<SkillKeyframeData> GetPosKeys()    => _cachedPosKeys    ??= BuildFiltered(SkillKeyframeProperty.VfxPosition);
+        public List<SkillKeyframeData> GetRotKeys()    => _cachedRotKeys    ??= BuildFiltered(SkillKeyframeProperty.VfxRotation);
+        public List<SkillKeyframeData> GetScaleKeys()  => _cachedScaleKeys  ??= BuildFiltered(SkillKeyframeProperty.VfxScale);
     }
 
     // ── 프로퍼티 enum ──────────────────────────────────────────────────────────

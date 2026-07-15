@@ -46,6 +46,7 @@ namespace _00._Work._Resources._02._Scripts.Agents
         private async UniTaskVoid DissolveAsync(Action onComplete)
         {
             await LMotion.Create(0f, 1f, dissolveDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(v =>
                 {
                     _mpb.SetFloat(DissolveAmountId, v);

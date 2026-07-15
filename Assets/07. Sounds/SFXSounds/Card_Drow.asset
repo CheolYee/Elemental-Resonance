@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: SoundSystem::Gamelib.SoundSystem.SoundClipSo
   soundIndex: 0
   soundName: Card_Drow
-  note: 
+  note: "\uCE74\uB4DC\uB4DC\uB85C\uC6B0"
   audioType: 0
   clip: {fileID: 8300000, guid: 95225fde2d9d7b84689d48996becdae0, type: 3}
   loop: 0

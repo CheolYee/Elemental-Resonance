@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bf377c58edc27f4fab76d5513e45d9a, type: 3}
+  m_Name: Element Icon Table SO
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.ElementIconTableSO
+  _entries:
+  - elementType: 0
+    icon: {fileID: 21300000, guid: ea471a35b3bf2984db264efa19cd56b9, type: 3}
+  - elementType: 1
+    icon: {fileID: 21300000, guid: 43a16124d1ae13a4a818219e358f6e7d, type: 3}
+  - elementType: 2
+    icon: {fileID: 21300000, guid: b3c26c1b2028e5f45b34330004999cdd, type: 3}
+  - elementType: 3
+    icon: {fileID: 21300000, guid: 34fd77cb098dcc34fbd69393e2780e8d, type: 3}
+  - elementType: 4
+    icon: {fileID: 21300000, guid: e134da38f088e134aa2f727f9b6567d4, type: 3}
+  - elementType: 5
+    icon: {fileID: 21300000, guid: 491792935bf304e47b9a0436efa0db7c, type: 3}
+  - elementType: 6
+    icon: {fileID: 21300000, guid: 519942eb5449f8244a9ae4e8ed498a00, type: 3}
+  - elementType: 7
+    icon: {fileID: 21300000, guid: 51cf5b4f79994cf4dab30dd5710e9454, type: 3}
+  - elementType: 8
+    icon: {fileID: 21300000, guid: 598fb84cfa831b94fbbdda45404017e8, type: 3}
+  - elementType: 9
+    icon: {fileID: 21300000, guid: 2e15663d9a4507e498d9e665aba8144b, type: 3}
+  - elementType: 10
+    icon: {fileID: 21300000, guid: 38f126c5121e4c44ca9c3a0fd61b526e, type: 3}
+  - elementType: 11
+    icon: {fileID: 21300000, guid: cdbe7980a7e29e34c9803c9d5ae105dd, type: 3}
+  - elementType: 12
+    icon: {fileID: 21300000, guid: cf45c605e8cfaf643a8d9db3b9a6db16, type: 3}

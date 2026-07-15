@@ -22,15 +22,13 @@ namespace Battle.Presentation
 
             try
             {
-                var tasks    = new List<UniTask>();
-                var posKeys  = FilterAndSort(casterTrack.keyframes, SkillKeyframeProperty.CasterPosition);
-                var rotKeys  = FilterAndSort(casterTrack.keyframes, SkillKeyframeProperty.CasterRotation);
+                var posKeys = casterTrack.GetCached(SkillKeyframeProperty.CasterPosition);
+                var rotKeys = casterTrack.GetCached(SkillKeyframeProperty.CasterRotation);
 
-                if (posKeys.Count > 0) tasks.Add(PlayPositionAsync(t, posKeys, basePosition, context, token));
-                if (rotKeys.Count > 0) tasks.Add(PlayRotationAsync(t, rotKeys, baseEuler, context, token));
-
-                if (tasks.Count > 0)
-                    await UniTask.WhenAll(tasks);
+                if (posKeys.Count > 0 || rotKeys.Count > 0)
+                    await UniTask.WhenAll(
+                        posKeys.Count > 0 ? PlayPositionAsync(t, posKeys, basePosition, context, token) : UniTask.CompletedTask,
+                        rotKeys.Count > 0 ? PlayRotationAsync(t, rotKeys, baseEuler, context, token)    : UniTask.CompletedTask);
 
                 float elapsed = 0f;
                 foreach (var k in casterTrack.keyframes)
@@ -131,13 +129,5 @@ namespace Battle.Presentation
             catch (OperationCanceledException) { }
         }
 
-        private static List<SkillKeyframeData> FilterAndSort(List<SkillKeyframeData> keys, SkillKeyframeProperty property)
-        {
-            var result = new List<SkillKeyframeData>();
-            foreach (var k in keys)
-                if (k != null && k.property == property) result.Add(k);
-            result.Sort((a, b) => a.timeSeconds.CompareTo(b.timeSeconds));
-            return result;
-        }
     }
 }

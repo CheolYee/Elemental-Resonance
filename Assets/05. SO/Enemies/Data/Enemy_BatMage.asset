@@ -15,7 +15,7 @@ MonoBehaviour:
   enemyId: Enemy_BatMage
   enemyName: "\uC5B4\uB460 \uB9C8\uBC95\uC0AC"
   enemyPrefab: {fileID: 1308748609954290718, guid: 8bc70d0752c74d24ab7be75ab9e4f3f3, type: 3}
-  maxHp: 130
+  maxHp: 90
   hpStatSO: {fileID: 11400000, guid: 817ec46370e71f448b0fd9dfaa094d2a, type: 2}
   attackCards:
   - {fileID: 11400000, guid: 2734897ca8c7d204b8391cc98889c847, type: 2}

@@ -8,6 +8,7 @@ using Battle.Services;
 using Battle.UI;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using Reflex.Attributes;
 using TMPro;
@@ -42,6 +43,12 @@ namespace Battle.Map.UI
         [SerializeField] private TextMeshProUGUI           _removeCardCostText;
         [SerializeField] private CardRemovePopupController _cardRemovePopup;
 
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO _soundChannel;
+        [SerializeField] private SfxSounds      _purchaseSound;
+        [SerializeField] private SfxSounds      _closeSound;
+        [SerializeField] private SfxSounds      _exitSound;
+
         [Header("Slide Animation")]
         [SerializeField] private float _slideDuration = 0.3f;
         [SerializeField] private float _slideOffsetX = 1200f;
@@ -59,8 +66,16 @@ namespace Battle.Map.UI
 
         private void Awake()
         {
-            _exitButton.onClick.AddListener(() => OnExited?.Invoke());
-            _closeButton?.onClick.AddListener(() => CloseInteractAsync().Forget());
+            _exitButton.onClick.AddListener(() =>
+            {
+                _soundChannel?.RaiseEvent(new PlaySoundEvent(_exitSound, Vector3.zero));
+                OnExited?.Invoke();
+            });
+            _closeButton?.onClick.AddListener(() =>
+            {
+                _soundChannel?.RaiseEvent(new PlaySoundEvent(_closeSound, Vector3.zero));
+                CloseInteractAsync().Forget();
+            });
             if (_interactable != null)
                 _interactable.OnClicked += () => OpenInteractAsync().Forget();
 
@@ -154,6 +169,7 @@ namespace Battle.Map.UI
             _deckController?.RefreshCurrentDeckCount();
             _battleEventChannel?.RaiseEvent(new GoldChangedEvent(oldGold, _playerRunState.Gold));
             slot.SetPurchased();
+            _soundChannel?.RaiseEvent(new PlaySoundEvent(_purchaseSound, Vector3.zero));
             _cardFlyAnimator?.FlyToCurrentDeck(cardScreenPos);
         }
 
@@ -174,11 +190,13 @@ namespace Battle.Map.UI
 
             await LMotion.Create(_slideOffsetX, 0f, _slideDuration)
                 .WithEase(_slideInEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(x => _panelRect.anchoredPosition = new Vector2(x, _panelRect.anchoredPosition.y))
                 .ToUniTask(ct);
 
             _panelGroup.interactable = true;
             _panelGroup.blocksRaycasts = true;
+            _battleEventChannel?.RaiseEvent(new ShopOpenedEvent());
         }
 
         // 닫기 버튼 — UI 슬라이드 아웃 + Interact 카메라 비활성화 → Area 카메라 복귀
@@ -194,12 +212,14 @@ namespace Battle.Map.UI
 
             await LMotion.Create(0f, _slideOffsetX, _slideDuration)
                 .WithEase(_slideOutEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(x => _panelRect.anchoredPosition = new Vector2(x, _panelRect.anchoredPosition.y))
                 .ToUniTask(ct);
 
             SetPanelHidden();
             SetInteractCamera(false);
             _interactable?.SetInteractable(true);
+            _battleEventChannel?.RaiseEvent(new ShopClosedEvent());
         }
 
         // 나가기 버튼 처리 후 MapFlowController가 호출 — 모든 카메라 비활성화

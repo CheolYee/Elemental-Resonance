@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ef52fa69eaf767439acff8f72dabbab, type: 3}
+  m_Name: TutorialStep_11b_Reward
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Tutorial.TutorialStepSO
+  tooltipText: "\uC804\uD22C \uC2B9\uB9AC!\n\uBCF4\uC0C1\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+  targetId: RewardPanel
+  targetIndex: 0
+  preferredAnchor: 0
+  anchorOffset: {x: 0, y: 16}
+  completionType: 0
+  completionEventTypeName: 
+  blockAllInput: 1

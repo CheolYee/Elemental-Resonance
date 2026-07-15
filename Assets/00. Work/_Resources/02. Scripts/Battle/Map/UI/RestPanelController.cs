@@ -5,6 +5,7 @@ using Battle.Events;
 using Battle.Map.Data;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using LitMotion;
 using TMPro;
 using Unity.Cinemachine;
@@ -34,6 +35,12 @@ namespace Battle.Map.UI
         [SerializeField] private TextMeshProUGUI   _hpText;
         [SerializeField] private TextMeshProUGUI   _healAmountText;
 
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO _soundChannel;
+        [SerializeField] private SfxSounds      _healSound;
+        [SerializeField] private SfxSounds      _closeSound;
+        [SerializeField] private SfxSounds      _exitSound;
+
         [Header("Heal Feedback")]
         [SerializeField] private Color _healColor     = new Color(0.2f, 1f, 0.4f);
         [SerializeField] private float _colorDuration = 0.5f;
@@ -59,8 +66,16 @@ namespace Battle.Map.UI
 
         private void Awake()
         {
-            _exitButton.onClick.AddListener(() => OnExited?.Invoke());
-            _closeButton?.onClick.AddListener(() => CloseInteractAsync().Forget());
+            _exitButton.onClick.AddListener(() =>
+            {
+                _soundChannel?.RaiseEvent(new PlaySoundEvent(_exitSound, Vector3.zero));
+                OnExited?.Invoke();
+            });
+            _closeButton?.onClick.AddListener(() =>
+            {
+                _soundChannel?.RaiseEvent(new PlaySoundEvent(_closeSound, Vector3.zero));
+                CloseInteractAsync().Forget();
+            });
             if (_interactable != null)
                 _interactable.OnClicked += () => OpenInteractAsync().Forget();
 
@@ -118,11 +133,13 @@ namespace Battle.Map.UI
 
             await LMotion.Create(_slideOffsetX, 0f, _slideDuration)
                 .WithEase(_slideInEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(x => _panelRect.anchoredPosition = new Vector2(x, _panelRect.anchoredPosition.y))
                 .ToUniTask(ct);
 
             _panelGroup.interactable = true;
             _panelGroup.blocksRaycasts = true;
+            _battleEventChannel?.RaiseEvent(new RestOpenedEvent());
         }
 
         public async UniTask CloseInteractAsync()
@@ -137,12 +154,14 @@ namespace Battle.Map.UI
 
             await LMotion.Create(0f, _slideOffsetX, _slideDuration)
                 .WithEase(_slideOutEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(x => _panelRect.anchoredPosition = new Vector2(x, _panelRect.anchoredPosition.y))
                 .ToUniTask(ct);
 
             SetPanelHidden();
             SetInteractCamera(false);
             _interactable?.SetInteractable(true);
+            _battleEventChannel?.RaiseEvent(new RestPanelClosedEvent());
         }
 
         public async UniTask ExitAsync()
@@ -179,6 +198,8 @@ namespace Battle.Map.UI
             int newHp = _playerRunState.CurrentHp;
 
             _healed = true;
+            _soundChannel?.RaiseEvent(new PlaySoundEvent(_healSound, Vector3.zero));
+            _battleEventChannel?.RaiseEvent(new RestHealedEvent());
             _battleEventChannel?.RaiseEvent(
                 new PlayerHpChangedEvent(oldHp, newHp, _playerRunState.MaxHp, isHeal: true));
 
@@ -194,12 +215,14 @@ namespace Battle.Map.UI
             _hpText.color = _healColor;
             _hpColorMotion = LMotion.Create(0f, 1f, _colorDuration)
                 .WithEase(Ease.OutCubic)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(t => { if (_hpText != null) _hpText.color = Color.Lerp(_healColor, _hpTextDefaultColor, t); });
 
             if (_hpScaleMotion.IsActive()) _hpScaleMotion.Cancel();
             _hpText.transform.localScale = _hpTextBaseScale * _popScale;
             _hpScaleMotion = LMotion.Create(_popScale, 1f, _popDuration)
                 .WithEase(Ease.OutBack)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => { if (_hpText != null) _hpText.transform.localScale = _hpTextBaseScale * s; });
         }
 

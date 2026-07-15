@@ -73,7 +73,7 @@ namespace Battle.UI
         private void UpdateDisplay(int currentHp, int maxHp)
         {
             if (hpText != null)
-                hpText.text = $"{currentHp}/{maxHp}";
+                hpText.text = maxHp > 0 ? $"{currentHp}/{maxHp}" : "--/--";
         }
 
         private void PlayHealFeedback()
@@ -85,6 +85,7 @@ namespace Battle.UI
             hpText.color = _healColor;
             _colorMotion = LMotion.Create(0f, 1f, _colorDuration)
                 .WithEase(Ease.OutCubic)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(t => { if (hpText != null) hpText.color = Color.Lerp(_healColor, _defaultColor, t); });
 
             // Scale Pop
@@ -92,6 +93,7 @@ namespace Battle.UI
             hpText.transform.localScale = _baseScale;
             _scaleMotion = LMotion.Create(_popScale, 1f, _popDuration)
                 .WithEase(Ease.OutBack)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => { if (hpText != null) hpText.transform.localScale = _baseScale * s; });
         }
     }

@@ -17,6 +17,8 @@ namespace Battle.UI
         [SerializeField] private Image artworkImage;
         [SerializeField] private Image frameImage;
         [SerializeField] private Image labelImage;
+        [SerializeField] private Image costImage;
+        [SerializeField] private ElementIconTableSO elementIconTable;
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text typeText;
         [SerializeField] private TMP_Text costText;
@@ -41,6 +43,7 @@ namespace Battle.UI
             if (typeText != null) typeText.text = CardColorUtility.GetTypeName(data.cardType);
             CardColorUtility.Apply(frameImage, labelImage, data);
             CardColorUtility.ApplyTextEffects(nameTextEffect, typeTextEffect, data.grade);
+            CardColorUtility.ApplyCostImage(costImage, elementIconTable, data.elementType);
         }
 
         public void Setup(CardInstance instance) => Setup(instance.data);
@@ -62,6 +65,7 @@ namespace Battle.UI
         {
             if (_scaleHandle.IsActive()) _scaleHandle.Cancel();
             _scaleHandle = LMotion.Create(transform.localScale.x, target, hoverDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => transform.localScale = new Vector3(s, s, 1f));
         }
 

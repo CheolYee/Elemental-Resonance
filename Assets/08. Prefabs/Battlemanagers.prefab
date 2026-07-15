@@ -199,6 +199,8 @@ MonoBehaviour:
   _playerRunState: {fileID: 11400000, guid: 9f5667ffd8dfe0c42b02bbab5cfd86bc, type: 2}
   _mapFlowController: {fileID: 0}
   _cardDatabase: {fileID: 11400000, guid: 6174599cd5099a74fadecc28972fc5b5, type: 2}
+  _deckProvider: {fileID: 11400000, guid: 6e5bf98af7e322d42b56260190a945d0, type: 2}
+  _battleEventChannel: {fileID: 11400000, guid: 72ffd12aa653949498d9dbf2c356a2ef, type: 2}
   _titleSceneName: Title
 --- !u!1 &2573287165311898920
 GameObject:
@@ -310,6 +312,9 @@ MonoBehaviour:
   maxRefillAnimCards: 20
   refillStagger: 0.05
   trailLingerDuration: 0.2
+  soundChannel: {fileID: 11400000, guid: 003782f36feea424397b144ea235cde9, type: 2}
+  cardUseSound: 78
+  arrivalSound: 79
 --- !u!1 &2663413174020440819
 GameObject:
   m_ObjectHideFlags: 0
@@ -546,6 +551,8 @@ Transform:
   - {fileID: 4596000458540135403}
   - {fileID: 6687732103079193656}
   - {fileID: 7762375335502561655}
+  - {fileID: 8393895268407832901}
+  - {fileID: 3239966397835508042}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4844010390962326273
@@ -597,6 +604,52 @@ MonoBehaviour:
   targetingCamera: {fileID: 0}
   mainCamera: {fileID: 0}
   characterOverlayCamera: {fileID: 0}
+--- !u!1 &5461756151275993991
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8393895268407832901}
+  - component: {fileID: 3481847847762876325}
+  m_Layer: 0
+  m_Name: FusionHintController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8393895268407832901
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5461756151275993991}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6965182571171736944}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3481847847762876325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5461756151275993991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f456b75940c9ac499d09e7f665d45e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.FusionHintController
+  battleEventChannel: {fileID: 11400000, guid: 72ffd12aa653949498d9dbf2c356a2ef, type: 2}
+  handLayoutController: {fileID: 0}
 --- !u!1 &5905003707460046568
 GameObject:
   m_ObjectHideFlags: 0
@@ -643,6 +696,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.BattleSlowMotionController
   battleEventChannel: {fileID: 11400000, guid: 72ffd12aa653949498d9dbf2c356a2ef, type: 2}
   slowMotionTimeScale: 0.1
+  _speedLabel: {fileID: 0}
+  _buttonRect: {fileID: 0}
+  _soundChannel: {fileID: 11400000, guid: 003782f36feea424397b144ea235cde9, type: 2}
+  _clickSound: 44
+  _popScale: 1.2
+  _popDuration: 0.12
+  _popEase: 26
 --- !u!1 &7598102842195187408
 GameObject:
   m_ObjectHideFlags: 0
@@ -736,6 +796,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8805456968290498229}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8116278193522006615
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3239966397835508042}
+  - component: {fileID: 3885209982366424940}
+  m_Layer: 0
+  m_Name: TutorialBootstrapper
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3239966397835508042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8116278193522006615}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6965182571171736944}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3885209982366424940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8116278193522006615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3ffccdb00a659468720cc234220fec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Tutorial.TutorialBootstrapper
+  _mapFlowController: {fileID: 0}
+  _tutorialController: {fileID: 0}
+  _tutorialMapGraph: {fileID: 11400000, guid: be62375656f80a444aa895d28e8b0633, type: 2}
+  _deckProvider: {fileID: 11400000, guid: 502a437297ed84f4da93dfda6154e345, type: 2}
+  _tutorialDeckCards:
+  - {fileID: 11400000, guid: a277b9801e3f0d143bcdc540c546ce15, type: 2}
+  - {fileID: 11400000, guid: a277b9801e3f0d143bcdc540c546ce15, type: 2}
+  - {fileID: 11400000, guid: e12aacff599314640955129976ae620c, type: 2}
+  - {fileID: 11400000, guid: e12aacff599314640955129976ae620c, type: 2}
+  - {fileID: 11400000, guid: e07c2aa1b3b89a244b0567ea84ff242f, type: 2}
+  - {fileID: 11400000, guid: e07c2aa1b3b89a244b0567ea84ff242f, type: 2}
+  - {fileID: 11400000, guid: e3d89934ceb3d4b41a6619b379abb863, type: 2}
+  - {fileID: 11400000, guid: e3d89934ceb3d4b41a6619b379abb863, type: 2}
+  - {fileID: 11400000, guid: 875f5abb6d4f92845a9f3f0b0c83ff58, type: 2}
+  - {fileID: 11400000, guid: 875f5abb6d4f92845a9f3f0b0c83ff58, type: 2}
+  - {fileID: 11400000, guid: 332ad2c1245de994b812cfadc4404197, type: 2}
+  - {fileID: 11400000, guid: 332ad2c1245de994b812cfadc4404197, type: 2}
 --- !u!1 &8123877025203203195
 GameObject:
   m_ObjectHideFlags: 0
@@ -837,6 +958,13 @@ MonoBehaviour:
   playerTurnSubFormat: "{0}\uD134"
   victoryText: "\uD074\uB9AC\uC5B4"
   defeatText: "\uD328\uBC30"
+  soundChannel: {fileID: 11400000, guid: 003782f36feea424397b144ea235cde9, type: 2}
+  stageStartSound: 77
+  waveStartSound: 76
+  playerTurnSound: 76
+  enemyTurnSound: 76
+  victorySound: 77
+  defeatSound: 77
   stageStartHold: 1.5
   waveHold: 1.2
   enemyTurnHold: 0.2
@@ -948,6 +1076,8 @@ MonoBehaviour:
   deckController: {fileID: 2819538499220311902}
   cardFlyAnimator: {fileID: 5354479860462342765}
   fusionPanel: {fileID: 0}
+  soundChannel: {fileID: 0}
+  fusionSound: 0
 --- !u!1 &8367069497931782460
 GameObject:
   m_ObjectHideFlags: 0
@@ -993,6 +1123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Battle.UI.HandDealController
   battleEventChannel: {fileID: 11400000, guid: 72ffd12aa653949498d9dbf2c356a2ef, type: 2}
+  soundChannel: {fileID: 11400000, guid: 003782f36feea424397b144ea235cde9, type: 2}
   deckController: {fileID: 2819538499220311902}
   handLayoutController: {fileID: 0}
   cardFlyAnimator: {fileID: 5354479860462342765}

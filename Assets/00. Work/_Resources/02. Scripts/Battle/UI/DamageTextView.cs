@@ -72,11 +72,13 @@ namespace Battle.UI
 
             var riseTask = LMotion.Create(startPos, endPos, riseDuration)
                 .WithEase(Ease.OutCubic)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(p => _rect.position = p)
                 .ToUniTask(cancellationToken: ct);
 
             var fadeTask = LMotion.Create(1f, 0f, fadeDuration)
                 .WithDelay(fadeDelay)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => label.alpha = a)
                 .ToUniTask(cancellationToken: ct);
 

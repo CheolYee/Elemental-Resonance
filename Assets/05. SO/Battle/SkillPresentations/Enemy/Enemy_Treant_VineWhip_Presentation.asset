@@ -207,7 +207,7 @@ MonoBehaviour:
         amplitude: 1
         shakeDuration: 0.2
         uiAction: 0
-        sfxSound: 0
+        sfxSound: 85
     addedObjects: 0100000002000000040000000800000007000000
     endMarkerKeyframe:
       property: 12

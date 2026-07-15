@@ -24,8 +24,11 @@ namespace Battle.UI
         private bool _isDragging;
         private bool _isTargeting;
 
-        public bool IsDragging => _isDragging;
+        public bool IsDragging  => _isDragging;
+        public bool IsTargeting => _isTargeting;
         public int HandCardCount => _handLayoutController?.HandCards.Count ?? 0;
+
+        public void ForceReturnToHand() => ReturnToHand();
 
         public void SetHandAreaRect(RectTransform rect) => handAreaRect = rect;
         public void SetBlockedAreas(List<RectTransform> areas) => _blockedDropAreas = areas;

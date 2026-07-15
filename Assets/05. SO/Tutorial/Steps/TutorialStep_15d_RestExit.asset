@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ef52fa69eaf767439acff8f72dabbab, type: 3}
+  m_Name: TutorialStep_15d_RestExit
+  m_EditorClassIdentifier: Assembly-CSharp::Battle.Tutorial.TutorialStepSO
+  tooltipText: "\uB098\uAC00\uAE30 \uBC84\uD2BC\uC744 \uB20C\uB7EC \uB2E4\uC74C \uC5EC\uC815\uC73C\uB85C
+    \uC774\uB3D9\uD558\uC138\uC694."
+  targetId: RestExitButton
+  targetIndex: 0
+  preferredAnchor: 0
+  anchorOffset: {x: -16, y: 16}
+  completionType: 0
+  completionEventTypeName: 
+  blockAllInput: 1

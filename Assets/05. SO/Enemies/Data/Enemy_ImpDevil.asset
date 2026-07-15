@@ -18,5 +18,5 @@ MonoBehaviour:
   maxHp: 40
   hpStatSO: {fileID: 11400000, guid: 817ec46370e71f448b0fd9dfaa094d2a, type: 2}
   attackCards:
-  - {fileID: 11400000, guid: 9b9a27279cc328d4d9df12b5c7a48f7c, type: 2}
-  - {fileID: 11400000, guid: 43ced2c4aee942740ae036f28bb9a953, type: 2}
+  - {fileID: 11400000, guid: 12fbdfb374d64748bbc38d24fa6bd90c, type: 2}
+  - {fileID: 11400000, guid: 4919e2b3c1b24c34ba113946e5ccf69d, type: 2}

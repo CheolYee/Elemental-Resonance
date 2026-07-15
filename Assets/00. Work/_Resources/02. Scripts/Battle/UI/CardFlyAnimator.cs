@@ -6,6 +6,7 @@ using Battle.Events;
 using Cysharp.Threading.Tasks;
 using Gamelib.EventSystem;
 using Gamelib.ObjectPool.Runtime;
+using Gamelib.SoundSystem;
 using LitMotion;
 using UnityEngine;
 using DelayType = Cysharp.Threading.Tasks.DelayType;
@@ -46,6 +47,11 @@ namespace Battle.UI
         [Header("Arrival")]
         [SerializeField] private float trailLingerDuration = 0.2f;
 
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO soundChannel;
+        [SerializeField] private SfxSounds      cardUseSound;
+        [SerializeField] private SfxSounds      arrivalSound;
+
         private Pool _pool;
 
         private void Awake()
@@ -68,6 +74,7 @@ namespace Battle.UI
         // C-8: 카드 사용 → 버림패/무덤패 (shrink 연출 후 fly 시작)
         private void OnCardDropped(CardDroppedOnTargetEvent evt)
         {
+            soundChannel?.RaiseEvent(new PlaySoundEvent(cardUseSound, Vector3.zero));
             var target = evt.CardInstance.data.disposePolicy == CardDisposePolicy.Grave
                 ? PileDisplayTarget.Grave
                 : PileDisplayTarget.Discard;
@@ -171,6 +178,7 @@ namespace Battle.UI
                 .ToUniTask(cancellationToken: destroyCancellationToken);
 
             battleEventChannel.RaiseEvent(new CardArrivedAtPileEvent(toTarget, card.transform.position));
+            soundChannel?.RaiseEvent(new PlaySoundEvent(arrivalSound, Vector3.zero));
             card.PlayArrivalEffect();
 
             // 카드/지속 파티클은 즉시 사라지지만, 트레일은 잔광으로 잠시 남겨둔 뒤 풀에 반환한다.

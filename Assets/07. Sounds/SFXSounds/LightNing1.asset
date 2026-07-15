@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52e7f627fdca4338950d31708d2c06ad, type: 3}
+  m_Name: LightNing1
+  m_EditorClassIdentifier: SoundSystem::Gamelib.SoundSystem.SoundClipSo
+  soundIndex: 64
+  soundName: LightNing1
+  note: "\uBC88\uAC1C\uB9C8\uBC951"
+  audioType: 0
+  clip: {fileID: 8300000, guid: e9d60debc376c0943b7bc43d3077d34c, type: 3}
+  loop: 0
+  randomizePitch: 0
+  randomPitchModifier: 0.1
+  volume: 1
+  pitch: 1

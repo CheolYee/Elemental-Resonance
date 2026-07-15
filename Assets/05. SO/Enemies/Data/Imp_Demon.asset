@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Battle.Data.EnemyDataSO
   enemyId: Imp_Demon
   enemyName: "\uC0C1\uAE09 \uC545\uB9C8"
-  enemyPrefab: {fileID: 1308748609954290718, guid: d993a7781fa3ca04fb4c432d12cc56f8, type: 3}
+  enemyPrefab: {fileID: 1308748609954290718, guid: 5a665bcc02ffe7747b1e7e3c96f2ef1a, type: 3}
   maxHp: 160
   hpStatSO: {fileID: 11400000, guid: 817ec46370e71f448b0fd9dfaa094d2a, type: 2}
   attackCards:

@@ -139,6 +139,7 @@ namespace Battle.UI
             if (_slideHandle.IsActive()) _slideHandle.Cancel();
             _slideHandle = LMotion.Create(slideTarget.anchoredPosition, _slideInPos + slideOutOffset, slideDuration)
                 .WithEase(slideEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(p => slideTarget.anchoredPosition = p);
         }
 
@@ -148,6 +149,7 @@ namespace Battle.UI
             if (_slideHandle.IsActive()) _slideHandle.Cancel();
             _slideHandle = LMotion.Create(slideTarget.anchoredPosition, _slideInPos, slideDuration)
                 .WithEase(slideEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(p => slideTarget.anchoredPosition = p);
         }
 
@@ -356,6 +358,7 @@ namespace Battle.UI
             int count = _handCards.Count;
             for (int i = 0; i < count; i++)
             {
+                _handCards[i].transform.SetSiblingIndex(i);
                 float t = i - (count - 1) / 2f;
                 var targetPos = new Vector2(t * cardSpacing, -t * t * heightOffset);
                 float targetRotZ = -t * rotationPerCard;
@@ -435,6 +438,7 @@ namespace Battle.UI
 
             for (int i = 0; i < count; i++)
             {
+                _handCards[i].transform.SetSiblingIndex(i);
                 float t = i - (count - 1) / 2f;
                 var targetPos = new Vector2(t * effectiveSpacing, -t * t * effectiveHeightOffset);
                 float targetRotZ = -t * rotationPerCard;

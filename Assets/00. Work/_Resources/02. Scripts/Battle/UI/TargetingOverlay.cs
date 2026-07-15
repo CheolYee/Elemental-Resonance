@@ -37,6 +37,7 @@ namespace Battle.UI
             if (_fadeHandle.IsActive()) _fadeHandle.Cancel();
             _fadeHandle = LMotion.Create(overlayCanvasGroup.alpha, target, fadeDuration)
                 .WithEase(fadeEase)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => overlayCanvasGroup.alpha = a);
         }
     }

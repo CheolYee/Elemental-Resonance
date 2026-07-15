@@ -50,12 +50,14 @@ namespace Battle.UI
             canvasGroup.alpha = 1f;
             LMotion.Create(Vector3.one * 0.8f, Vector3.one, popDuration)
                 .WithEase(Ease.OutBack)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(s => transform.localScale = s);
         }
 
         private void FadeOut()
         {
             LMotion.Create(canvasGroup.alpha, 0f, fadeDuration)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => canvasGroup.alpha = a);
         }
     }

@@ -1,5 +1,6 @@
 using Battle.Events;
 using Gamelib.EventSystem;
+using Gamelib.SoundSystem;
 using UnityEngine;
 
 namespace Battle.UI
@@ -17,6 +18,15 @@ namespace Battle.UI
         [SerializeField] private string playerTurnSubFormat = "TURN {0}";
         [SerializeField] private string victoryText = "STAGE CLEAR";
         [SerializeField] private string defeatText = "STAGE FAILED";
+
+        [Header("Sound")]
+        [SerializeField] private EventChannelSO soundChannel;
+        [SerializeField] private SfxSounds stageStartSound;
+        [SerializeField] private SfxSounds waveStartSound;
+        [SerializeField] private SfxSounds playerTurnSound;
+        [SerializeField] private SfxSounds enemyTurnSound;
+        [SerializeField] private SfxSounds victorySound;
+        [SerializeField] private SfxSounds defeatSound;
 
         [Header("Hold Durations")]
         [SerializeField] private float stageStartHold = 1.5f;
@@ -73,7 +83,8 @@ namespace Battle.UI
                     PrimaryShow = seqScalePop,
                     PrimaryHide = seqFadeOut,
                     HoldDuration = stageStartHold,
-                    BackgroundSequence = seqStageStartBackground
+                    BackgroundSequence = seqStageStartBackground,
+                    OnShow = () => PlaySfx(stageStartSound)
                 });
             }
 
@@ -82,7 +93,8 @@ namespace Battle.UI
                 PrimaryText = string.Format(waveTextFormat, evt.WaveIndex + 1),
                 PrimaryShow = seqFadeIn,
                 PrimaryHide = seqFadeOut,
-                HoldDuration = waveHold
+                HoldDuration = waveHold,
+                OnShow = () => PlaySfx(waveStartSound)
             });
         }
 
@@ -94,7 +106,8 @@ namespace Battle.UI
                 PrimaryText = enemyTurnText,
                 PrimaryShow = seqFadeIn,
                 PrimaryHide = seqFadeOut,
-                HoldDuration = enemyTurnHold
+                HoldDuration = enemyTurnHold,
+                OnShow = () => PlaySfx(enemyTurnSound)
             });
         }
 
@@ -110,7 +123,8 @@ namespace Battle.UI
                 PrimaryHide = seqSplitUp,
                 SecondaryShow = seqFadeIn,
                 SecondaryHide = seqSplitDown,
-                HoldDuration = playerTurnHold
+                HoldDuration = playerTurnHold,
+                OnShow = () => PlaySfx(playerTurnSound)
             });
         }
 
@@ -124,7 +138,8 @@ namespace Battle.UI
                 PrimaryHide = seqFadeOut,
                 HoldDuration = victoryHold,
                 BackgroundSequence = seqVictoryBackground,
-                OnComplete = () => battleEventChannel.RaiseEvent(new BattleResultShownEvent())
+                OnShow = () => PlaySfx(victorySound),
+                OnComplete = () => battleEventChannel.RaiseEvent(new BattleResultShownEvent(isVictory: true))
             });
         }
 
@@ -138,8 +153,14 @@ namespace Battle.UI
                 PrimaryHide = seqFadeOut,
                 HoldDuration = defeatHold,
                 BackgroundSequence = seqDefeatBackground,
-                OnComplete = () => battleEventChannel.RaiseEvent(new BattleResultShownEvent())
+                OnShow = () => PlaySfx(defeatSound),
+                OnComplete = () => battleEventChannel.RaiseEvent(new BattleResultShownEvent(isVictory: false))
             });
+        }
+
+        private void PlaySfx(SfxSounds sound)
+        {
+            soundChannel?.RaiseEvent(new PlaySoundEvent(sound, Vector3.zero));
         }
     }
 }

@@ -36,6 +36,7 @@ namespace Battle.Map.UI
         {
             await LMotion.Create(0f, 1f, _fadeInDuration)
                 .WithEase(Ease.OutCubic)
+                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
                 .Bind(a => _canvasGroup.alpha = a)
                 .ToUniTask(destroyCancellationToken);
 
